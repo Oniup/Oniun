@@ -2,10 +2,9 @@
 #include "Oniun/Core/Format.h"
 #include "Oniun/Core/Containers/Array.h"
 #include "Oniun/Core/Containers/HashMap.h"
+#include "Oniun/Core/Types/DateTime.h"
 #include "Oniun/Core/Types/String.h"
-#include "Oniun/Serialization/TypeInfo.h"
 
-#include <cstdarg>
 #include <cwchar>
 
 namespace Test
@@ -17,6 +16,8 @@ namespace Test
 
 int main()
 {
+    std::wprintf(TEXT("%s\n"), *Onu::ToString(Onu::DateTime::GetCurrentTime()));
+
     Test::HeapArray();
     Test::HashMap();
     Test::String();

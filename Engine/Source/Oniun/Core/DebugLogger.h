@@ -7,7 +7,5 @@ namespace Onu
     public:
         DebugLogger();
         ~DebugLogger();
-        
-    private:
     };
 }
