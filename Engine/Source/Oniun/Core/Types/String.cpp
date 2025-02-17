@@ -1,5 +1,8 @@
 #include "Oniun/Core/Types/String.h"
 
+#include <cstdarg>
+#include <cwchar>
+
 namespace Onu
 {
     const String String::Empty = String();
@@ -15,7 +18,7 @@ namespace Onu
                 isNegative = true;
                 continue;
             }
-            
+
             uint64 num = ch - static_cast<uint64>('0');
             if (num < 0 || num > 9)
                 return false;
@@ -34,7 +37,7 @@ namespace Onu
         double fractionDivisor = 1.0;
         bool inFraction = false;
         bool isNegative = false;
-        
+
         for (Char ch : str)
         {
             if (ch == L'-')
@@ -49,11 +52,11 @@ namespace Onu
                 inFraction = true;
                 continue;
             }
-            
+
             uint64 num = ch - static_cast<uint64>('0');
             if (num < 0 || num > 9)
                 return false;
-            
+
             if (inFraction)
             {
                 fraction = 10 * fraction + num;
@@ -62,7 +65,7 @@ namespace Onu
             else
                 sum = 10 * sum + num;
         }
-        
+
         if (inFraction)
             sum += fraction / fractionDivisor;
         if (isNegative)
@@ -198,7 +201,7 @@ namespace Onu
             Free();
             m_Data.Move(std::move(text.m_Data));
             m_Length = text.m_Length;
-            
+
             text.m_Length = 0;
         }
         return *this;
@@ -364,17 +367,17 @@ namespace Onu
     {
         return String(lhs) + rhs;
     }
-    
+
     String operator+(const StringView& lhs, const String& rhs)
     {
         return String(lhs) + rhs;
     }
-    
+
     String operator/(const Char* lhs, const String& rhs)
     {
         return String(lhs) / rhs;
     }
-    
+
     String operator/(const StringView& lhs, const String& rhs)
     {
         return String(lhs) / rhs;
@@ -441,7 +444,7 @@ namespace Onu
             m_Data[m_Length] = 0;
         }
     }
-    
+
     void String::Concat(const Char& left, const String& text)
     {
         Concat(left, StringView(text));
@@ -458,7 +461,7 @@ namespace Onu
         uint64 oldLength = m_Length;
         if (length == NoPos)
             length = UStringUtils::Length(text);
-        
+
         Resize(m_Length + length);
         Crt::Move(m_Data.Ptr() + index + length, m_Data.Ptr() + index, sizeof(Char) * (oldLength - index));
         Crt::Copy(m_Data.Ptr() + index, text, sizeof(Char) * length);
@@ -512,42 +515,19 @@ namespace Onu
         return *this;
     }
 
-    uint64 String::Find(const StringView& text) const
+    uint64 String::Find(const StringView& find) const
     {
-        for (uint64 i = 0; i <= m_Length - text.Length(); ++i)
-        {
-            bool found = true;
-            for (uint64 j = 0; j < text.Length(); ++j)
-            {
-                if (m_Data[i + j] != text[j])
-                {
-                    found = false;
-                    break;
-                }
-            }
-            if (found)
-                return i;
-        }
-        return NoPos;
+        return StringView(*this).Find(find);
     }
 
-    uint64 String::FindLast(const StringView& text) const
+    uint64 String::FindLast(const StringView& find) const
     {
-        for (uint64 i = m_Length - text.Length(); i > 0; --i)
-        {
-            bool found = true;
-            for (uint64 j = 0; j < text.Length(); ++j)
-            {
-                if (m_Data[i + j] != text[j])
-                {
-                    found = false;
-                    break;
-                }
-            }
-            if (found)
-                return i;
-        }
-        return NoPos;
+        return StringView(*this).FindLast(find);
+    }
+
+    bool String::FindAll(const StringView& find, Array<uint64>& indices) const
+    {
+        return StringView(*this).FindAll(find, indices);
     }
 
     bool String::BeginsWith(const StringView& text) const
@@ -581,7 +561,7 @@ namespace Onu
         {
             Slice lhs(m_Data.Ptr(), index);
             Slice rhs(begin() + index + length, end());
-            
+
             result.Append(lhs);
             result.Append(replace);
             result.Append(rhs);
@@ -621,9 +601,38 @@ namespace Onu
     {
         return Slice(string.begin(), string.end());
     }
-    
+
     Slice<Char> ToSlice(const String& string, uint64 index, uint64 length)
     {
         return Slice(const_cast<Char*>(string.Data()) + index, length);
+    }
+
+    String ToString(const int64& value)
+    {
+        constexpr uint64 bufferSize = 21;
+        char buffer[bufferSize];
+        Char copyBuffer[bufferSize];
+
+        std::snprintf(buffer, bufferSize, "%llu", value);
+        std::mbstowcs(copyBuffer, buffer, 21);
+
+        return String(copyBuffer);
+    }
+
+    String ToString(const double& value)
+    {
+        constexpr uint64 bufferSize = 21;
+        char buffer[bufferSize];
+        Char copyBuffer[bufferSize];
+
+        std::snprintf(buffer, bufferSize, "%lf", value);
+        std::mbstowcs(copyBuffer, buffer, 21);
+
+        return String(copyBuffer);
+    }
+
+    String ToString(const StringView& str)
+    {
+        return String(str);
     }
 }

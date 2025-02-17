@@ -10,11 +10,11 @@
 namespace Onu
 {
     /// Dynamic or fixed array depending on the allocation type provided
-    /// 
+    ///
     /// @tparam T               List of types to be contained and manipulated in the array
     /// @tparam TAllocationType Allocation type, can either of Oniun's allocators HeapAllocation, FixedAllocation or a
     ///                         custom one with the required structure and functions
-    template<typename T, typename TAllocationType = HeapAllocation>
+    template <typename T, typename TAllocationType>
     class Array
     {
     public:
@@ -39,7 +39,7 @@ namespace Onu
         {
             m_Data.Allocate(capacity);
         }
-        
+
         constexpr Array(uint64 count, uint64 capacity)
             : m_Count(count)
         {
@@ -59,7 +59,8 @@ namespace Onu
             : m_Count(other.m_Count)
         {
             static_assert(std::is_same_v<TAllocationType, HeapAllocation>);
-            Memory::MoveItems(&m_Data, &other.m_Data, 1);
+            m_Data.Move(std::move(other.m_Data));
+            other.m_Count = 0;
         }
 
         constexpr Array(Iterator& begin, Iterator& end)
@@ -75,7 +76,7 @@ namespace Onu
                 }
             }
         }
-        
+
         constexpr Array(const std::initializer_list<T>& initList)
             : m_Count(initList.size())
         {
@@ -96,7 +97,8 @@ namespace Onu
             return *this;
         }
 
-        FORCE_INLINE constexpr std::enable_if<std::is_same_v<TAllocationType, HeapAllocation>, Array&> operator=(Array&& array)
+        FORCE_INLINE constexpr std::enable_if<std::is_same_v<TAllocationType, HeapAllocation>, Array&> operator=(
+            Array&& array)
         {
             Free();
             m_Data.Move(array.m_Data);
@@ -109,93 +111,93 @@ namespace Onu
         {
             return Get(index);
         }
-        
+
         FORCE_INLINE constexpr const T& operator[](uint64 index) const
         {
             return Get(index);
         }
 
-        FORCE_INLINE constexpr  uint64 Count() const
+        FORCE_INLINE constexpr uint64 Count() const
         {
             return m_Count;
         }
-        
-        FORCE_INLINE constexpr  uint64 Capacity() const
+
+        FORCE_INLINE constexpr uint64 Capacity() const
         {
             return m_Data.Capacity();
         }
-        
-        FORCE_INLINE constexpr  Allocator& GetAllocator()
+
+        FORCE_INLINE constexpr Allocator& GetAllocator()
         {
             return m_Data;
         }
-        
-        FORCE_INLINE constexpr  const Allocator& GetAllocator() const
+
+        FORCE_INLINE constexpr const Allocator& GetAllocator() const
         {
             return m_Data;
         }
-        
-        FORCE_INLINE constexpr  T* Data()
-        {
-            return m_Data.Ptr();
-        }
-        
-        FORCE_INLINE constexpr  const T* Data() const
+
+        FORCE_INLINE constexpr T* Data()
         {
             return m_Data.Ptr();
         }
 
-        FORCE_INLINE constexpr  T& Front()
+        FORCE_INLINE constexpr const T* Data() const
+        {
+            return m_Data.Ptr();
+        }
+
+        FORCE_INLINE constexpr T& Front()
         {
             return m_Data[0];
         }
 
-        FORCE_INLINE constexpr  const T& Front() const
+        FORCE_INLINE constexpr const T& Front() const
         {
             return m_Data[0];
         }
-        
-        FORCE_INLINE constexpr  T& Back()
-        {
-            return m_Count > 0 ? m_Data[m_Count - 1] : Front();
-        }
-        
-        FORCE_INLINE constexpr  const T& Back() const
+
+        FORCE_INLINE constexpr T& Back()
         {
             return m_Count > 0 ? m_Data[m_Count - 1] : Front();
         }
 
-        FORCE_INLINE constexpr  T& Get(uint64 index)
+        FORCE_INLINE constexpr const T& Back() const
         {
-            return m_Data[index];
+            return m_Count > 0 ? m_Data[m_Count - 1] : Front();
         }
-        
-        FORCE_INLINE constexpr  const T& Get(uint64 index) const
+
+        FORCE_INLINE constexpr T& Get(uint64 index)
         {
             return m_Data[index];
         }
 
-        FORCE_INLINE constexpr  Iterator begin()
+        FORCE_INLINE constexpr const T& Get(uint64 index) const
+        {
+            return m_Data[index];
+        }
+
+        FORCE_INLINE constexpr Iterator begin()
         {
             return Iterator(m_Data.Ptr());
         }
-        
-        FORCE_INLINE constexpr  Iterator begin() const
+
+        FORCE_INLINE constexpr Iterator begin() const
         {
             return Iterator(const_cast<T*>(m_Data.Ptr()));
         }
-        
-        FORCE_INLINE constexpr  Iterator end()
+
+        FORCE_INLINE constexpr Iterator end()
         {
             return Iterator(m_Data.Ptr() + m_Count);
         }
-        
-        FORCE_INLINE constexpr  Iterator end() const
+
+        FORCE_INLINE constexpr Iterator end() const
         {
             return Iterator(const_cast<T*>(m_Data.Ptr()) + m_Count);
         }
 
-        FORCE_INLINE constexpr  bool IsEmpty() const
+        FORCE_INLINE constexpr bool IsEmpty() const
         {
             return m_Count == 0;
         }
@@ -224,7 +226,7 @@ namespace Onu
                 return true;
             if (m_Count != other.m_Count)
                 return false;
-            
+
             for (uint64 i = 0; i < m_Count; ++i)
             {
                 if (m_Data[i] != other.m_Data[i])
@@ -251,7 +253,7 @@ namespace Onu
             m_Count = count;
             return true;
         }
-        
+
         constexpr void Reserve(uint64 newCapacity, bool preserveContents = true)
         {
             if constexpr (std::is_same_v<TAllocationType, HeapAllocation>)
@@ -270,13 +272,13 @@ namespace Onu
             if (Resize(m_Count + 1))
                 Memory::ConstructItem(&Back(), value);
         }
-        
+
         constexpr void Add(T&& value)
         {
             if (Resize(m_Count + 1))
                 Memory::ConstructItem(&Back(), value);
         }
-        
+
         constexpr void Insert(const T& value, uint64 index)
         {
             ASSERT(index <= m_Count);
@@ -286,7 +288,7 @@ namespace Onu
                 Memory::ConstructItem(m_Data.Ptr() + index, value);
             }
         }
-        
+
         constexpr void Insert(T&& value, uint64 index)
         {
             ASSERT(index <= m_Count);
@@ -308,7 +310,7 @@ namespace Onu
                 }
             }
         }
-        
+
         constexpr void RemoveAt(uint64 index)
         {
             ASSERT(index <= m_Count);
@@ -316,7 +318,7 @@ namespace Onu
             Crt::Move(m_Data.Ptr() + index, m_Data.Ptr() + index + 1, sizeof(T) * (m_Count - index - 1));
             Resize(m_Count - 1);
         }
-        
+
         constexpr void RemoveAt(Iterator iterator)
         {
             ASSERT(iterator < end());
@@ -338,7 +340,7 @@ namespace Onu
             return item;
         }
 
-        template<typename TComparableType>
+        template <typename TComparableType>
         constexpr uint64 Find(const TComparableType& item) const
         {
             for (uint64 i = 0; i < m_Count; ++i)
@@ -349,7 +351,7 @@ namespace Onu
             return NoPos;
         }
 
-        template<typename TComparableType>
+        template <typename TComparableType>
         constexpr uint64 FindLast(const TComparableType& item) const
         {
             uint64 last = NoPos;
@@ -374,16 +376,16 @@ namespace Onu
         }
     };
 
-    template<typename T, uint64 TCount>
+    template <typename T, uint64 TCount>
     using FixedArray = Array<T, FixedAllocation<TCount>>;
 
-    template<typename T, typename TAllocationType>
+    template <typename T, typename TAllocationType>
     constexpr Slice<T> ToSlice(const Array<T, TAllocationType>& array)
     {
         return Slice(const_cast<T*>(array.Data()), array.Count());
     }
 
-    template<typename T, typename TAllocationType>
+    template <typename T, typename TAllocationType>
     constexpr Slice<T> ToSlice(const Array<T, TAllocationType>& array, uint64 index, uint64 count)
     {
         ASSERT(index + count <= array.Count());

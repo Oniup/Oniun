@@ -1,10 +1,12 @@
-#include <iostream>
-
 #include "Oniun/Core/Defines.h"
+#include "Oniun/Core/Format.h"
 #include "Oniun/Core/Containers/Array.h"
 #include "Oniun/Core/Containers/HashMap.h"
 #include "Oniun/Core/Types/String.h"
 #include "Oniun/Serialization/TypeInfo.h"
+
+#include <cstdarg>
+#include <cwchar>
 
 namespace Test
 {
@@ -15,21 +17,9 @@ namespace Test
 
 int main()
 {
-    // Test::HeapArray();
-    // Test::String();
-    // Test::HashMap();
-
-    Onu::TypeInfo info = Onu::TypeInfo::Create<Onu::HashMap<Onu::StringView, Onu::Array<Onu::String>>>();
-    std::wprintf(TEXT("Name: %s\nSize: %llu\nAlignment: %llu\n"), *info.Name, info.Size, info.Alignment);
-
-    Onu::FixedArray<int32, 10> arr = { 1, 2, 3, 4, 5, 6, 7, 8 };
-    arr.Add(9);
-    arr.Add(10);
-    for (int32 val : arr)
-    {
-        std::wprintf(TEXT("%d "), val);
-    }
-    arr.Add(11);
+    Test::HeapArray();
+    Test::HashMap();
+    Test::String();
 }
 
 namespace Test
@@ -143,7 +133,7 @@ namespace Test
             ASSERT(wcscmp(substring.Data(), TEXT("el")) == 0);
         }
 
-        // Find substring 
+        // Find substring
         {
             Onu::String str(TEXT("Hello World, Hello"));
             ASSERT(str.Find(Onu::String(TEXT("Hello"))) == 0);
@@ -188,6 +178,13 @@ namespace Test
             Onu::String::Parse(TEXT("321.123"), &res2);
             ASSERT(res1 == -123123);
             ASSERT(res2 == 321.123);
+        }
+
+        // Format
+        {
+            Onu::FixedArray<int32, 10> arr = { 1, 2, 3, 4, 5, 6, 7, 8 };
+            Onu::String formatted(*Onu::Format(TEXT("{}: {}"), TEXT("Fixed array"), arr));
+            ASSERT(formatted == TEXT("Fixed array: [ 1, 2, 3, 4, 5, 6, 7, 8 ]"));
         }
 
         std::wprintf(TEXT("All String tests passed\n"));
@@ -279,7 +276,7 @@ namespace Test
 
         std::wprintf(TEXT("All Heap Array tests passed\n"));
     }
-    
+
     void HashMap()
     {
         // Default constructor
@@ -353,14 +350,14 @@ namespace Test
             ASSERT(Onu::Hash<Onu::StringView>{}.Get(TEXT("Key3")) % 10 == 7);
             ASSERT(Onu::Hash<Onu::StringView>{}.Get(TEXT("Key32")) % 20 == 7);
             ASSERT(Onu::Hash<Onu::StringView>{}.Get(TEXT("Key3")) % 20 == 17);
-            
+
             Onu::HashMap<Onu::StringView, int32> map(10);
-            
+
             map.Add(TEXT("Key32"), 1);
             ASSERT(map.Capacity() == 10);;
             ASSERT(map.TryGet(TEXT("Key32")));
             ASSERT(map.Get(TEXT("Key32")) == 1);
-            
+
             map.Add(TEXT("Key3"), 2);
             ASSERT(map.Capacity() == 20);
             ASSERT(map.TryGet(TEXT("Key32")));
@@ -376,7 +373,7 @@ namespace Test
             ASSERT(map.Count() == 1);
             ASSERT(map.Get(TEXT("Key")) == 32);
         }
-        
+
         std::wprintf(TEXT("All Hash Map tests passed\n"));
     }
 }

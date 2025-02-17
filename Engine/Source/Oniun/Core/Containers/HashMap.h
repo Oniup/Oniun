@@ -7,17 +7,17 @@
 
 namespace Onu
 {
-    template<typename TKey, typename TValue, typename THash = Hash<TKey>, typename TAllocationType = HeapAllocation>
+    template<typename TKey, typename TValue, typename THash, typename TAllocationType>
     class HashMap
     {
     public:
         class Bucket
         {
             friend HashMap;
-            
+
         public:
             TValue Value;
-            
+
         private:
             TKey m_Key;
             bool m_IsEmpty;
@@ -47,7 +47,7 @@ namespace Onu
             {
                 return Pair<TKey*, TValue*>(&m_Key, &Value);
             }
-            
+
             FORCE_INLINE Pair<const TKey*, const TValue*> AsPair() const
             {
                 return Pair<const TKey*, const TValue*>(&m_Key, &Value);
@@ -60,7 +60,7 @@ namespace Onu
                 Memory::DestructItem(&Value);
                 m_IsEmpty = true;
             }
-            
+
             FORCE_INLINE void Destroy()
             {
                 if (IsOccupied())
@@ -76,7 +76,7 @@ namespace Onu
                     m_IsEmpty = false;
                 }
             }
-            
+
             FORCE_INLINE void Set(const TKey& key, const TValue& value)
             {
                 if (IsEmpty())
@@ -86,7 +86,7 @@ namespace Onu
                     m_IsEmpty = false;
                 }
             }
-            
+
             FORCE_INLINE void Set(const TKey& key, TValue&& value)
             {
                 if (IsEmpty())
@@ -96,7 +96,7 @@ namespace Onu
                     m_IsEmpty = false;
                 }
             }
-            
+
             FORCE_INLINE void Set(TKey&& key, TValue&& value)
             {
                 if (IsEmpty())
@@ -277,17 +277,17 @@ namespace Onu
         {
             return m_Data.Ptr();
         }
-        
+
         FORCE_INLINE const Bucket* Data() const
         {
             return m_Data.Ptr();
         }
-        
+
         FORCE_INLINE Allocator& GetAllocator()
         {
             return m_Data;
         }
-        
+
         FORCE_INLINE const Allocator& GetAllocator() const
         {
             return m_Data;
@@ -307,7 +307,7 @@ namespace Onu
             }
             return end();
         }
-        
+
         FORCE_INLINE Iterator begin() const
         {
             for (uint64 i = 0; i < Capacity(); ++i)
@@ -317,12 +317,12 @@ namespace Onu
             }
             return end();
         }
-        
+
         FORCE_INLINE Iterator end()
         {
             return Iterator(this, Capacity());
         }
-        
+
         FORCE_INLINE Iterator end() const
         {
             return Iterator(this, Capacity());
@@ -339,7 +339,7 @@ namespace Onu
             }
             ASSERT(!m_Count && "Not properly counting number of elements added");
         }
-        
+
         void Free()
         {
             if (!m_Data.Ptr())
@@ -352,7 +352,7 @@ namespace Onu
             ASSERT(!m_Count && "Not properly counting number of elements added");
             m_Data.Free();
         }
-        
+
         void Copy(const HashMap& other)
         {
             Clear();
@@ -362,7 +362,7 @@ namespace Onu
             {
             }
         }
-        
+
         bool Contains(const TKey& key) const
         {
             return m_Data[GetHash(key)].IsOccupied();
@@ -375,7 +375,7 @@ namespace Onu
             ASSERT(result);
             return *result;
         }
-        
+
         TValue& Get(const TKey& key) const
         {
             TValue* result = TryGet(key);
@@ -390,7 +390,7 @@ namespace Onu
                 return &m_Data[hash].Value;
             return nullptr;
         }
-        
+
         TValue* TryGet(const TKey& key) const
         {
             uint64 hash = GetHash(key);
@@ -398,7 +398,7 @@ namespace Onu
                 return &m_Data[hash].Value;
             return nullptr;
         }
-        
+
         TValue& Add(const TKey& key)
         {
             uint64 hash = GetHash(key);
@@ -424,7 +424,7 @@ namespace Onu
             m_Count++;
             return m_Data[hash].Value;
         }
-        
+
         TValue& Add(const TKey& key, TValue&& value)
         {
             uint64 hash = GetHash(key);

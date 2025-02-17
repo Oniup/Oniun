@@ -28,6 +28,7 @@ project "Oniun"
 
 	defines {
 		"GLFW_INCLUDE_NONE",
+		"FMT_HEADER_ONLY",
 
 		VersionMajor,
 		VersionMinor,

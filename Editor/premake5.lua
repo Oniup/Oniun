@@ -22,6 +22,8 @@ project "Oniun Editor"
     }
 
     defines {
+        "FMT_HEADER_ONLY",
+        
         VersionMajor,
         VersionMinor,
         VersionPatch,
