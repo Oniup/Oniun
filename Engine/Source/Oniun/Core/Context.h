@@ -1,18 +1,20 @@
 #pragma once
 
-#include "Oniun/Core/DebugLogger.h"
+#include "Oniun/Core/LogContext.h"
 
 namespace Onu
 {
     class Context
     {
     public:
+        static LogContext* GetLogContext() { return &m_Instance->m_LogContext; }
+
         Context();
         ~Context();
 
-        DebugLogger* GetDebugLogger() { return &m_DebugLogger; }
-        
     private:
-        DebugLogger m_DebugLogger;
+        static Context* m_Instance;
+
+        LogContext m_LogContext;
     };
 }

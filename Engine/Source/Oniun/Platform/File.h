@@ -2,7 +2,7 @@
 
 #if ONU_PLATFORM_WINDOWS
 
-#include "Oniun/Platform/Windows/FileStream.h"
+#include "Oniun/Platform/Win32/Win32File.h"
 
 #elif ONU_PLATFORM_UNIX
 

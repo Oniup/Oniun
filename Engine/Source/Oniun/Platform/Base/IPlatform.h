@@ -2,7 +2,7 @@
 
 namespace Onu
 {
-    class WindowsFileSystem
+    struct IPlatform
     {
     };
 }

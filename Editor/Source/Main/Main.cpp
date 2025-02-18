@@ -7,6 +7,8 @@
 
 #include <cwchar>
 
+#include "Oniun/Core/Context.h"
+
 namespace Test
 {
     void String();
@@ -16,11 +18,6 @@ namespace Test
 
 int main()
 {
-    std::wprintf(TEXT("%s\n"), *Onu::ToString(Onu::DateTime::GetCurrentTime()));
-
-    Test::HeapArray();
-    Test::HashMap();
-    Test::String();
 }
 
 namespace Test

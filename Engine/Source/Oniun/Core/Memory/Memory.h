@@ -20,7 +20,7 @@ namespace Onu::Memory
         }
         return capacity;
     }
-    
+
     template<typename T>
     FORCE_INLINE void ConstructItem(T* dest)
     {
@@ -33,7 +33,7 @@ namespace Onu::Memory
     {
         new(dest) T(args...);
     }
-    
+
     template<typename T, typename TU>
     FORCE_INLINE void ConstructItem(T* dest, const TU& src)
     {
@@ -73,14 +73,14 @@ namespace Onu::Memory
         else
             Crt::Copy(dest, src, count * sizeof(TU));
     }
-        
+
     template<typename T>
     FORCE_INLINE void DestructItem(T* dest)
     {
         if constexpr (!std::is_trivially_destructible_v<T>)
             dest->~T();
     }
-        
+
     template<typename T>
     FORCE_INLINE void DestructItems(T* dest, uint64 count)
     {
@@ -140,5 +140,20 @@ namespace Onu::Memory
         }
         else
             Crt::Copy(dest, value, count * sizeof(T));
+    }
+
+    template<typename T, typename... TArgs>
+    FORCE_INLINE T* Allocate(TArgs&&... args)
+    {
+        T* ptr = static_cast<T*>(Crt::Allocate(sizeof(T)));
+        new(ptr) T(args...);
+        return ptr;
+    }
+
+    template<typename T>
+    FORCE_INLINE void Free(T* ptr)
+    {
+        DestructItem(ptr);
+        Crt::Free(ptr);
     }
 }

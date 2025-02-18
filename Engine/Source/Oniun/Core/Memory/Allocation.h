@@ -14,11 +14,11 @@ namespace Onu
         {
         public:
             using Type = T;
-            
+
         private:
             uint64 m_Capacity;
             T* m_Data;
-            
+
         public:
             FORCE_INLINE Data()
                 : m_Capacity(0), m_Data(nullptr)
@@ -34,14 +34,15 @@ namespace Onu
 
             FORCE_INLINE ~Data()
             {
-                Crt::Free(m_Data);
+                if (m_Data)
+                    Free();
             }
-            
+
             FORCE_INLINE T& operator[](uint64 index)
             {
                 return m_Data[index];
             }
-            
+
             FORCE_INLINE const T& operator[](uint64 index) const
             {
                 return m_Data[index];
@@ -51,12 +52,12 @@ namespace Onu
             {
                 return m_Data;
             }
-            
+
             FORCE_INLINE const T* Ptr() const
             {
                 return m_Data;
             }
-            
+
             FORCE_INLINE uint64 Capacity() const
             {
                 return m_Capacity;
@@ -97,7 +98,7 @@ namespace Onu
             {
                 m_Data = data.m_Data;
                 m_Capacity = data.m_Capacity;
-                
+
                 data.m_Data = nullptr;
                 data.m_Capacity = 0;
             }
@@ -117,7 +118,7 @@ namespace Onu
             }
         };
     };
-    
+
     template<uint64 TCapacity>
     struct FixedAllocation
     {
@@ -126,7 +127,7 @@ namespace Onu
         {
         public:
             using Type = T;
-            
+
         private:
             T m_Data[TCapacity];
 
@@ -147,22 +148,22 @@ namespace Onu
             {
                 return m_Data[index];
             }
-            
+
             FORCE_INLINE constexpr const T& operator[](uint64 index) const
             {
                 return m_Data[index];
             }
-            
+
             FORCE_INLINE constexpr T* Ptr()
             {
                 return m_Data;
             }
-            
+
             FORCE_INLINE constexpr const T* Ptr() const
             {
                 return m_Data;
             }
-            
+
             FORCE_INLINE constexpr uint64 Capacity() const
             {
                 return TCapacity;
@@ -177,7 +178,7 @@ namespace Onu
             {
                 ASSERT(newCapacity <= TCapacity);
             }
-            
+
             FORCE_INLINE constexpr void Move(Data&& data)
             {
             }

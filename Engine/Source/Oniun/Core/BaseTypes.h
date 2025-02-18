@@ -5,8 +5,6 @@
 
 // Primitive types
 
-using Char = wchar_t;
-
 using uint8 = unsigned char;
 using uint16 = unsigned short;
 using uint32 = unsigned int;
@@ -16,6 +14,9 @@ using int8 = char;
 using int16 = short;
 using int32 = int;
 using int64 = long long;
+
+using Char = wchar_t;
+using Byte = uint8;
 
 // Primitive limits
 
@@ -66,4 +67,10 @@ namespace Onu
 
     template<typename TKey, typename TValue>
     class Pair;
+
+    class DateTime;
+
+    // Platform forward declarations
+
+    class File;
 }
