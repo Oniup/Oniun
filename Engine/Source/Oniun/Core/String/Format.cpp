@@ -26,15 +26,4 @@ namespace Onu
 
     PRIMITIVE_TO_STRING_FUNC_IMPL(float, TEXT("%f"))
     PRIMITIVE_TO_STRING_FUNC_IMPL(double, TEXT("%lf"))
-
-    String ToString(const StringView& val)
-    {
-        return String(val);
-    }
-
-    // String ToString(const CharStringView& val)
-    // {
-    //     // TODO: Convert to utf16 encoding
-    //     return CharString::Empty;
-    // }
 }

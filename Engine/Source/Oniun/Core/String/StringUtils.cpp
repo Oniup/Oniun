@@ -66,8 +66,7 @@ namespace Onu::StringUtils
         return result;
     }
 
-    bool UftConversion_Internal::Utf8ToUnicode(Array<uint32>& unicode, const CharStringView& str,
-                                                    uint64& utf16Length)
+    bool UftConversion_Internal::Utf8ToUnicode(Array<uint32>& unicode, const CharStringView& str, uint64& utf16Length)
     {
         unicode.Reserve(str.Length(), false);
         utf16Length = 0;

@@ -132,6 +132,11 @@ namespace Onu
             uint64 length = preserveContents ? (m_Length < newCapacity ? m_Length : newCapacity) : 0;
             m_Data.Relocate(newCapacity, m_Length, length);
         }
+
+        void ReCalcLength()
+        {
+            m_Length = StringUtils::Length(m_Data.Ptr());
+        }
     };
 
     class String : public IString<Char>

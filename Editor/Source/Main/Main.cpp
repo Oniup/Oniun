@@ -1,20 +1,19 @@
 #include <cwchar>
 
-#include <Oniun/Core/String/String.h>
-#include <Oniun/Core/String/StringUtils.h>
+#include <Oniun/Core/Logger.h>
+#include <Oniun/Core/Memory/Memory.h>
 #include "Main/Tests.h"
 
 using namespace Onu;
 
 int main()
 {
-    CharString utf8(StringUtils::Utf16ToUtf8(TEXT("Привет")));
-    String utf16(StringUtils::Utf8ToUtf16("Привет"));
+    Logger::AddOutput(Memory::Allocate<TerminalLogOutput>());
+    Logger::AddOutput(Memory::Allocate<FileLogOutput>(TEXT("OutputFile.txt")));
 
-    if (utf8 == "Привет")
-        std::printf("Yippeeeee");
-    if (utf16 == TEXT("Привет"))
-        std::printf("Yippeeeee");
+    LOG(Info, TEXT("Normal info log, nothing major"));
+    LOG(Warning, TEXT("Should deal with this warning, could lead to issues later on or become a much larger issue"));
+    LOG(Error, TEXT("Need to fix this issue as soon as possible. This is not outputting expected results"));
 
     return 0;
 }

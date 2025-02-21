@@ -9,7 +9,7 @@ namespace Onu
         time_t m_Time;
 
     public:
-        static DateTime GetCurrentTime();
+        static DateTime Now();
 
         DateTime();
         DateTime(time_t time);
@@ -28,5 +28,5 @@ namespace Onu
         int32 GetYearDay() const;
     };
 
-    // String ToString(const DateTime& dateTime, bool includeTime = true, bool includeDate = true, bool militaryTime = false);
+    String ToString(const DateTime& dateTime, bool includeTime = true, bool includeDate = true, bool militaryTime = false);
 }

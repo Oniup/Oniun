@@ -45,6 +45,13 @@ namespace Onu
             return *this;
         }
 
+        FORCE_INLINE constexpr IStringView& operator=(const TChar* str)
+        {
+            m_Data = str;
+            m_Length = StringUtils::Length(str);
+            return *this;
+        }
+
         FORCE_INLINE constexpr IStringView& operator=(const Slice<TChar>& slice)
         {
             m_Data = slice.Get();

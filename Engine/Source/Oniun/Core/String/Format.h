@@ -22,8 +22,10 @@ namespace Onu
     String ToString(float val);
     String ToString(double val);
 
-    String ToString(const StringView& val);
-    // String ToString(const CharStringView& val);
+    FORCE_INLINE StringView ToString(const StringView& val)
+    {
+        return val;
+    }
 
     template <typename T, typename TAllocationType>
     String ToString(const Array<T, TAllocationType>& array, bool sameLine = true)
@@ -68,12 +70,6 @@ namespace Onu
 
     namespace Format_Internal
     {
-        /// Finds all insert positions in the format string for the given format syntax.
-        ///
-        /// @param format           The format string to search.
-        /// @return                An Array of positions where the format syntax occurs.
-        Array<uint64> FindAllInsertPositions(const StringView& format);
-
         ///Appends a formatted argument to the result string based on the current format string and insert positions.
         ///
         /// @tparam T               Target element type from the template parameter pack.
@@ -84,8 +80,7 @@ namespace Onu
         /// @param offset           Current offset in the format string.
         /// @param arg              The current argument to format and append.
         template <typename T>
-        FORCE_INLINE void Add(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                              uint64& offset, const T& arg)
+        FORCE_INLINE void Add(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i, uint64& offset, const T& arg)
         {
             Slice slice(format.begin() + offset, format.begin() + insertPositions[i]);
             result.Append(slice);
@@ -104,8 +99,7 @@ namespace Onu
         /// @param offset           Current offset in the format string.
         /// @param current          The current argument to format and append.
         template <typename T>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                  uint64& offset, const T& current)
+        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i, uint64& offset, const T& current)
         {
             Add(format, insertPositions, result, i, offset, current);
         }
@@ -122,8 +116,7 @@ namespace Onu
         /// @param current          The current argument to format and append.
         /// @param args             Additional arguments to format and append.
         template <typename T, typename... TArgs>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                  uint64& offset, const T& current, const TArgs&... args)
+        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i, uint64& offset, const T& current, const TArgs&... args)
         {
             Add(format, insertPositions, result, i, offset, current);
             Next(format, insertPositions, result, i, offset, args...);

@@ -1,30 +1,30 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/ClassRestrictions.h"
+#include "Oniun/Core/ClassConstraints.h"
 
 namespace Onu
 {
-    enum FileMode
+    enum class FileMode : uint32
     {
         /// Creates a new file; fails if the file already exists.
-        FileMode_CreateNew         = 1,
+        CreateNew = 1,
         /// Creates a new file; overrides the file if it already exists.
-        FileMode_CreateAlways      = 2,
+        CreateAlways = 2,
         /// Opens an existing file; fails if no file exists.
-        FileMode_OpenExisting      = 3,
+        OpenExisting = 3,
         /// Opens a file if it exists; creates a new one if it no file exists.
-        FileMode_OpenAlways        = 4,
+        OpenAlways = 4,
         /// Opens an existing file and truncates it to zero bytes; fails if no file exists. Used to delete the contents
         /// of a file.
-        FileMode_TruncateExisting  = 5,
+        TruncateExisting = 5,
     };
 
-    enum FileAccess
+    enum class FileAccess : uint32
     {
-        FileAccess_Read = 0x80000000,
-        FileAccess_Write = 0x40000000,
-        FileAccess_ReadWrite = FileAccess_Read | FileAccess_Write,
+        Read = 0x80000000,
+        Write = 0x40000000,
+        ReadWrite = Read | Write,
     };
 
     class IFile : public INonCopyable
