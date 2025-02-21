@@ -28,5 +28,5 @@ namespace Onu
         int32 GetYearDay() const;
     };
 
-    String ToString(const DateTime& dateTime, bool includeTime = true, bool includeDate = true, bool militaryTime = false);
+    // String ToString(const DateTime& dateTime, bool includeTime = true, bool includeDate = true, bool militaryTime = false);
 }

@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cwchar>
-
-#include "Oniun/Core/Containers/Array.h"
-#include "Oniun/Core/Containers/HashMap.h"
-#include "Oniun/Core/Types/String.h"
+#include "Oniun/Core/String/String.h"
+#include "Oniun/Core/String/StringUtils.h"
+#include "Oniun/Core/Templates/Array.h"
+#include "Oniun/Core/Templates/HashMap.h"
 
 #define FORMAT_SYNTAX TEXT("{}")
 
@@ -24,6 +23,7 @@ namespace Onu
     String ToString(double val);
 
     String ToString(const StringView& val);
+    // String ToString(const CharStringView& val);
 
     template <typename T, typename TAllocationType>
     String ToString(const Array<T, TAllocationType>& array, bool sameLine = true)
@@ -90,7 +90,7 @@ namespace Onu
             Slice slice(format.begin() + offset, format.begin() + insertPositions[i]);
             result.Append(slice);
             result.Append(*ToString(arg));
-            offset = insertPositions[i] + UStringUtils::Length(FORMAT_SYNTAX);
+            offset = insertPositions[i] + StringUtils::Length(FORMAT_SYNTAX);
             i++;
         }
 

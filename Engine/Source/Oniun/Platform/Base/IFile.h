@@ -29,13 +29,26 @@ namespace Onu
 
     class IFile : public INonCopyable
     {
+    protected:
+        bool m_Owns;
+
     public:
+        IFile(bool owns)
+            : m_Owns(owns)
+        {
+        }
+
         virtual ~IFile()
         {
         }
 
         virtual bool Read(void* buffer, uint32 bytesToRead, uint32* bytesRead = nullptr) = 0;
         virtual bool Write(const void* buffer, uint32 bytesToWrite, uint32* bytesWritten = nullptr) = 0;
+
+        FORCE_INLINE bool OwnsPointer() const
+        {
+            return m_Owns;
+        }
 
         virtual void Close() = 0;
         virtual bool Flush() = 0;

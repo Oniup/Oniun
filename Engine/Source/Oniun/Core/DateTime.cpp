@@ -1,7 +1,7 @@
-#include "DateTime.h"
-#include "Oniun/Core/Format.h"
+#include "Oniun/Core/DateTime.h"
 
 #include <ctime>
+#include "Oniun/Core/String/Format.h"
 
 namespace Onu
 {
@@ -84,19 +84,19 @@ namespace Onu
         return time->tm_yday + 1;
     }
 
-    String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bool militaryTime)
-    {
-        ASSERT((includeTime && includeDate) || (includeTime || includeDate))
-
-        time_t time = dateTime.GetTime();
-        std::tm* tm = localtime(&time);
-
-        if (includeTime && includeDate)
-            return Format(TEXT("{}:{}:{} : {}/{}/{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec, tm->tm_mon + 1, tm->tm_mday,
-                          tm->tm_year + 1900);
-        if (includeTime)
-            return Format(TEXT("{}:{}:{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec);
-
-        return Format(TEXT("{}/{}/{}"), tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
-    }
+    // String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bool militaryTime)
+    // {
+    //     ASSERT((includeTime && includeDate) || (includeTime || includeDate))
+    //
+    //     time_t time = dateTime.GetTime();
+    //     std::tm* tm = localtime(&time);
+    //
+    //     if (includeTime && includeDate)
+    //         return Format(TEXT("{}:{}:{} : {}/{}/{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec, tm->tm_mon + 1, tm->tm_mday,
+    //                       tm->tm_year + 1900);
+    //     if (includeTime)
+    //         return Format(TEXT("{}:{}:{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec);
+    //
+    //     return Format(TEXT("{}/{}/{}"), tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+    // }
 }

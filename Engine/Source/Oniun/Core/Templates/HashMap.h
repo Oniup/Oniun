@@ -3,7 +3,7 @@
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Hash.h"
 #include "Oniun/Core/Memory/Allocation.h"
-#include "Oniun/Core/Types/Pair.h"
+#include "Oniun/Core/Templates/Pair.h"
 
 namespace Onu
 {
@@ -358,16 +358,14 @@ namespace Onu
             Clear();
             if (Capacity() < other.Capacity())
                 Reserve(other.Capacity());
-            for (uint64 i = 0; i < Capacity(); ++i)
-            {
-            }
+            for (const Bucket& bucket : other)
+                Add(bucket.GetKey(), bucket.Value);
         }
 
         bool Contains(const TKey& key) const
         {
             return m_Data[GetHash(key)].IsOccupied();
         }
-
 
         TValue& Get(const TKey& key)
         {

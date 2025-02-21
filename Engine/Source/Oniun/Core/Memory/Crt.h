@@ -7,7 +7,7 @@
 
 namespace Onu::Crt
 {
-    constexpr void Copy(void* dest, const void* src, uint64 size)
+    FORCE_INLINE constexpr void Copy(void* dest, const void* src, uint64 size)
     {
         uint8* destPtr = static_cast<uint8*>(dest);
         const uint8* srcPtr = static_cast<const uint8*>(src);
@@ -17,7 +17,7 @@ namespace Onu::Crt
         }
     }
 
-    constexpr void Move(void* dest, const void* src, uint64 size)
+    FORCE_INLINE constexpr void Move(void* dest, const void* src, uint64 size)
     {
         uint8* destPtr = static_cast<uint8*>(dest);
         const uint8* srcPtr = static_cast<const uint8*>(src);
@@ -33,27 +33,30 @@ namespace Onu::Crt
         }
     }
 
-    constexpr void Clear(void* dest, uint64 size)
+    FORCE_INLINE constexpr void Clear(void* dest, uint64 size)
     {
         uint8* destPtr = static_cast<uint8*>(dest);
         for (uint64 i = 0; i < size; ++i)
             destPtr[i] = 0;
     }
 
-    constexpr int32 Compare(const void* dest, const void* src, uint64 size)
+    FORCE_INLINE constexpr int32 Compare(const void* dest, const void* src, uint64 size)
     {
-        const uint8* destPtr = static_cast<const uint8*>(dest);
-        const uint8* srcPtr = static_cast<const uint8*>(src);
-        for (uint64 i = 0; i < size; ++i)
+        if (dest == src)
         {
-            if (destPtr[i] < srcPtr[i])
-                return -1;
-            if (destPtr[i] > srcPtr[i])
-                return 1;
+            const uint8* destPtr = static_cast<const uint8*>(dest);
+            const uint8* srcPtr = static_cast<const uint8*>(src);
+            for (uint64 i = 0; i < size; ++i)
+            {
+                if (destPtr[i] < srcPtr[i])
+                    return -1;
+                if (destPtr[i] > srcPtr[i])
+                    return 1;
+            }
         }
         return 0;
     }
-    
+
     FORCE_INLINE void* Allocate(uint64 size)
     {
         return std::malloc((size_t)size);
@@ -63,7 +66,7 @@ namespace Onu::Crt
     {
         std::free(ptr);
     }
-    
+
     /// @brief Fowler-Noll-Vo hash function.
     ///        Source from: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
     /// @param src  Packed data to be C style cast to uint8 bytes array inorder to calculate the hash value

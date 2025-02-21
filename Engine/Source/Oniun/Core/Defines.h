@@ -29,7 +29,7 @@ namespace Onu
         ArchitectureType_X64,
         ArchitectureType_Arm64,
     };
-    
+
     // TODO: Move to debug logger
     inline void Assert(const char* expression, const char* file, const char* function, int line)
     {
@@ -87,7 +87,11 @@ namespace Onu
 // Unicode text support
 
 #if !defined(TEXT)
+#ifdef ONU_PLATFORM_WINDOWS
 #define INTL_TEXT(_X) L ## _X
+#else
+#define INTL_TEXT(_X) u ## _X
+#endif
 #define TEXT(_X) INTL_TEXT(_X)
 #endif
 

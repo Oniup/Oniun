@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/Types/PackedIterator.h"
+#include "Oniun/Core/Templates/PackedIterator.h"
 
 namespace Onu
 {
@@ -11,11 +11,11 @@ namespace Onu
     public:
         using Type = T;
         using Iterator = PackedIterator<T>;
-        
+
     private:
         T* m_Data;
         uint64 m_Length;
-        
+
     public:
         constexpr Slice()
             : m_Data(nullptr), m_Length(0)
@@ -43,19 +43,19 @@ namespace Onu
         }
 
         constexpr Slice& operator=(const Slice& other) = default;
-        
+
         constexpr Slice& operator=(Slice&& other)
         {
             other.m_Data = nullptr;
             other.m_Length = 0;
             return *this;
         }
-        
+
         constexpr T& operator[](uint64 index)
         {
             return At(index);
         }
-        
+
         constexpr const T& operator[](uint64 index) const
         {
             return At(index);
@@ -65,12 +65,12 @@ namespace Onu
         {
             return Compare(other);
         }
-        
+
         constexpr bool operator!=(const Slice& other)
         {
             return !Compare(other);
         }
-        
+
         constexpr T* Get() const
         {
             return m_Data;
@@ -85,17 +85,17 @@ namespace Onu
         {
             return Iterator(m_Data);
         }
-        
+
         constexpr Iterator begin() const
         {
             return Iterator(m_Data);
         }
-        
+
         constexpr Iterator end()
         {
             return Iterator(m_Data + m_Length);
         }
-        
+
         constexpr Iterator end() const
         {
             return Iterator(m_Data + m_Length);
@@ -105,7 +105,7 @@ namespace Onu
         {
             return m_Data[index];
         }
-        
+
         constexpr const T& At(uint64 index) const
         {
             return m_Data[index];
@@ -127,7 +127,7 @@ namespace Onu
                 return true;
             if (m_Length != other.m_Length)
                 return false;
-            
+
             for (uint64 i = 0; i < m_Length; ++i)
             {
                 if (m_Data[i] != other.m_Data[i])

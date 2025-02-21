@@ -192,6 +192,5 @@ namespace Onu
                 ASSERT(false && "Swapping fixed allocation is not supported");
             }
         };
-
     };
 }

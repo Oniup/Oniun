@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Memory/Memory.h"
 
 namespace Onu
@@ -28,7 +27,7 @@ namespace Onu
             : Key(key), Value(value)
         {
         }
-        
+
         constexpr Pair(const TKey& key, TValue&& value)
             : Key(key), Value(std::move(value))
         {
@@ -38,7 +37,7 @@ namespace Onu
             : Key(std::move(key)), Value(value)
         {
         }
-        
+
         constexpr Pair(TKey&& key, TValue&& value)
             : Key(std::move(key)), Value(std::move(value))
         {
@@ -48,17 +47,17 @@ namespace Onu
         {
         }
 
-        constexpr bool operator==(const Pair<TKey, TValue>& pair) const
+        constexpr bool operator==(const Pair& pair) const
         {
             return (Key == pair.Key) && (Value == pair.Value);
         }
 
-        constexpr bool operator!=(const Pair<TKey, TValue>& pair) const
+        constexpr bool operator!=(const Pair& pair) const
         {
             return (Key != pair.Key) || (Value != pair.Value);
         }
 
-        constexpr bool operator>=(const Pair<TKey, TValue>& pair)
+        constexpr bool operator>=(const Pair& pair)
         {
             if (Key != pair.Key)
                 return Key < pair.Key;

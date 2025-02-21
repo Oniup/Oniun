@@ -4,8 +4,8 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Memory/Allocation.h"
-#include "Oniun/Core/Types/PackedIterator.h"
-#include "Oniun/Core/Types/Slice.h"
+#include "Oniun/Core/Templates/PackedIterator.h"
+#include "Oniun/Core/Templates/Slice.h"
 
 namespace Onu
 {

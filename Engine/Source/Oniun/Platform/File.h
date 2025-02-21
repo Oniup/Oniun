@@ -6,14 +6,14 @@
 
 #elif ONU_PLATFORM_UNIX
 
-#include "Oniun/Platform/Unix/FileStream.h"
+#include "Oniun/Platform/Unix/UnixFile.h"
 
 #elif ONU_PLATFORM_LINUX
 
-#include "Oniun/Platform/Linux/FileStream.h"
+#include "Oniun/Platform/Linux/LinuxFile.h"
 
 #elif ONU_PLATFORM_MACOS
 
-#include "Oniun/Platform/Macos/FileStream.h"
+#include "Oniun/Platform/Macos/MacosFile.h"
 
 #endif

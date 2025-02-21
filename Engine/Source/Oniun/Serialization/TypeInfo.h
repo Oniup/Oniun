@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Oniun/Core/Types/String.h"
+#include "Oniun/Core/Hash.h"
+#include "Oniun/Core/String/String.h"
 
 namespace Onu
 {
@@ -33,7 +34,7 @@ namespace Onu
             return ToSlice(wrapped, prefix, length);
         }
     }
-    
+
     struct TypeInfo
     {
         String Name;
