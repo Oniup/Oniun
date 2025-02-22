@@ -2,7 +2,7 @@
 
 #if ONU_PLATFORM_WINDOWS
 
-#include "Oniun/Platform/Win32/Win32Platform.h"
+#include "Oniun/Platform/Windows/Win32Platform.h"
 
 #elif ONU_PLATFORM_UNIX
 
