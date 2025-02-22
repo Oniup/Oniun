@@ -173,7 +173,7 @@ namespace Test
             ASSERT(formatted == TEXT("Fixed array: [ 1, 2, 3, 4, 5, 6, 7, 8 ]"));
         }
 
-        std::wprintf(TEXT("All String tests passed\n"));
+        LOG(Info, TEXT("All String tests passed"));
     }
 
     inline void HeapArray()
@@ -260,7 +260,7 @@ namespace Test
             ASSERT(arr[4] == 5);
         }
 
-        std::wprintf(TEXT("All Heap Array tests passed\n"));
+        LOG(Info, TEXT("All Heap Array tests passed"));
     }
 
     inline void HashMap()
@@ -378,6 +378,6 @@ namespace Test
             ASSERT(copyed.Get(TEXT("Key3")) == 3);
         }
 
-        std::wprintf(TEXT("All Hash Map tests passed\n"));
+        LOG(Info, TEXT("All HashMap tests passed"));
     }
 }

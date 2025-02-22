@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Oniun/Core/ClassConstraints.h"
-#include "Oniun/Core/DateTime.h"
 #include "Oniun/Core/String/Format.h"
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
@@ -36,13 +35,9 @@ namespace Onu
         {
         }
 
-        virtual void Write(LogType type, const CharStringView& message)
-        {
-        }
-
-        virtual void Write(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& message, const DateTime& time)
-        {
-        }
+        virtual void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+                           const StringView& function, int32 line, const StringView& userMsg,
+                           const DateTime& time) = 0;
     };
 
     class Logger : public Singleton<Logger>
@@ -54,22 +49,25 @@ namespace Onu
         Logger();
         ~Logger();
 
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& format)
+        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
+                          const StringView& format)
         {
             Instance()->WriteImpl(type, file, function, line, format);
         }
 
-        template<typename... TArgs>
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& format, const TArgs&... args)
+        template <typename... TArgs>
+        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
+                          const StringView& format, const TArgs&... args)
         {
-            String message = Format(format, args...);
-            Instance()->WriteImpl(type, file, function, line, message);
+            String usrMsg = Format(format, args...);
+            Instance()->WriteImpl(type, file, function, line, usrMsg);
         }
 
         static void AddOutput(ILogOutput* entry);
 
     private:
-        void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& message);
+        void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
+                       const StringView& userMsg);
     };
 
     class TerminalLogOutput : public ILogOutput
@@ -82,7 +80,8 @@ namespace Onu
         TerminalLogOutput();
         ~TerminalLogOutput() override;
 
-        void Write(LogType type, const CharStringView& message) override;
+        void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+                   int32 line, const StringView& userMsg, const DateTime& time) override;
     };
 
     class FileLogOutput : public ILogOutput
@@ -94,7 +93,8 @@ namespace Onu
         FileLogOutput(const StringView& outputPath);
         ~FileLogOutput() override;
 
-        void Write(LogType type, const CharStringView& message) override;
+        void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+                   int32 line, const StringView& userMsg, const DateTime& time) override;
     };
 }
 

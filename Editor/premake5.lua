@@ -6,6 +6,8 @@ project "Oniun Editor"
     targetdir(TargetDirectory)
     objdir(ObjectTargetDirectory)
     systemversion "latest"
+
+    debugdir(TargetDirectory)
     
     files {
         "Source/**.h",

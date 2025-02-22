@@ -140,6 +140,10 @@ namespace Onu
         uint64 i = 0;
         uint64 offset = 0;
         Format_Internal::Next(format, insertPositions, result, i, offset, args...);
+
+        // Add the rest of the format string if there is any left over
+        Slice rest(format.begin() + offset, format.end());
+        result.Append(rest);
         return result;
     }
 }

@@ -1,23 +1,24 @@
 #include "Oniun/Core/Logger.h"
 
+#include "Oniun/Core/DateTime.h"
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Platform/Platform.h"
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define WHITE   "\033[37m"
-#define BG_RED     "\033[41m"
-#define BG_GREEN   "\033[42m"
-#define BG_YELLOW  "\033[43m"
-#define BG_BLUE    "\033[44m"
-#define BG_MAGENTA "\033[45m"
-#define BG_CYAN    "\033[46m"
-#define BG_WHITE   "\033[47m"
+#define RESET       "\033[0m"
+#define RED         "\033[31m"
+#define GREEN       "\033[32m"
+#define YELLOW      "\033[33m"
+#define BLUE        "\033[34m"
+#define MAGENTA     "\033[35m"
+#define CYAN        "\033[36m"
+#define WHITE       "\033[37m"
+#define BG_RED      "\033[41m"
+#define BG_GREEN    "\033[42m"
+#define BG_YELLOW   "\033[43m"
+#define BG_BLUE     "\033[44m"
+#define BG_MAGENTA  "\033[45m"
+#define BG_CYAN     "\033[46m"
+#define BG_WHITE    "\033[47m"
 
 namespace Onu
 {
@@ -71,22 +72,20 @@ namespace Onu
         Instance()->m_Outputs.Add(entry);
     }
 
-    void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& message)
+    void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
+                           const StringView& userMsg)
     {
         DateTime time(DateTime::Now());
-
-        String utf16Message = Format(TEXT("\n[{} {} {}:{}:{}]:\n{}"), type, time, file, function, line, message);
+        String utf16Message = Format(TEXT("[{} {} {}:{}:{}]:\n{}\n"), type, time, file, function, line, userMsg);
         CharString utf8Message(StringUtils::Utf16ToUtf8(utf16Message));
 
         for (ILogOutput* output : m_Outputs)
-        {
-            output->Write(type, utf8Message);
-            output->Write(type, file, function, line, message, time);
-        }
+            output->Write(type, utf8Message, file, function, line, userMsg, time);
     }
 
     TerminalLogOutput::TerminalLogOutput()
-        : ILogOutput(TEXT("Terminal Output")), m_StdStream(Platform::GetStdOutStream()), m_ErrorStream(Platform::GetStdOutStream())
+        : ILogOutput(TEXT("Terminal Output")), m_StdStream(Platform::GetStdOutStream()),
+          m_ErrorStream(Platform::GetStdOutStream())
     {
     }
 
@@ -94,10 +93,12 @@ namespace Onu
     {
     }
 
-    void TerminalLogOutput::Write(LogType type, const CharStringView& message)
+    void TerminalLogOutput::Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+                                  const StringView& function, int32 line, const StringView& userMsg,
+                                  const DateTime& time)
     {
         File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
-        stream->Write(message.Data(), static_cast<uint32>(message.Length()));
+        stream->Write(utf8FinalMsg.Data(), static_cast<uint32>(utf8FinalMsg.Length()));
         stream->Flush();
     }
 
@@ -112,9 +113,11 @@ namespace Onu
     {
     }
 
-    void FileLogOutput::Write(LogType type, const CharStringView& message)
+    void FileLogOutput::Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+                              const StringView& function, int32 line, const StringView& userMsg,
+                              const DateTime& time)
     {
-        m_Output.Write(message.Data(), static_cast<uint32>(message.Length()));
+        m_Output.Write(utf8FinalMsg.Data(), static_cast<uint32>(utf8FinalMsg.Length()));
         m_Output.Flush();
     }
 }
