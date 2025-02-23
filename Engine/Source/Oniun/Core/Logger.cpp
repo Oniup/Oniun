@@ -23,17 +23,17 @@
 
 namespace Onu
 {
-    StringView AnsiColor(LogType type)
+    CharStringView AnsiColor(LogType type)
     {
         switch (type)
         {
         case LogType::Warning:
-            TEXT(YELLOW);
+            YELLOW;
         case LogType::Error:
         case LogType::Fatal:
-            TEXT(RED);
+            RED;
         default:
-            return TEXT(RESET);
+            return RESET;
         }
     }
 
@@ -82,9 +82,10 @@ namespace Onu
         {
             path.Set(ToSlice(file.begin() + engineIndex, file.end()));
         }
+        path.CorrectPathSlashes();
 
         DateTime time(DateTime::Now());
-        String utf16Message = Format(TEXT("[{} {} {}:{}:{}]:\n{}\n"), type, time, path, function, line, userMsg);
+        String utf16Message = Format(TEXT("[{} {} {}:{} {}]:\n{}\n"), type, time, function, line, path, userMsg);
         CharString utf8Message(StringUtils::Utf16ToUtf8(utf16Message));
 
         for (ILogOutput* output : m_Outputs)

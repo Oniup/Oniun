@@ -10,7 +10,7 @@ namespace Onu
     {
     }
 
-    String StringView::operator+(const Char& ch) const
+    String StringView::operator+(Char ch) const
     {
         String result(m_Length + 1);
         result.Set(*this);
@@ -23,6 +23,14 @@ namespace Onu
         String result(m_Length + str.m_Length);
         result.Set(*this);
         result.Append(str);
+        return result;
+    }
+
+    String StringView::operator/(Char ch) const
+    {
+        String result(m_Length + 1);
+        result.Set(*this);
+        result /= ch;
         return result;
     }
 
@@ -39,7 +47,7 @@ namespace Onu
     {
     }
 
-    CharString CharStringView::operator+(const char& ch) const
+    CharString CharStringView::operator+(char ch) const
     {
         CharString result(m_Length + 1);
         result.Set(*this);
@@ -52,6 +60,14 @@ namespace Onu
         CharString result(m_Length + str.m_Length);
         result.Append(*this);
         result.Append(str);
+        return result;
+    }
+
+    CharString CharStringView::operator/(char ch) const
+    {
+        CharString result(m_Length + 1);
+        result.Set(*this);
+        result /= ch;
         return result;
     }
 

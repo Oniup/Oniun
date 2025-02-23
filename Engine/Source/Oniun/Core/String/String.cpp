@@ -216,7 +216,7 @@ namespace Onu
         return *this;
     }
 
-    String& String::operator+=(const Char& ch)
+    String& String::operator+=(Char ch)
     {
         Append(ch);
         return *this;
@@ -246,7 +246,7 @@ namespace Onu
         return *this;
     }
 
-    String& String::operator/=(const Char& ch)
+    String& String::operator/=(Char ch)
     {
         Concat('/', ch);
         return *this;
@@ -278,7 +278,7 @@ namespace Onu
         return str;
     }
 
-    String String::operator+(const Char& ch)
+    String String::operator+(Char ch)
     {
         String str(*this);
         str.Append(ch);
@@ -313,7 +313,7 @@ namespace Onu
         return str;
     }
 
-    String String::operator/(const Char& ch)
+    String String::operator/(Char ch)
     {
         String str(*this);
         str.Concat('/', ch);
@@ -397,7 +397,7 @@ namespace Onu
             Free();
     }
 
-    void String::Append(const Char& ch)
+    void String::Append(Char ch)
     {
         uint64 oldLength = m_Length;
         Resize(m_Length + 1);
@@ -416,7 +416,7 @@ namespace Onu
         }
     }
 
-    void String::Concat(const Char& left, const StringView& text)
+    void String::Concat(Char left, const StringView& text)
     {
         if (!text.IsEmpty())
         {
@@ -428,17 +428,17 @@ namespace Onu
         }
     }
 
-    void String::Concat(const Char& left, const String& text)
+    void String::Concat(Char left, const String& text)
     {
         Concat(left, StringView(text));
     }
 
-    void String::Concat(const Char& left, const Char* text)
+    void String::Concat(Char left, const Char* text)
     {
         Concat(left, StringView(text));
     }
 
-    void String::Concat(const Char& left, const Char& ch)
+    void String::Concat(Char left, Char ch)
     {
         uint64 oldLength = m_Length;
         Resize(m_Length + 2);
@@ -788,7 +788,7 @@ namespace Onu
         return *this;
     }
 
-    CharString& CharString::operator+=(const char& ch)
+    CharString& CharString::operator+=(char ch)
     {
         Append(ch);
         return *this;
@@ -818,7 +818,7 @@ namespace Onu
         return *this;
     }
 
-    CharString& CharString::operator/=(const char& ch)
+    CharString& CharString::operator/=(char ch)
     {
         Concat('/', ch);
         return *this;
@@ -850,7 +850,7 @@ namespace Onu
         return str;
     }
 
-    CharString CharString::operator+(const char& ch)
+    CharString CharString::operator+(char ch)
     {
         CharString str(*this);
         str.Append(ch);
@@ -885,7 +885,7 @@ namespace Onu
         return str;
     }
 
-    CharString CharString::operator/(const char& ch)
+    CharString CharString::operator/(char ch)
     {
         CharString str(*this);
         str.Concat('/', ch);
@@ -969,7 +969,7 @@ namespace Onu
             Free();
     }
 
-    void CharString::Append(const char& ch)
+    void CharString::Append(char ch)
     {
         uint64 oldLength = m_Length;
         Resize(m_Length + 1);
@@ -988,7 +988,7 @@ namespace Onu
         }
     }
 
-    void CharString::Concat(const char& left, const CharStringView& text)
+    void CharString::Concat(char left, const CharStringView& text)
     {
         if (!text.IsEmpty())
         {
@@ -1000,17 +1000,17 @@ namespace Onu
         }
     }
 
-    void CharString::Concat(const char& left, const CharString& text)
+    void CharString::Concat(char left, const CharString& text)
     {
         Concat(left, CharStringView(text));
     }
 
-    void CharString::Concat(const char& left, const char* text)
+    void CharString::Concat(char left, const char* text)
     {
         Concat(left, CharStringView(text));
     }
 
-    void CharString::Concat(const char& left, const char& ch)
+    void CharString::Concat(char left, char ch)
     {
         uint64 oldLength = m_Length;
         Resize(m_Length + 2);

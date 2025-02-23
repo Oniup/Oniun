@@ -54,7 +54,7 @@ namespace Onu
             return m_Data[index];
         }
 
-        FORCE_INLINE const Char& operator[](uint64 index) const
+        FORCE_INLINE Char operator[](uint64 index) const
         {
             ASSERT(index < m_Length);
             return m_Data[index];
@@ -209,8 +209,8 @@ namespace Onu
 
     public:
         static bool Parse(const StringView& str, int64* result);
-        static bool Parse(const StringView& str, double* result);
 
+        static bool Parse(const StringView& str, double* result);
 
         String();
         String(uint64 capacity);
@@ -230,25 +230,25 @@ namespace Onu
 
         String& operator+=(const String& text);
         String& operator+=(const Char* text);
-        String& operator+=(const Char& ch);
+        String& operator+=(Char ch);
         String& operator+=(const StringView& text);
         String& operator+=(const Slice<Char>& slice);
 
         String& operator/=(const String& text);
         String& operator/=(const Char* text);
-        String& operator/=(const Char& ch);
+        String& operator/=(Char ch);
         String& operator/=(const StringView& text);
         String& operator/=(const Slice<Char>& slice);
 
         String operator+(const String& text);
         String operator+(const Char* text);
-        String operator+(const Char& ch);
+        String operator+(Char ch);
         String operator+(const StringView& text);
         String operator+(const Slice<Char>& slice);
 
         String operator/(const String& text);
         String operator/(const Char* text);
-        String operator/(const Char& ch);
+        String operator/(Char ch);
         String operator/(const StringView& text);
         String operator/(const Slice<Char>& slice);
 
@@ -265,16 +265,16 @@ namespace Onu
         bool operator!=(const StringView& str) const;
 
         void Set(const StringView& text);
-        void Append(const Char& ch);
+        void Append(Char ch);
         void Append(const StringView& text);
 
-        void Concat(const Char& left, const StringView& text);
-        void Concat(const Char& left, const String& text);
-        void Concat(const Char& left, const Char* text);
-        void Concat(const Char& left, const Char& ch);
+        void Concat(Char left, const StringView& text);
+        void Concat(Char left, const String& text);
+        void Concat(Char left, const Char* text);
+        void Concat(Char left, Char ch);
 
         template<typename... TArgs>
-        void Concat(const Char& left, const TArgs&... args);
+        void Concat(Char left, const TArgs&... args);
 
         void Insert(uint64 index, const StringView& str);
 
@@ -324,25 +324,25 @@ namespace Onu
 
         CharString& operator+=(const CharString& text);
         CharString& operator+=(const char* text);
-        CharString& operator+=(const char& ch);
+        CharString& operator+=(char ch);
         CharString& operator+=(const CharStringView& text);
         CharString& operator+=(const Slice<char>& slice);
 
         CharString& operator/=(const CharString& text);
         CharString& operator/=(const char* text);
-        CharString& operator/=(const char& ch);
+        CharString& operator/=(char ch);
         CharString& operator/=(const CharStringView& text);
         CharString& operator/=(const Slice<char>& slice);
 
         CharString operator+(const CharString& text);
         CharString operator+(const char* text);
-        CharString operator+(const char& ch);
+        CharString operator+(char ch);
         CharString operator+(const CharStringView& text);
         CharString operator+(const Slice<char>& slice);
 
         CharString operator/(const CharString& text);
         CharString operator/(const char* text);
-        CharString operator/(const char& ch);
+        CharString operator/(char ch);
         CharString operator/(const CharStringView& text);
         CharString operator/(const Slice<char>& slice);
 
@@ -359,16 +359,16 @@ namespace Onu
         bool operator!=(const CharStringView& str) const;
 
         void Set(const CharStringView& text);
-        void Append(const char& ch);
+        void Append(char ch);
         void Append(const CharStringView& text);
 
-        void Concat(const char& left, const CharStringView& text);
-        void Concat(const char& left, const CharString& text);
-        void Concat(const char& left, const char* text);
-        void Concat(const char& left, const char& ch);
+        void Concat(char left, const CharStringView& text);
+        void Concat(char left, const CharString& text);
+        void Concat(char left, const char* text);
+        void Concat(char left, char ch);
 
         template<typename... TArgs>
-        void Concat(const char& left, const TArgs&... args);
+        void Concat(char left, const TArgs&... args);
 
         void Insert(uint64 index, const CharStringView& str);
 
@@ -396,13 +396,13 @@ namespace Onu
     };
 
     template<typename... TArgs>
-    void String::Concat(const Char& left, const TArgs&... args)
+    void String::Concat(Char left, const TArgs&... args)
     {
         // TODO: ...
     }
 
     template<typename... TArgs>
-    void CharString::Concat(const char& left, const TArgs&... args)
+    void CharString::Concat(char left, const TArgs&... args)
     {
         // TODO: ...
     }

@@ -112,22 +112,22 @@ namespace Onu
             return m_Data;
         }
 
-        FORCE_INLINE TChar& First()
+        FORCE_INLINE constexpr TChar& First()
         {
             return m_Data[0];
         }
 
-        FORCE_INLINE const TChar& First() const
+        FORCE_INLINE constexpr const TChar& First() const
         {
             return m_Data[0];
         }
 
-        FORCE_INLINE TChar& Last()
+        FORCE_INLINE constexpr TChar& Last()
         {
             return m_Data[m_Length - 1];
         }
 
-        FORCE_INLINE const TChar& Last() const
+        FORCE_INLINE constexpr const TChar& Last() const
         {
             return m_Data[m_Length - 1];
         }
@@ -182,6 +182,11 @@ namespace Onu
             }
             return Crt::Compare(m_Data, str.m_Data, m_Length * sizeof(TChar));
         }
+
+        FORCE_INLINE constexpr void ReCalcLength()
+        {
+            m_Length = StringUtils::Length(m_Data);
+        }
     };
 
     class StringView : public IStringView<Char>
@@ -222,8 +227,9 @@ namespace Onu
 
         StringView(const String& str);
 
-        String operator+(const Char& ch) const;
+        String operator+(Char ch) const;
         String operator+(const StringView& str) const;
+        String operator/(Char ch) const;
         String operator/(const String& str) const;
 
         constexpr uint64 Find(const StringView& find, uint64 offset = 0) const
@@ -292,7 +298,7 @@ namespace Onu
             return indices.Count() > 0;
         }
 
-        constexpr uint64 Find(const Char& find, uint64 offset = 0) const
+        constexpr uint64 Find(Char find, uint64 offset = 0) const
         {
             for (uint64 i = offset; i < m_Length; ++i)
             {
@@ -302,7 +308,7 @@ namespace Onu
             return GlobalVars::NoPos;
         }
 
-        constexpr uint64 FindLast(const Char& find, uint64 offset = 0) const
+        constexpr uint64 FindLast(Char find, uint64 offset = 0) const
         {
             for (uint64 i = m_Length; i > 0; --i)
             {
@@ -312,7 +318,7 @@ namespace Onu
             return GlobalVars::NoPos;
         }
 
-        bool FindAll(const Char& find, Array<uint64>& indices) const
+        bool FindAll(Char find, Array<uint64>& indices) const
         {
             for (uint64 i = 0; i < m_Length; ++i)
             {
@@ -385,8 +391,9 @@ namespace Onu
 
         CharStringView(const CharString& str);
 
-        CharString operator+(const char& ch) const;
+        CharString operator+(char ch) const;
         CharString operator+(const CharStringView& str) const;
+        CharString operator/(char ch) const;
         CharString operator/(const CharStringView& str) const;
 
         constexpr uint64 Find(const CharStringView& find, uint64 offset = 0) const
@@ -446,7 +453,7 @@ namespace Onu
             return indices.Count() > 0;
         }
 
-        constexpr uint64 Find(const char& find, uint64 offset = 0) const
+        constexpr uint64 Find(char find, uint64 offset = 0) const
         {
             for (uint64 i = offset; i < m_Length; ++i)
             {
@@ -456,7 +463,7 @@ namespace Onu
             return GlobalVars::NoPos;
         }
 
-        constexpr uint64 FindLast(const char& find, uint64 offset = 0) const
+        constexpr uint64 FindLast(char find, uint64 offset = 0) const
         {
             for (uint64 i = m_Length; i > 0; --i)
             {
@@ -466,7 +473,7 @@ namespace Onu
             return GlobalVars::NoPos;
         }
 
-        bool FindAll(const char& find, Array<uint64>& indices) const
+        bool FindAll(char find, Array<uint64>& indices) const
         {
             for (uint64 i = 0; i < m_Length; ++i)
             {

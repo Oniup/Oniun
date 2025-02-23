@@ -12,15 +12,13 @@ namespace Onu
 
         static bool CreateDirectory(const StringView& path);
         static bool DeleteDirectory(const StringView& path);
-        static bool CopyDirectory(const StringView& destPath, const StringView& srcPath,
-                                  bool copySubDirectories = true);
 
         static bool DirectoryExists(const StringView& path);
         static bool GetDirectoryFiles(Array<String>& filePaths, const StringView& path, const StringView& searchPattern,
                                       DirectorySearch searchOpt);
         static bool GetChildDirectories(Array<String>& directories, const StringView& path);
 
-        static String OpenSpecialDirectory(SpecialDirectory type);
+        static String GetSpecialDirectoryPath(SpecialDirectory type);
 
         static bool DeleteFile(const StringView& path);
         static bool MoveFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting = false);

@@ -33,8 +33,6 @@ namespace Onu
 
         static bool CreateDirectory(const StringView& path) = delete;
         static bool DeleteDirectory(const StringView& path) = delete;
-        static bool CopyDirectory(const StringView& destPath, const StringView& srcPath,
-                                  bool copySubDirectories = true) = delete;
 
         static bool DirectoryExists(const StringView& path) = delete;
         static bool GetDirectoryFiles(Array<String>& filePaths, const StringView& path,
@@ -42,7 +40,7 @@ namespace Onu
                                       DirectorySearch searchOpt = DirectorySearch::All) = delete;
         static bool GetChildDirectories(Array<String>& directories, const StringView& path) = delete;
 
-        static String OpenSpecialDirectory(SpecialDirectory type) = delete;
+        static String GetSpecialDirectoryPath(SpecialDirectory type) = delete;
 
         static bool DeleteFile(const StringView& path) = delete;
         static bool MoveFile(const StringView& destPath, const StringView& srcPath,
