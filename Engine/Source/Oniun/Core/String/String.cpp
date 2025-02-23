@@ -236,31 +236,31 @@ namespace Onu
 
     String& String::operator/=(const String& text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     String& String::operator/=(const Char* text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     String& String::operator/=(const Char& ch)
     {
-        Concat(PlatformPathSeparator, ch);
+        Concat('/', ch);
         return *this;
     }
 
     String& String::operator/=(const StringView& text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     String& String::operator/=(const Slice<Char>& slice)
     {
-        Concat(PlatformPathSeparator, slice);
+        Concat('/', slice);
         return *this;
     }
 
@@ -302,35 +302,35 @@ namespace Onu
     String String::operator/(const String& text)
     {
         String str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     String String::operator/(const Char* text)
     {
         String str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     String String::operator/(const Char& ch)
     {
         String str(*this);
-        str.Concat(PlatformPathSeparator, ch);
+        str.Concat('/', ch);
         return str;
     }
 
     String String::operator/(const StringView& text)
     {
         String str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     String String::operator/(const Slice<Char>& slice)
     {
         String str(*this);
-        Concat(PlatformPathSeparator, slice);
+        Concat('/', slice);
         return str;
     }
 
@@ -543,8 +543,8 @@ namespace Onu
         String result;
         if (index + length <= m_Length)
         {
-            Slice lhs(begin(), begin() + index);
-            Slice rhs(begin() + index + length, end());
+            Slice lhs(Begin(), Begin() + index);
+            Slice rhs(Begin() + index + length, end());
 
             result.Append(lhs);
             result.Append(replace);
@@ -568,7 +568,7 @@ namespace Onu
     String String::ReplaceFirst(const StringView& find, const StringView& replace) const
     {
         uint64 index = Find(find);
-        if (index != NoPos)
+        if (index != GlobalVars::NoPos)
             return Replace(index, find.Length(), replace);
         return Empty;
     }
@@ -576,7 +576,7 @@ namespace Onu
     String String::ReplaceLast(const StringView& find, const StringView& replace) const
     {
         uint64 index = FindLast(find);
-        if (index != NoPos)
+        if (index != GlobalVars::NoPos)
             return Replace(index, find.Length(), replace);
         return Empty;
     }
@@ -808,31 +808,31 @@ namespace Onu
 
     CharString& CharString::operator/=(const CharString& text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     CharString& CharString::operator/=(const char* text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     CharString& CharString::operator/=(const char& ch)
     {
-        Concat(PlatformPathSeparator, ch);
+        Concat('/', ch);
         return *this;
     }
 
     CharString& CharString::operator/=(const CharStringView& text)
     {
-        Concat(PlatformPathSeparator, text);
+        Concat('/', text);
         return *this;
     }
 
     CharString& CharString::operator/=(const Slice<char>& slice)
     {
-        Concat(PlatformPathSeparator, slice);
+        Concat('/', slice);
         return *this;
     }
 
@@ -874,35 +874,35 @@ namespace Onu
     CharString CharString::operator/(const CharString& text)
     {
         CharString str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     CharString CharString::operator/(const char* text)
     {
         CharString str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     CharString CharString::operator/(const char& ch)
     {
         CharString str(*this);
-        str.Concat(PlatformPathSeparator, ch);
+        str.Concat('/', ch);
         return str;
     }
 
     CharString CharString::operator/(const CharStringView& text)
     {
         CharString str(*this);
-        str.Concat(PlatformPathSeparator, text);
+        str.Concat('/', text);
         return str;
     }
 
     CharString CharString::operator/(const Slice<char>& slice)
     {
         CharString str(*this);
-        Concat(PlatformPathSeparator, slice);
+        Concat('/', slice);
         return str;
     }
 
@@ -1115,8 +1115,8 @@ namespace Onu
         CharString result;
         if (index + length <= m_Length)
         {
-            Slice lhs(begin(), begin() + index);
-            Slice rhs(begin() + index + length, end());
+            Slice lhs(Begin(), Begin() + index);
+            Slice rhs(Begin() + index + length, end());
 
             result.Append(lhs);
             result.Append(replace);
@@ -1140,7 +1140,7 @@ namespace Onu
     CharString CharString::ReplaceFirst(const CharStringView& find, const CharStringView& replace) const
     {
         uint64 index = Find(find);
-        if (index != NoPos)
+        if (index != GlobalVars::NoPos)
             return Replace(index, find.Length(), replace);
         return Empty;
     }
@@ -1148,14 +1148,14 @@ namespace Onu
     CharString CharString::ReplaceLast(const CharStringView& find, const CharStringView& replace) const
     {
         uint64 index = FindLast(find);
-        if (index != NoPos)
+        if (index != GlobalVars::NoPos)
             return Replace(index, find.Length(), replace);
         return Empty;
     }
 
     Slice<Char> ToSlice(const String& string)
     {
-        return Slice(string.begin(), string.end());
+        return Slice(string.Begin(), string.end());
     }
 
     Slice<Char> ToSlice(const String& string, uint64 index, uint64 length)
@@ -1165,7 +1165,7 @@ namespace Onu
 
     Slice<char> ToSlice(const CharString& string)
     {
-        return Slice(string.begin(), string.end());
+        return Slice(string.Begin(), string.end());
     }
 
     Slice<char> ToSlice(const CharString& string, uint64 index, uint64 length)

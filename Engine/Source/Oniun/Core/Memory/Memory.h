@@ -22,20 +22,20 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void ConstructItem(T* dest)
+    FORCE_INLINE constexpr void ConstructItem(T* dest)
     {
         if constexpr (!std::is_trivially_constructible_v<T>)
             new(dest) T();
     }
 
     template<typename T, typename... TArgs>
-    FORCE_INLINE void ConstructItemArgs(T* dest, TArgs&&... args)
+    FORCE_INLINE constexpr void ConstructItemArgs(T* dest, TArgs&&... args)
     {
         new(dest) T(args...);
     }
 
     template<typename T, typename TU>
-    FORCE_INLINE void ConstructItem(T* dest, const TU& src)
+    FORCE_INLINE constexpr void ConstructItem(T* dest, const TU& src)
     {
         static_assert(std::is_constructible_v<T, TU>, "The two types are not constructible");
         if constexpr (!std::is_trivially_constructible_v<T>)
@@ -45,7 +45,7 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void ConstructItems(T* dest, uint64 count)
+    FORCE_INLINE constexpr void ConstructItems(T* dest, uint64 count)
     {
         if constexpr (!std::is_trivially_constructible_v<T>)
         {
@@ -58,7 +58,7 @@ namespace Onu::Memory
     }
 
     template<typename T, typename TU>
-    FORCE_INLINE void ConstructItems(T* dest, const TU* src, uint64 count)
+    FORCE_INLINE constexpr void ConstructItems(T* dest, const TU* src, uint64 count)
     {
         static_assert(std::is_constructible_v<T, TU>, "The two types are not constructible");
         if constexpr (!std::is_trivially_copy_constructible_v<T>)
@@ -75,14 +75,14 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void DestructItem(T* dest)
+    FORCE_INLINE constexpr void DestructItem(T* dest)
     {
         if constexpr (!std::is_trivially_destructible_v<T>)
             dest->~T();
     }
 
     template<typename T>
-    FORCE_INLINE void DestructItems(T* dest, uint64 count)
+    FORCE_INLINE constexpr void DestructItems(T* dest, uint64 count)
     {
         if constexpr (!std::is_trivially_destructible_v<T>)
         {
@@ -95,7 +95,7 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void CopyItems(T* dest, const T* src, uint64 count)
+    FORCE_INLINE constexpr void CopyItems(T* dest, const T* src, uint64 count)
     {
         if constexpr (!std::is_trivially_copy_constructible_v<T>)
         {
@@ -111,7 +111,7 @@ namespace Onu::Memory
     }
 
     template<typename T, typename TU>
-    FORCE_INLINE void MoveItems(T* dest, const TU* src, uint64 count)
+    FORCE_INLINE constexpr void MoveItems(T* dest, const TU* src, uint64 count)
     {
         static_assert(std::is_constructible_v<T, TU>, "The two types are not constructible");
         if constexpr (!std::is_trivially_move_constructible_v<T>)
@@ -128,7 +128,7 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void SetItems(T* dest, const T& value, uint64 count)
+    FORCE_INLINE constexpr void SetItems(T* dest, const T& value, uint64 count)
     {
         if constexpr (!std::is_trivially_copy_constructible_v<T>)
         {
@@ -143,7 +143,7 @@ namespace Onu::Memory
     }
 
     template<typename T, typename... TArgs>
-    FORCE_INLINE T* Allocate(TArgs&&... args)
+    FORCE_INLINE constexpr T* Allocate(TArgs&&... args)
     {
         T* ptr = static_cast<T*>(Crt::Allocate(sizeof(T)));
         new(ptr) T(args...);
@@ -151,7 +151,7 @@ namespace Onu::Memory
     }
 
     template<typename T>
-    FORCE_INLINE void Free(T* ptr)
+    FORCE_INLINE constexpr void Free(T* ptr)
     {
         DestructItem(ptr);
         Crt::Free(ptr);

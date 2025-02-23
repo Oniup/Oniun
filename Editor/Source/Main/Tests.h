@@ -3,6 +3,7 @@
 #include <cwchar>
 
 #include "Oniun/Core/Defines.h"
+#include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/Format.h"
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"

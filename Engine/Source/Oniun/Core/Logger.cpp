@@ -3,6 +3,7 @@
 #include "Oniun/Core/DateTime.h"
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Platform/Platform.h"
+#include "Oniun/Platform/Windows/Win32FileSystem.h"
 
 #define RESET       "\033[0m"
 #define RED         "\033[31m"
@@ -75,8 +76,15 @@ namespace Onu
     void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
                            const StringView& userMsg)
     {
+        String path(file);
+        uint64 engineIndex = file.FindLast(TEXT("Oniun"));
+        if (engineIndex != GlobalVars::NoPos)
+        {
+            path.Set(ToSlice(file.begin() + engineIndex, file.end()));
+        }
+
         DateTime time(DateTime::Now());
-        String utf16Message = Format(TEXT("[{} {} {}:{}:{}]:\n{}\n"), type, time, file, function, line, userMsg);
+        String utf16Message = Format(TEXT("[{} {} {}:{}:{}]:\n{}\n"), type, time, path, function, line, userMsg);
         CharString utf8Message(StringUtils::Utf16ToUtf8(utf16Message));
 
         for (ILogOutput* output : m_Outputs)
@@ -99,7 +107,6 @@ namespace Onu
     {
         File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
         stream->Write(utf8FinalMsg.Data(), static_cast<uint32>(utf8FinalMsg.Length()));
-        stream->Flush();
     }
 
     FileLogOutput::FileLogOutput(const StringView& outputPath)

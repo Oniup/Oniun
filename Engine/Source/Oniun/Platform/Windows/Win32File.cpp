@@ -2,11 +2,10 @@
 
 #include "Oniun/Platform/Windows/Win32File.h"
 
-#include <Windows.h>
-
 #include "Oniun/Core/DateTime.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/String.h"
+#include "Oniun/Platform/Windows/Win32Headers.h"
 #include "Oniun/Platform/Windows/Win32Platform.h"
 
 namespace Onu
@@ -95,11 +94,11 @@ namespace Onu
 
     bool File::Flush()
     {
-        // if (!FlushFileBuffers(m_Handle))
-        // {
-        //     LOG(Error, *Platform::GetLastErrorMessage());
-        //     return false;
-        // }
+        if (!FlushFileBuffers(m_Handle))
+        {
+            LOG(Error, *Platform::GetLastErrorMessage());
+            return false;
+        }
         return true;
     }
 

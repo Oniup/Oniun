@@ -38,10 +38,10 @@ namespace Onu
             if (first)
             {
                 first = false;
-                result.Append((sameLine ? TEXT(" ") : TEXT("\n")) + ToString(val));
+                result.Append(StringView(sameLine ? TEXT(" ") : TEXT("\n")) + ToString(val));
             }
             else
-                result.Append((sameLine ? TEXT(", ") : TEXT("\n")) + ToString(val));
+                result.Append(StringView(sameLine ? TEXT(", ") : TEXT("\n")) + ToString(val));
         }
         result.Append(sameLine ? TEXT(" ]") : TEXT("\n]"));
         return result;
@@ -62,7 +62,7 @@ namespace Onu
             }
             else
                 result.Append((sameLine ? TEXT(", { ") : TEXT("\n{ ")));
-            result.Append(ToString(bucket.Value) + TEXT(", ") + ToString(bucket.GetKey()) + TEXT(" }"));
+            result.Append(ToString(bucket.Value) + StringView(TEXT(", ")) + ToString(bucket.GetKey()) + TEXT(" }"));
         }
         result.Append(sameLine ? TEXT(" ]") : TEXT("\n]"));
         return result;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
+#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Allocation.h"
 #include "Oniun/Core/String/StringView.h"
 #include "Oniun/Core/Templates/PackedIterator.h"
@@ -15,9 +16,6 @@ namespace Onu
         using CharType = TChar;
         using Allocator = HeapAllocation::Data<TChar>;
         using Iterator = PackedIterator<TChar>;
-
-    public:
-        static constexpr uint64 NoPos = MAX_UINT64;
 
     protected:
         uint64 m_Length;
@@ -82,6 +80,26 @@ namespace Onu
             return m_Data.Capacity();
         }
 
+        FORCE_INLINE TChar& First()
+        {
+            return m_Data[0];
+        }
+
+        FORCE_INLINE const TChar& First() const
+        {
+            return m_Data[0];
+        }
+
+        FORCE_INLINE TChar& Last()
+        {
+            return m_Data[m_Length - 1];
+        }
+
+        FORCE_INLINE const TChar& Last() const
+        {
+            return m_Data[m_Length - 1];
+        }
+
         FORCE_INLINE Iterator begin()
         {
             return Iterator(m_Data.Ptr());
@@ -102,9 +120,29 @@ namespace Onu
             return Iterator(const_cast<TChar*>(m_Data.Ptr()) + m_Length);
         }
 
+        FORCE_INLINE Iterator Begin()
+        {
+            return begin();
+        }
+
+        FORCE_INLINE Iterator Begin() const
+        {
+            return begin();
+        }
+
+        FORCE_INLINE Iterator End()
+        {
+            return end();
+        }
+
+        FORCE_INLINE Iterator End() const
+        {
+            return end();
+        }
+
         FORCE_INLINE bool IsEmpty()
         {
-            return m_Length == 0 || m_Length == NoPos || !m_Data.Ptr();
+            return m_Length == 0 || m_Length == GlobalVars::NoPos || !m_Data.Ptr();
         }
 
         void Clear()
@@ -137,6 +175,29 @@ namespace Onu
         {
             m_Length = StringUtils::Length(m_Data.Ptr());
         }
+
+        void CorrectPathSlashes()
+        {
+            for (uint64 i = 0; i < m_Length; ++i)
+            {
+                if (m_Data[i] == '\\')
+                    m_Data[i] = '/';
+            }
+        }
+
+        void CorrectPlatformPathSlashes()
+        {
+            for (uint64 i = 0; i < m_Length; ++i)
+            {
+#if ONU_PLATFORM_WINDOWS
+                if (m_Data[i] == '/')
+                    m_Data[i] = '\\';
+#else
+                if (m_Data[i] == '\\')
+                    m_Data[i] = '/';
+#endif
+            }
+        }
     };
 
     class String : public IString<Char>
@@ -145,10 +206,6 @@ namespace Onu
 
     public:
         static const String Empty;
-
-        static constexpr Char UnixPathSeparator = L'/';
-        static constexpr Char WindowsPathSeparator = L'\\';
-        static constexpr Char PlatformPathSeparator = ONU_PLATFORM_WINDOWS ? WindowsPathSeparator : UnixPathSeparator;
 
     public:
         static bool Parse(const StringView& str, int64* result);
@@ -225,7 +282,7 @@ namespace Onu
 
         bool Compare(const StringView& str) const;
 
-        String Substring(uint64 startIndex, uint64 length = NoPos) const;
+        String Substring(uint64 startIndex, uint64 length = GlobalVars::NoPos) const;
         String TrimTrailing() const;
 
         uint64 Find(const StringView& find) const;
@@ -247,10 +304,6 @@ namespace Onu
 
     public:
         static const CharString Empty;
-
-        static constexpr char UnixPathSeparator = '/';
-        static constexpr char WindowsPathSeparator = '\\';
-        static constexpr char PlatformPathSeparator = ONU_PLATFORM_WINDOWS ? WindowsPathSeparator : UnixPathSeparator;
 
     public:
         CharString();
@@ -323,7 +376,7 @@ namespace Onu
 
         bool Compare(const CharStringView& str) const;
 
-        CharString Substring(uint64 startIndex, uint64 length = NoPos) const;
+        CharString Substring(uint64 startIndex, uint64 length = GlobalVars::NoPos) const;
         CharString TrimTrailing() const;
 
         uint64 Find(const CharStringView& find) const;

@@ -8,14 +8,16 @@ namespace Onu
 {
     struct FileSystem : IFileSystem
     {
-        static String GetCurrentWorkingDirectory();
+        static String GetCurrentDirectory();
 
         static bool CreateDirectory(const StringView& path);
-        static bool DeleteDirectory(const StringView& path, bool deleteContents = true);
-        static bool CopyDirectory(const StringView& destPath, const StringView& srcPath, bool copySubDirectories = true);
+        static bool DeleteDirectory(const StringView& path);
+        static bool CopyDirectory(const StringView& destPath, const StringView& srcPath,
+                                  bool copySubDirectories = true);
 
         static bool DirectoryExists(const StringView& path);
-        static bool GetDirectoryFiles(Array<String>& filePaths, const StringView& path, const StringView& searchPattern = TEXT("*"), DirectorySearch searchOpt = DirectorySearch_All);
+        static bool GetDirectoryFiles(Array<String>& filePaths, const StringView& path, const StringView& searchPattern,
+                                      DirectorySearch searchOpt);
         static bool GetChildDirectories(Array<String>& directories, const StringView& path);
 
         static String OpenSpecialDirectory(SpecialDirectory type);
@@ -26,6 +28,12 @@ namespace Onu
 
         static uint64 GetFileSize(const StringView& path);
         static bool FileExists(const StringView& path);
+
+    private:
+        static bool GetDirectoryFilesOnly(Array<String>& filePaths, const StringView& path,
+                                          const StringView& searchPattern);
+        static bool GetDirectoryFilesAll(Array<String>& filePaths, const StringView& path,
+                                         const StringView& searchPattern);
     };
 }
 

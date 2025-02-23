@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
+#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Crt.h"
 #include "Oniun/Core/String/StringUtils.h"
 #include "Oniun/Core/Templates/Array.h"
@@ -8,15 +9,12 @@
 
 namespace Onu
 {
-    template<typename TChar>
+    template <typename TChar>
     class IStringView
     {
     public:
         using CharType = TChar;
         using Iterator = PackedIterator<TChar>;
-
-    public:
-        static constexpr uint64 NoPos = MAX_INT64;
 
     protected:
         uint64 m_Length;
@@ -28,8 +26,8 @@ namespace Onu
         {
         }
 
-        FORCE_INLINE constexpr IStringView(const TChar* str, uint64 length = NoPos)
-            : m_Length(length == NoPos ? StringUtils::Length(str) : length), m_Data(str)
+        FORCE_INLINE constexpr IStringView(const TChar* str, uint64 length = GlobalVars::NoPos)
+            : m_Length(length == GlobalVars::NoPos ? StringUtils::Length(str) : length), m_Data(str)
         {
         }
 
@@ -114,6 +112,26 @@ namespace Onu
             return m_Data;
         }
 
+        FORCE_INLINE TChar& First()
+        {
+            return m_Data[0];
+        }
+
+        FORCE_INLINE const TChar& First() const
+        {
+            return m_Data[0];
+        }
+
+        FORCE_INLINE TChar& Last()
+        {
+            return m_Data[m_Length - 1];
+        }
+
+        FORCE_INLINE const TChar& Last() const
+        {
+            return m_Data[m_Length - 1];
+        }
+
         FORCE_INLINE constexpr Iterator begin()
         {
             return Iterator(const_cast<TChar*>(m_Data));
@@ -134,6 +152,26 @@ namespace Onu
             return Iterator(const_cast<TChar*>(m_Data) + m_Length);
         }
 
+        FORCE_INLINE constexpr Iterator Begin()
+        {
+            return begin();
+        }
+
+        FORCE_INLINE constexpr Iterator Begin() const
+        {
+            return begin();
+        }
+
+        FORCE_INLINE constexpr Iterator End()
+        {
+            return end();
+        }
+
+        FORCE_INLINE constexpr Iterator End() const
+        {
+            return end();
+        }
+
         constexpr int32 Compare(const IStringView& str) const
         {
             if (m_Length != str.m_Length)
@@ -143,88 +181,6 @@ namespace Onu
                 return 1;
             }
             return Crt::Compare(m_Data, str.m_Data, m_Length * sizeof(TChar));
-        }
-
-        constexpr uint64 Find(const IStringView& search, uint64 offset = 0) const
-        {
-            for (uint64 i = offset; i < m_Length - search.Length() + 1; ++i)
-            {
-                bool found = true;
-                for (uint64 j = 0; j < search.Length(); ++j)
-                {
-                    if (m_Data[i + j] != search[j])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                    return i;
-            }
-            return NoPos;
-        }
-
-        constexpr uint64 FindLast(const IStringView& search, uint64 offset = 0) const
-        {
-            for (uint64 i = m_Length - search.Length() - offset; i > 0; --i)
-            {
-                bool found = true;
-                for (uint64 j = 0; j < search.Length(); ++j)
-                {
-                    if (m_Data[i + j] != search[j])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                    return i;
-            }
-            return NoPos;
-        }
-
-        bool FindAll(const IStringView& find, Array<uint64>& indices) const
-        {
-            indices.Clear();
-            for (uint64 i = 0; i < m_Length - find.Length() + 1; ++i)
-            {
-                bool found = true;
-                for (uint64 j = 0; j < find.Length(); ++j)
-                {
-                    if (m_Data[i + j] != find[j])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found)
-                    indices.Add(i);
-            }
-            return indices.Count() > 0;
-    }
-
-        constexpr bool BeginsWith(const IStringView& str) const
-        {
-            if (str.Length() < m_Length)
-                return false;
-            for (uint64 i = 0; i < str.Length(); ++i)
-            {
-                if (m_Data[i] != str[i])
-                    return false;
-            }
-            return true;
-        }
-
-        constexpr bool EndsWith(const IStringView& str) const
-        {
-            if (str.Length() < m_Length)
-                return false;
-            for (uint64 i = str.Length(); i > 0; --i)
-            {
-                if (m_Data[i - 1] != str[i - 1])
-                    return false;
-            }
-            return true;
         }
     };
 
@@ -265,6 +221,130 @@ namespace Onu
         }
 
         StringView(const String& str);
+
+        String operator+(const Char& ch) const;
+        String operator+(const StringView& str) const;
+        String operator/(const String& str) const;
+
+        constexpr uint64 Find(const StringView& find, uint64 offset = 0) const
+        {
+            if (find.Length() > m_Length)
+                return GlobalVars::NoPos;
+
+            for (uint64 i = offset; i < m_Length - find.Length() + 1; ++i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        constexpr uint64 FindLast(const StringView& find, uint64 offset = 0) const
+        {
+            if (find.Length() > m_Length)
+                return GlobalVars::NoPos;
+
+            for (uint64 i = m_Length - find.Length() - offset; i > 0; --i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        bool FindAll(const StringView& find, Array<uint64>& indices) const
+        {
+            if (find.Length() > m_Length)
+                return false;
+
+            for (uint64 i = 0; i < m_Length - find.Length() + 1; ++i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    indices.Add(i);
+            }
+            return indices.Count() > 0;
+        }
+
+        constexpr uint64 Find(const Char& find, uint64 offset = 0) const
+        {
+            for (uint64 i = offset; i < m_Length; ++i)
+            {
+                if (m_Data[i] == find)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        constexpr uint64 FindLast(const Char& find, uint64 offset = 0) const
+        {
+            for (uint64 i = m_Length; i > 0; --i)
+            {
+                if (m_Data[i - 1] == find)
+                    return i - 1;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        bool FindAll(const Char& find, Array<uint64>& indices) const
+        {
+            for (uint64 i = 0; i < m_Length; ++i)
+            {
+                if (m_Data[i] == find)
+                    indices.Add(i);
+            }
+            return indices.Count() > 0;
+        }
+
+        constexpr bool BeginsWith(const StringView& str) const
+        {
+            if (str.Length() < m_Length)
+                return false;
+            for (uint64 i = 0; i < str.Length(); ++i)
+            {
+                if (m_Data[i] != str[i])
+                    return false;
+            }
+            return true;
+        }
+
+        constexpr bool EndsWith(const StringView& str) const
+        {
+            if (str.Length() < m_Length)
+                return false;
+            for (uint64 i = str.Length(); i > 0; --i)
+            {
+                if (m_Data[i - 1] != str[i - 1])
+                    return false;
+            }
+            return true;
+        }
     };
 
     class CharStringView : public IStringView<char>
@@ -304,6 +384,121 @@ namespace Onu
         }
 
         CharStringView(const CharString& str);
+
+        CharString operator+(const char& ch) const;
+        CharString operator+(const CharStringView& str) const;
+        CharString operator/(const CharStringView& str) const;
+
+        constexpr uint64 Find(const CharStringView& find, uint64 offset = 0) const
+        {
+            for (uint64 i = offset; i < m_Length - find.Length() + 1; ++i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        constexpr uint64 FindLast(const CharStringView& find, uint64 offset = 0) const
+        {
+            for (uint64 i = m_Length - find.Length() - offset; i > 0; --i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        bool FindAll(const CharStringView& find, Array<uint64>& indices) const
+        {
+            for (uint64 i = 0; i < m_Length - find.Length() + 1; ++i)
+            {
+                bool found = true;
+                for (uint64 j = 0; j < find.Length(); ++j)
+                {
+                    if (m_Data[i + j] != find[j])
+                    {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found)
+                    indices.Add(i);
+            }
+            return indices.Count() > 0;
+        }
+
+        constexpr uint64 Find(const char& find, uint64 offset = 0) const
+        {
+            for (uint64 i = offset; i < m_Length; ++i)
+            {
+                if (m_Data[i] == find)
+                    return i;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        constexpr uint64 FindLast(const char& find, uint64 offset = 0) const
+        {
+            for (uint64 i = m_Length; i > 0; --i)
+            {
+                if (m_Data[i - 1] == find)
+                    return i - 1;
+            }
+            return GlobalVars::NoPos;
+        }
+
+        bool FindAll(const char& find, Array<uint64>& indices) const
+        {
+            for (uint64 i = 0; i < m_Length; ++i)
+            {
+                if (m_Data[i] == find)
+                    indices.Add(i);
+            }
+            return indices.Count() > 0;
+        }
+
+        constexpr bool BeginsWith(const CharStringView& str) const
+        {
+            if (str.Length() < m_Length)
+                return false;
+            for (uint64 i = 0; i < str.Length(); ++i)
+            {
+                if (m_Data[i] != str[i])
+                    return false;
+            }
+            return true;
+        }
+
+        constexpr bool EndsWith(const CharStringView& str) const
+        {
+            if (str.Length() < m_Length)
+                return false;
+            for (uint64 i = str.Length(); i > 0; --i)
+            {
+                if (m_Data[i - 1] != str[i - 1])
+                    return false;
+            }
+            return true;
+        }
     };
 
     constexpr Slice<Char> ToSlice(const StringView& string)

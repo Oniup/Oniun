@@ -328,6 +328,26 @@ namespace Onu
             return Iterator(this, Capacity());
         }
 
+        FORCE_INLINE Iterator Begin()
+        {
+            return begin();
+        }
+
+        FORCE_INLINE Iterator Begin() const
+        {
+            return begin();
+        }
+
+        FORCE_INLINE Iterator End()
+        {
+            return end();
+        }
+
+        FORCE_INLINE Iterator End() const
+        {
+            return end();
+        }
+
         void Clear()
         {
             if (!m_Data.Ptr())

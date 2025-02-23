@@ -100,9 +100,11 @@ namespace Onu
 #define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])
 
 #if !ONU_DIST
-#define ASSERT(_Expression)\
-{\
-    if (!(_Expression))\
-        Onu::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__);\
-}
+// #define ASSERT(_Expression)\
+// {\
+//     if (!(_Expression))\
+//         Onu::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__);\
+// }
+#define ASSERT(_Expression)
+#else
 #endif

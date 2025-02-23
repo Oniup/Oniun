@@ -27,8 +27,6 @@ namespace Onu
         Allocator m_Data;
 
     public:
-        static constexpr uint64 NoPos = MAX_UINT64;
-
         constexpr Array()
             : m_Count(0)
         {
@@ -81,7 +79,7 @@ namespace Onu
             : m_Count(initList.size())
         {
             m_Data.Allocate(m_Count);
-            Memory::ConstructItems(m_Data.Ptr(), &*initList.begin(), m_Count);
+            Memory::ConstructItems(m_Data.Ptr(), &*initList.Begin(), m_Count);
         }
 
         constexpr ~Array()
@@ -197,6 +195,26 @@ namespace Onu
             return Iterator(const_cast<T*>(m_Data.Ptr()) + m_Count);
         }
 
+        FORCE_INLINE constexpr Iterator Begin()
+        {
+            return begin();
+        }
+
+        FORCE_INLINE constexpr Iterator Begin() const
+        {
+            return begin();
+        }
+
+        FORCE_INLINE constexpr Iterator End()
+        {
+            return end();
+        }
+
+        FORCE_INLINE constexpr Iterator End() const
+        {
+            return end();
+        }
+
         FORCE_INLINE constexpr bool IsEmpty() const
         {
             return m_Count == 0;
@@ -235,7 +253,7 @@ namespace Onu
             return false;
         }
 
-        constexpr bool Resize(uint64 count)
+        FORCE_INLINE constexpr bool Resize(uint64 count)
         {
             if (count > Capacity())
             {
@@ -254,7 +272,7 @@ namespace Onu
             return true;
         }
 
-        constexpr void Reserve(uint64 newCapacity, bool preserveContents = true)
+        FORCE_INLINE constexpr void Reserve(uint64 newCapacity, bool preserveContents = true)
         {
             if constexpr (std::is_same_v<TAllocationType, HeapAllocation>)
             {
@@ -348,13 +366,13 @@ namespace Onu
                 if (m_Data[i] == item)
                     return i;
             }
-            return NoPos;
+            return GlobalVars::NoPos;
         }
 
         template <typename TComparableType>
         constexpr uint64 FindLast(const TComparableType& item) const
         {
-            uint64 last = NoPos;
+            uint64 last = GlobalVars::NoPos;
             for (uint64 i = 0; i < m_Count; ++i)
             {
                 if (m_Data[i] == item)
