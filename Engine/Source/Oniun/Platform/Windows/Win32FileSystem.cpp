@@ -107,7 +107,7 @@ namespace Onu
     bool FileSystem::GetDirectoryFiles(Array<String>& filePaths, const StringView& path,
                                        const StringView& searchPattern, DirectorySearch searchOpt)
     {
-        if (searchOpt == DirectorySearch::FilesOnly)
+        if (searchOpt == DirectorySearch::CurrentOnly)
             return GetDirectoryFilesOnly(filePaths, path, searchPattern);
         return GetDirectoryFilesAll(filePaths, path, searchPattern);
     }
@@ -177,31 +177,177 @@ namespace Onu
 
     bool FileSystem::DeleteFile(const StringView& path)
     {
-        return false;
+        if (!DeleteFileW(*path))
+        {
+            LOG(Error, *Platform::GetLastErrorMessage());
+            return false;
+        }
+        return true;
     }
 
     bool FileSystem::MoveFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting)
     {
-        return false;
+        DWORD flags = MOVEFILE_COPY_ALLOWED | (overwriteExisting ? MOVEFILE_REPLACE_EXISTING : 0);
+        if (!MoveFileExW(*srcPath, *destPath, flags))
+        {
+            LOG(Error, *Platform::GetLastErrorMessage());
+            return false;
+        }
+        return true;
     }
 
     bool FileSystem::CopyFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting)
     {
-        return false;
+        if (!CopyFileW(*srcPath, *destPath, !overwriteExisting))
+        {
+            LOG(Error, *Platform::GetLastErrorMessage());
+            return false;
+        }
+        return true;
     }
 
     uint64 FileSystem::GetFileSize(const StringView& path)
     {
+        WIN32_FILE_ATTRIBUTE_DATA attributes;
+        if (GetFileAttributesExW(*path, GetFileExInfoStandard, &attributes))
+        {
+            if (!(attributes.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            {
+                LARGE_INTEGER val;
+                val.HighPart = attributes.nFileSizeHigh;
+                val.LowPart = attributes.nFileSizeLow;
+                return val.QuadPart;
+            }
+        }
+        LOG(Error, *Platform::GetLastErrorMessage());
         return 0;
     }
 
     bool FileSystem::FileExists(const StringView& path)
     {
-        return false;
+        DWORD attribute = GetFileAttributesW(*path);
+        return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
+    }
+
+    String FileSystem::OpenDialog(const StringView& openPath, const StringView& filter, const StringView& title)
+    {
+        String result(MAX_PATH);
+
+        OPENFILENAME openFileName;
+        ZeroMemory(&openFileName, sizeof(openFileName));
+        openFileName.lStructSize = sizeof(openFileName);
+        openFileName.lpstrFilter = filter.Data();
+        openFileName.lpstrFile = result.Data();
+        openFileName.nMaxFile = MAX_PATH;
+        openFileName.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_ENABLESIZING;
+        openFileName.lpstrTitle = title.Data();
+        openFileName.lpstrInitialDir = openPath.Data();
+
+        if (GetOpenFileNameW(&openFileName) != 0)
+        {
+            result.ReCalcLength();
+            result.CorrectPathSlashes();
+        }
+        return result;
+    }
+
+    Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const StringView& filter,
+                                                 const StringView& title)
+    {
+        Array<String> results;
+        String buffer(200 * MAX_PATH);
+
+        OPENFILENAME openFileName;
+        ZeroMemory(&openFileName, sizeof(openFileName));
+        openFileName.lStructSize = sizeof(openFileName);
+        openFileName.lpstrFilter = filter.Data();
+        openFileName.lpstrFile = buffer.Data();
+        openFileName.nMaxFile = buffer.Capacity();
+        openFileName.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_ENABLESIZING | OFN_ALLOWMULTISELECT;
+        openFileName.lpstrTitle = title.Data();
+        openFileName.lpstrInitialDir = openPath.Data();
+
+        if (GetOpenFileNameW(&openFileName) != 0)
+        {
+            buffer.ReCalcLength();
+            const Char* ptr = buffer.Data();
+            String directory(ptr);
+
+            ptr += openFileName.nFileOffset;
+            while (*ptr)
+            {
+                String path(directory / ptr);
+                path.CorrectPathSlashes();
+                results.Add(std::move(path));
+                ptr += StringUtils::Length(ptr) + 1;
+            }
+        }
+        return results;
+    }
+
+    String FileSystem::SaveDialog(const StringView& openPath, const StringView& filter, const StringView& title)
+    {
+        String result(MAX_PATH);
+
+        OPENFILENAME openFileName;
+        ZeroMemory(&openFileName, sizeof(openFileName));
+        openFileName.lStructSize = sizeof(openFileName);
+        openFileName.lpstrFilter = filter.Data();
+        openFileName.lpstrFile = result.Data();
+        openFileName.nMaxFile = MAX_PATH;
+        openFileName.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_ENABLESIZING;
+        openFileName.lpstrTitle = title.Data();
+        openFileName.lpstrInitialDir = openPath.Data();
+
+        if (GetSaveFileNameW(&openFileName) != 0)
+        {
+            result.ReCalcLength();
+            result.CorrectPathSlashes();
+        }
+        return result;
+    }
+
+    String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringView& title)
+    {
+        String result(MAX_PATH);
+
+        BROWSEINFO browseInfo;
+        ZeroMemory(&browseInfo, sizeof(browseInfo));
+        browseInfo.hwndOwner = nullptr;
+        browseInfo.pidlRoot = nullptr;
+        browseInfo.pszDisplayName = nullptr;
+        browseInfo.lpszTitle = title.Data();
+        browseInfo.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+        browseInfo.lpfn = nullptr;
+        browseInfo.lParam = NULL;
+        browseInfo.iImage = 0;
+
+        LPITEMIDLIST itemIdList = SHBrowseForFolderW(&browseInfo);
+        if (itemIdList != nullptr)
+        {
+            Char path[MAX_PATH];
+            if (SHGetPathFromIDListW(itemIdList, path))
+            {
+                result = path;
+                result.CorrectPathSlashes();
+            }
+            IMalloc* pMalloc;
+            if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+            {
+                pMalloc->Free(itemIdList);
+                pMalloc->Release();
+            }
+        }
+        return result;
+    }
+
+    void FileSystem::OpenFileExplorer(const StringView& openPath)
+    {
+        ShellExecuteW(nullptr, TEXT("open"), TEXT("explorer.exe"), *openPath, nullptr, SW_SHOWNORMAL);
     }
 
     bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringView& path,
-        const StringView& searchPattern)
+                                           const StringView& searchPattern)
     {
         // Combine the path and the pattern into one string and initialize windows search handle
         WIN32_FIND_DATAW findData;

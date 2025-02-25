@@ -79,4 +79,10 @@ namespace Onu
     class DateTime;
 
     class File;
+
+    // Math forward declarations
+
+    struct Vector2;
+    struct Vector3;
+    struct Vector4;
 }

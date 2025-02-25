@@ -84,7 +84,7 @@ namespace Onu
         {
             Slice slice(format.begin() + offset, format.begin() + insertPositions[i]);
             result.Append(slice);
-            result.Append(*ToString(arg));
+            result.Append(ToString(arg));
             offset = insertPositions[i] + StringUtils::Length(FORMAT_SYNTAX);
             i++;
         }

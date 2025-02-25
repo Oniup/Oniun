@@ -8,7 +8,7 @@ project "Oniun Editor"
     systemversion "latest"
 
     debugdir(TargetDirectory)
-    
+
     files {
         "Source/**.h",
         "Source/**.cpp",
@@ -17,6 +17,7 @@ project "Oniun Editor"
     includedirs {
         "Source",
         "%{wks.location}/Engine/Source",
+        "%{wks.location}/Thirdparty/glm",
     }
 
     links {
@@ -25,7 +26,7 @@ project "Oniun Editor"
 
     defines {
         "FMT_HEADER_ONLY",
-        
+
         VersionMajor,
         VersionMinor,
         VersionPatch,
@@ -36,28 +37,28 @@ project "Oniun Editor"
 		filter "action:vs*"
 			buildoptions { "/utf-8" }
 			defines { "_CRT_SECURE_NO_WARNINGS" }
-	
+
 	filter "system:linux"
 	    defines { "ONU_PLATFORM_LINUX" }
-	
+
 	filter "system:macos"
 	    defines { "ONU_PLATFORM_MACOS" }
-	    
+
 	filter "configurations:Debug"
 	    defines { "ONU_DEBUG" }
 	    runtime "Debug"
 	    symbols "On"
-	    
+
 	filter "configurations:Release"
 	    defines { "ONU_RELEASE" }
 	    runtime "Release"
 	    symbols "On"
 	    optimize "On"
-	    
+
 	filter "configurations:Dist"
 	    kind "WindowedApp"
 	    defines { "ONU_Dist" }
 	    runtime "Release"
 	    symbols "Off"
 	    optimize "On"
-    
+
