@@ -5,15 +5,12 @@
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Platform/Base/IPlatform.h"
 
-namespace Onu
+struct Platform : IPlatform
 {
-    struct Platform : IPlatform
-    {
-        static String GetLastErrorMessage();
+    static String GetLastErrorMessage();
 
-        static File GetStdOutStream();
-        static File GetStdErrorStream();
-    };
-}
+    static File GetStdOutStream();
+    static File GetStdErrorStream();
+};
 
 #endif

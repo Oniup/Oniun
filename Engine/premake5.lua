@@ -1,3 +1,5 @@
+include "Thirdparty"
+
 project "Oniun"
     kind "StaticLib"
     language "C++"
@@ -9,6 +11,7 @@ project "Oniun"
 
     files {
         "Source/**.h",
+        "Source/**.hpp",
         "Source/**.cpp",
     }
 
@@ -29,7 +32,6 @@ project "Oniun"
 
 	defines {
 		"GLFW_INCLUDE_NONE",
-		"FMT_HEADER_ONLY",
 
 		VersionMajor,
 		VersionMinor,

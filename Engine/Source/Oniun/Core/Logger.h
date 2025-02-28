@@ -6,97 +6,94 @@
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Platform/File.h"
 
-namespace Onu
+enum class LogType
 {
-    enum class LogType
+    Verbose,
+    Trace,
+    Info,
+    Warning,
+    Error,
+    Fatal,
+};
+
+StringView ToString(LogType type);
+
+class ILogOutput
+{
+private:
+    String m_Name;
+
+public:
+    ILogOutput(const StringView& name)
+        : m_Name(name)
     {
-        Verbose,
-        Trace,
-        Info,
-        Warning,
-        Error,
-        Fatal,
-    };
+    }
 
-    StringView ToString(LogType type);
-
-    class ILogOutput
+    virtual ~ILogOutput()
     {
-    private:
-        String m_Name;
+    }
 
-    public:
-        ILogOutput(const StringView& name)
-            : m_Name(name)
-        {
-        }
+    virtual void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+                       const StringView& function, int32 line, const StringView& userMsg,
+                       const DateTime& time) = 0;
+};
 
-        virtual ~ILogOutput()
-        {
-        }
+class Logger : public Singleton<Logger>
+{
+private:
+    Array<ILogOutput*> m_Outputs;
 
-        virtual void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
-                           const StringView& function, int32 line, const StringView& userMsg,
-                           const DateTime& time) = 0;
-    };
+public:
+    Logger();
+    ~Logger();
 
-    class Logger : public Singleton<Logger>
+    static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
+                      const StringView& format)
     {
-    private:
-        Array<ILogOutput*> m_Outputs;
+        Instance()->WriteImpl(type, file, function, line, format);
+    }
 
-    public:
-        Logger();
-        ~Logger();
-
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
-                          const StringView& format)
-        {
-            Instance()->WriteImpl(type, file, function, line, format);
-        }
-
-        template <typename... TArgs>
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
-                          const StringView& format, const TArgs&... args)
-        {
-            String usrMsg = Format(format, args...);
-            Instance()->WriteImpl(type, file, function, line, usrMsg);
-        }
-
-        static void AddOutput(ILogOutput* entry);
-
-    private:
-        void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                       const StringView& userMsg);
-    };
-
-    class TerminalLogOutput : public ILogOutput
+    template <typename... TArgs>
+    static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
+                      const StringView& format, const TArgs&... args)
     {
-    private:
-        File m_StdStream;
-        File m_ErrorStream;
+        String usrMsg = Format(format, args...);
+        Instance()->WriteImpl(type, file, function, line, usrMsg);
+    }
 
-    public:
-        TerminalLogOutput();
-        ~TerminalLogOutput() override;
+    static void AddOutput(ILogOutput* entry);
 
-        void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
-                   int32 line, const StringView& userMsg, const DateTime& time) override;
-    };
+private:
+    void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
+                   const StringView& userMsg);
+};
 
-    class FileLogOutput : public ILogOutput
-    {
-    private:
-        File m_Output;
+class TerminalLogOutput : public ILogOutput
+{
+private:
+    File m_StdStream;
+    File m_ErrorStream;
 
-    public:
-        FileLogOutput(const StringView& outputPath);
-        ~FileLogOutput() override;
+public:
+    TerminalLogOutput();
+    ~TerminalLogOutput() override;
 
-        void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
-                   int32 line, const StringView& userMsg, const DateTime& time) override;
-    };
-}
+    void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+               int32 line, const StringView& userMsg, const DateTime& time) override;
+};
+
+class FileLogOutput : public ILogOutput
+{
+private:
+    File m_Output;
+
+public:
+    FileLogOutput(const StringView& outputPath);
+    ~FileLogOutput() override;
+
+    void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+               int32 line, const StringView& userMsg, const DateTime& time) override;
+};
 
 #define LOG(_Type, _Format, ...) \
-    Onu::Logger::Write(Onu::LogType::_Type, __FILEW__, __FUNCTIONW__, __LINE__, _Format, __VA_ARGS__)
+    Logger::Write(LogType::_Type, __FILEW__, __FUNCTIONW__, __LINE__, _Format, __VA_ARGS__)

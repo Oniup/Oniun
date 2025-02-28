@@ -12,6 +12,9 @@
 ### Build configuration ###
 ###########################
 
+# TODO: Remove when done with implementing custom math functions
+glm
+
 /custom.py
 misc/hooks/pre-commit-custom-*
 

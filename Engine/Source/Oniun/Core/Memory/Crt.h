@@ -5,7 +5,7 @@
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Compiler.h"
 
-namespace Onu::Crt
+namespace Crt
 {
     FORCE_INLINE constexpr void Copy(void* dest, const void* src, uint64 size)
     {
@@ -42,17 +42,14 @@ namespace Onu::Crt
 
     FORCE_INLINE constexpr int32 Compare(const void* dest, const void* src, uint64 size)
     {
-        if (dest == src)
+        const uint8* destPtr = static_cast<const uint8*>(dest);
+        const uint8* srcPtr = static_cast<const uint8*>(src);
+        for (uint64 i = 0; i < size; ++i)
         {
-            const uint8* destPtr = static_cast<const uint8*>(dest);
-            const uint8* srcPtr = static_cast<const uint8*>(src);
-            for (uint64 i = 0; i < size; ++i)
-            {
-                if (destPtr[i] < srcPtr[i])
-                    return -1;
-                if (destPtr[i] > srcPtr[i])
-                    return 1;
-            }
+            if (destPtr[i] < srcPtr[i])
+                return -1;
+            if (destPtr[i] > srcPtr[i])
+                return 1;
         }
         return 0;
     }
@@ -84,4 +81,4 @@ namespace Onu::Crt
         }
         return hash;
     }
-};
+}

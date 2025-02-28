@@ -49,40 +49,37 @@ using Byte = uint8;
 #define MAX_FLOAT   3.402823466e+38f
 #define MAX_DOUBLE  1.7976931348623158e+308
 
-namespace Onu
-{
-    // Containers forward declarations
+// Containers forward declarations
 
-    class String;
-    class CharString;
+class String;
+class CharString;
 
-    class StringView;
-    class CharStringView;
+class StringView;
+class CharStringView;
 
-    struct HeapAllocation;
-    template<uint64 TCapacity>
-    struct FixedAllocation;
+struct HeapAllocation;
+template <uint64 TCapacity>
+struct FixedAllocation;
 
-    template<typename T, typename TAllocationType = HeapAllocation>
-    class Array;
-    template<typename T, uint64 TCount>
-    using FixedArray = Array<T, FixedAllocation<TCount>>;
+template <typename T, typename TAllocationType = HeapAllocation>
+class Array;
+template <typename T, uint64 TCount>
+using FixedArray = Array<T, FixedAllocation<TCount>>;
 
-    template<typename T>
-    struct Hash;
-    template<typename TKey, typename TValue, typename THash = Hash<TKey>, typename TAllocationType = HeapAllocation>
-    class HashMap;
+template <typename T>
+struct Hash;
+template <typename TKey, typename TValue, typename THash = Hash<TKey>, typename TAllocationType = HeapAllocation>
+class HashMap;
 
-    template<typename TKey, typename TValue>
-    class Pair;
+template <typename TKey, typename TValue>
+class Pair;
 
-    class DateTime;
+class DateTime;
 
-    class File;
+class File;
 
-    // Math forward declarations
+// Math forward declarations
 
-    struct Vector2;
-    struct Vector3;
-    struct Vector4;
-}
+struct Vector2;
+struct Vector3;
+struct Vector4;

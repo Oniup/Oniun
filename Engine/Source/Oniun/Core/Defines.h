@@ -1,41 +1,32 @@
 #pragma once
 
-// TODO: Remove when implementing debug logger
-#include <cstdio>
-#include <cstdlib>
-
-namespace Onu
+enum PlatformType
 {
-    enum PlatformType
-    {
-        PlatformType_Windows,
-        PlatformType_Macos,
-        PlatformType_Linux,
+    PlatformType_Windows,
+    PlatformType_Macos,
+    PlatformType_Linux,
 
-        PlatformType_Ios,
-        PlatformType_Android,
+    PlatformType_Ios,
+    PlatformType_Android,
 
-        PlatformType_XboxOne,
-        PlatformType_XboxScarlet,
+    PlatformType_XboxOne,
+    PlatformType_XboxScarlet,
 
-        PlatformType_Ps4,
-        PlatformType_Ps5,
+    PlatformType_Ps4,
+    PlatformType_Ps5,
 
-        PlatformType_Switch,
-    };
+    PlatformType_Switch,
+};
 
-    enum class ArchitectureType
-    {
-        ArchitectureType_X64,
-        ArchitectureType_Arm64,
-    };
+enum class ArchitectureType
+{
+    ArchitectureType_X64,
+    ArchitectureType_Arm64,
+};
 
-    // TODO: Move to debug logger
-    inline void Assert(const char* expression, const char* file, const char* function, int line)
-    {
-        std::fprintf(stderr, "Fatal: (%s) At %s:%d in %s", expression, function, line, file);
-        std::exit(-1);
-    }
+namespace Assert_Internal
+{
+    void Assert(const char* expression, const char* file, const char* function, int line);
 }
 
 // Platform
@@ -103,7 +94,7 @@ namespace Onu
 #define ASSERT(_Expression)\
 {\
     if (!(_Expression))\
-        Onu::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__);\
+        Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__);\
 }
 #else
 #define ASSERT(_Expression)

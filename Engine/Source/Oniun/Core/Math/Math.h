@@ -6,9 +6,21 @@
 
 #define PI 3.1415926535897932f
 #define PI2 6.28318530718f
+#define RAD_TO_DEG 57.295779513082320876798154814105f
+#define DEG_TO_RAD 0.01745329251994329576923690768489f
 
-namespace Onu::Math
+namespace Math
 {
+    FORCE_INLINE float Radians(float degrees)
+    {
+        return degrees * DEG_TO_RAD;
+    }
+
+    FORCE_INLINE float Degrees(float radians)
+    {
+        return radians * RAD_TO_DEG;
+    }
+
     /// Round up
     FORCE_INLINE float Trunc(float val)
     {

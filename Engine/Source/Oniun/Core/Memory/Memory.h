@@ -7,7 +7,7 @@
 #include "Oniun/Core/Compiler.h"
 #include "Oniun/Core/Memory/Crt.h"
 
-namespace Onu::Memory
+namespace Memory
 {
     constexpr uint64 CalcCapacityGrow(uint64 count, uint64 capacity)
     {
