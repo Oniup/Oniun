@@ -230,14 +230,18 @@ public:
     String operator/(Char ch) const;
     String operator/(const String& str) const;
 
-    constexpr uint64 Find(const StringView& find, uint64 offset = 0) const
+    constexpr uint64 Find(const StringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
     {
-        return StringUtils::Find(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        if (opts == StringSearch::CaseSensitive)
+            return StringUtils::Find(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        return StringUtils::FindIgnoreCase(m_Data, m_Length, find.m_Data, find.m_Length, offset);
     }
 
-    constexpr uint64 FindLast(const StringView& find, uint64 offset = 0) const
+    constexpr uint64 FindLast(const StringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
     {
-        return StringUtils::FindLast(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        if (opts == StringSearch::CaseSensitive)
+            return StringUtils::FindLast(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        return StringUtils::FindLastIgnoreCase(m_Data, m_Length, find.m_Data, find.m_Length, offset);
     }
 
     bool FindAll(const StringView& find, Array<uint64>& indices) const
@@ -336,14 +340,18 @@ public:
     CharString operator/(char ch) const;
     CharString operator/(const CharStringView& str) const;
 
-    constexpr uint64 Find(const CharStringView& find, uint64 offset = 0) const
+    constexpr uint64 Find(const CharStringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
     {
-        return StringUtils::Find(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        if (opts == StringSearch::CaseSensitive)
+            return StringUtils::Find(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        return StringUtils::FindIgnoreCase(m_Data, m_Length, find.m_Data, find.m_Length, offset);
     }
 
-    constexpr uint64 FindLast(const CharStringView& find, uint64 offset = 0) const
+    constexpr uint64 FindLast(const CharStringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
     {
-        return StringUtils::FindLast(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        if (opts == StringSearch::CaseSensitive)
+            return StringUtils::FindLast(m_Data, m_Length, find.m_Data, find.m_Length, offset);
+        return StringUtils::FindLastIgnoreCase(m_Data, m_Length, find.m_Data, find.m_Length, offset);
     }
 
     bool FindAll(const CharStringView& find, Array<uint64>& indices) const

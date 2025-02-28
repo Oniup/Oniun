@@ -497,14 +497,18 @@ String String::TrimTrailing() const
     return *this;
 }
 
-uint64 String::Find(const StringView& find, uint64 offset) const
+uint64 String::Find(const StringView& find, StringSearch opt, uint64 offset) const
 {
-    return StringUtils::Find(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    if (opt == StringSearch::CaseSensitive)
+        return StringUtils::Find(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    return StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
 }
 
-uint64 String::FindLast(const StringView& find, uint64 offset) const
+uint64 String::FindLast(const StringView& find, StringSearch opt, uint64 offset) const
 {
-    return StringUtils::FindLast(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    if (opt == StringSearch::CaseSensitive)
+        return StringUtils::FindLast(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    return StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
 }
 
 bool String::FindAll(const StringView& find, Array<uint64>& indices) const
@@ -522,21 +526,21 @@ bool String::EndsWith(const StringView& text) const
     return StringUtils::EndsWith(m_Data.Ptr(), m_Length, text.Data(), text.Length());
 }
 
-void String::Replace(const StringView& find, const StringView& replace)
+void String::Replace(const StringView& find, const StringView& replace, StringSearch opt)
 {
-    uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true);
+    uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
     while (index != GlobalVars::NoPos)
-        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, index + find.Length());
+        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt, index + find.Length());
 }
 
-void String::ReplaceFirst(const StringView& find, const StringView& replace)
+void String::ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt)
 {
-    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true);
+    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
 }
 
-void String::ReplaceLast(const StringView& find, const StringView& replace)
+void String::ReplaceLast(const StringView& find, const StringView& replace, StringSearch opt)
 {
-    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), false);
+    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), false, opt);
 }
 
 bool CharString::Parse(const CharStringView& str, int64* result)
@@ -1029,14 +1033,18 @@ CharString CharString::TrimTrailing() const
     return *this;
 }
 
-uint64 CharString::Find(const CharStringView& find, uint64 offset) const
+uint64 CharString::Find(const CharStringView& find, StringSearch opt, uint64 offset) const
 {
-    return StringUtils::Find(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    if (opt == StringSearch::CaseSensitive)
+        return StringUtils::Find(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    return StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
 }
 
-uint64 CharString::FindLast(const CharStringView& find, uint64 offset) const
+uint64 CharString::FindLast(const CharStringView& find, StringSearch opt, uint64 offset) const
 {
-    return StringUtils::Find(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    if (opt == StringSearch::CaseSensitive)
+        return StringUtils::FindLast(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
+    return StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, find.Data(), find.Length(), offset);
 }
 
 bool CharString::FindAll(const CharStringView& find, Array<uint64>& indices) const
@@ -1054,21 +1062,21 @@ bool CharString::EndsWith(const CharStringView& text) const
     return StringUtils::EndsWith(m_Data.Ptr(), m_Length, text.Data(), text.Length());
 }
 
-void CharString::Replace(const CharStringView& find, const CharStringView& replace)
+void CharString::Replace(const CharStringView& find, const CharStringView& replace, StringSearch opt)
 {
-    uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true);
+    uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
     while (index != GlobalVars::NoPos)
-        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, index + find.Length());
+        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt, index + find.Length());
 }
 
-void CharString::ReplaceFirst(const CharStringView& find, const CharStringView& replace)
+void CharString::ReplaceFirst(const CharStringView& find, const CharStringView& replace, StringSearch opt)
 {
-    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true);
+    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
 }
 
-void CharString::ReplaceLast(const CharStringView& find, const CharStringView& replace)
+void CharString::ReplaceLast(const CharStringView& find, const CharStringView& replace, StringSearch opt)
 {
-    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), false);
+    ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), false, opt);
 }
 
 Slice<Char> ToSlice(const String& string)

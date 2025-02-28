@@ -7,7 +7,7 @@
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/StringView.h"
 
-Renderer::Renderer(const CharStringView& winTitle, int32 winWidth, int32 winHeight, WindowFlag winFlags)
+Renderer::Renderer(const CharStringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags)
     : m_Window(winTitle, winWidth, winHeight, winFlags)
 {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))

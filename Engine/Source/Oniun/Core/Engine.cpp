@@ -5,12 +5,14 @@
 Engine::Engine()
     : m_Running(true)
 {
+    glfwInit();
 }
 
 Engine::~Engine()
 {
     for (EngineLayer* layer : m_Layers)
         Memory::Free(layer);
+    glfwTerminate();
 }
 
 void Engine::ImplInitialize(const AppInfo& appInfo)

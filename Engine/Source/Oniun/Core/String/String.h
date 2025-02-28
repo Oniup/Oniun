@@ -197,12 +197,17 @@ public:
         }
     }
 
-    uint64 ReplaceChars(const TChar* search, uint64 searchLength, const TChar* replace, uint64 replaceLength, bool findFirst, uint64 offset = 0)
+    uint64 ReplaceChars(const TChar* search, uint64 searchLength, const TChar* replace, uint64 replaceLength, bool findFirst, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0)
     {
         if (m_Length == 0 || searchLength == 0 || searchLength > m_Length)
             return GlobalVars::NoPos;
 
-        uint64 index = findFirst ? StringUtils::Find(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLast(m_Data.Ptr(), m_Length, search, searchLength, offset);
+        uint64 index;
+        if (opt == StringSearch::CaseSensitive)
+            index = findFirst ? StringUtils::Find(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLast(m_Data.Ptr(), m_Length, search, searchLength, offset);
+        else
+            index = findFirst ? StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset);
+
         if (index != GlobalVars::NoPos)
         {
             if (searchLength == replaceLength)
@@ -304,16 +309,16 @@ public:
     String Substring(uint64 startIndex, uint64 length = GlobalVars::NoPos) const;
     String TrimTrailing() const;
 
-    uint64 Find(const StringView& find, uint64 offset = 0) const;
-    uint64 FindLast(const StringView& find, uint64 offset = 0) const;
+    uint64 Find(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
+    uint64 FindLast(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
     bool FindAll(const StringView& find, Array<uint64>& indices) const;
 
     bool BeginsWith(const StringView& text) const;
     bool EndsWith(const StringView& text) const;
 
-    void Replace(const StringView& find, const StringView& replace);
-    void ReplaceFirst(const StringView& find, const StringView& replace);
-    void ReplaceLast(const StringView& find, const StringView& replace);
+    void Replace(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+    void ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+    void ReplaceLast(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
 };
 
 class CharString : public IString<char>
@@ -397,16 +402,16 @@ public:
     CharString Substring(uint64 startIndex, uint64 length = GlobalVars::NoPos) const;
     CharString TrimTrailing() const;
 
-    uint64 Find(const CharStringView& find, uint64 offset = 0) const;
-    uint64 FindLast(const CharStringView& find, uint64 offset = 0) const;
+    uint64 Find(const CharStringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
+    uint64 FindLast(const CharStringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
     bool FindAll(const CharStringView& find, Array<uint64>& indices) const;
 
     bool BeginsWith(const CharStringView& text) const;
     bool EndsWith(const CharStringView& text) const;
 
-    void Replace(const CharStringView& find, const CharStringView& replace);
-    void ReplaceFirst(const CharStringView& find, const CharStringView& replace);
-    void ReplaceLast(const CharStringView& find, const CharStringView& replace);
+    void Replace(const CharStringView& find, const CharStringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+    void ReplaceFirst(const CharStringView& find, const CharStringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+    void ReplaceLast(const CharStringView& find, const CharStringView& replace, StringSearch opt = StringSearch::CaseSensitive);
 
     static bool Parse(const CharStringView& str, int64* result);
     static bool Parse(const CharStringView& str, double* result);

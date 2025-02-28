@@ -31,9 +31,6 @@ public:
     Window(const CharStringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
     ~Window();
 
-    static void InitContext();
-    static void TerminateContext();
-
     void PollEvents();
     void SwapBuffers();
     bool IsOpen() const;

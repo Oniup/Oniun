@@ -52,16 +52,6 @@ Window::~Window()
         glfwDestroyWindow(m_Window);
 }
 
-void Window::InitContext()
-{
-    glfwInit();
-}
-
-void Window::TerminateContext()
-{
-    glfwTerminate();
-}
-
 void Window::PollEvents()
 {
     glfwPollEvents();

@@ -3,6 +3,12 @@
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/GlobalVars.h"
 
+enum class StringSearch
+{
+    CaseSensitive,
+    IgnoreCase,
+};
+
 namespace StringUtils
 {
     // Below up to utf conversions is from Godot but reformatted into the style of this codebase
@@ -98,6 +104,22 @@ namespace StringUtils
         return (ch == L'_');
     }
 
+    template<typename TChar>
+    constexpr TChar ToUpper(TChar ch)
+    {
+        if (ch >= 'a' && ch <= 'z')
+            return ch - 32;
+        return ch;
+    }
+
+    template<typename TChar>
+    constexpr TChar ToLower(TChar ch)
+    {
+        if (ch >= 'A' && ch <= 'Z')
+            return ch + 32;
+        return ch;
+    }
+
     String Utf8ToUtf16(const CharStringView& str);
     CharString Utf16ToUtf8(const StringView& str);
 
@@ -143,6 +165,31 @@ namespace StringUtils
     }
 
     template<typename TChar>
+    constexpr uint64 FindIgnoreCase(const TChar* str, uint64 length, const TChar* search, uint64 searchLength, uint64 offset = 0)
+    {
+        if (searchLength > length)
+            return GlobalVars::NoPos;
+
+        for (uint64 i = offset; i < length - searchLength + 1; ++i)
+        {
+            bool found = true;
+            for (uint64 j = 0; j < searchLength; ++j)
+            {
+                TChar ch = ToUpper(str[i + j]);
+                TChar sCh = ToUpper(search[j]);
+                if (ch != sCh)
+                {
+                    found = false;
+                    break;
+                }
+            }
+            if (found)
+                return i;
+        }
+        return GlobalVars::NoPos;
+    }
+
+    template<typename TChar>
     constexpr uint64 Find(const TChar* str, uint64 length, TChar search, uint64 offset = 0)
     {
         for (uint64 i = offset; i < length; ++i)
@@ -165,6 +212,31 @@ namespace StringUtils
             for (uint64 j = 0; j < searchLength; ++j)
             {
                 if (str[i + j] != search[j])
+                {
+                    found = false;
+                    break;
+                }
+            }
+            if (found)
+                return i;
+        }
+        return GlobalVars::NoPos;
+    }
+
+    template<typename TChar>
+    constexpr uint64 FindLastIgnoreCase(const TChar* str, uint64 length, const TChar* search, uint64 searchLength,  uint64 offset = 0)
+    {
+        if (searchLength > length)
+            return GlobalVars::NoPos;
+
+        for (uint64 i = length - searchLength - offset; i > 0; --i)
+        {
+            bool found = true;
+            for (uint64 j = 0; j < searchLength; ++j)
+            {
+                TChar ch = ToUpper(str[i + j]);
+                TChar sCh = ToUpper(search[j]);
+                if (ch != sCh)
                 {
                     found = false;
                     break;

@@ -13,8 +13,8 @@ int main()
         .EngineBuild =  AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
     });
 
-    TypeInfo info(TypeInfo::GetInfo<Renderer>());
-    LOG(Info, TEXT("Name: {}, Id: {}"), info.Name, info.Id);
+    Engine::RegisterLayer<Renderer>("Test Window", -1, -1);
+    Engine::Run();
 
     return 0;
 }
