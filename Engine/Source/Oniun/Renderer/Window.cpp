@@ -27,16 +27,20 @@ Window::Window(const StringView& title, int32 width, int32 height, Flags flags)
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* vidMode = glfwGetVideoMode(monitor);
-    if (width == -1 || height == -1)
+
+    bool setSize = width == -1 || height == -1;
+    if (flags & WindowFlag_ModeFullscreenBit || (setSize && flags & WindowFlag_BorderlessBit))
+    {
+        width = vidMode->width;
+        height = vidMode->height;
+    }
+    else if (setSize)
     {
         width = vidMode->width / 2;
         height = vidMode->height / 2;
     }
 
-    if (!(flags & WindowFlag_ModeFullscreenBit))
-        monitor = nullptr;
-
-    m_Window = glfwCreateWindow(width, height, *title, monitor, nullptr);
+    m_Window = glfwCreateWindow(width, height, *title, flags & WindowFlag_ModeFullscreenBit ? monitor : nullptr, nullptr);
     if (!m_Window)
         LOG(Fatal, "Failed to create window");
     glfwMakeContextCurrent(m_Window);

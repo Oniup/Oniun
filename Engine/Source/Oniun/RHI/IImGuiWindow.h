@@ -12,7 +12,10 @@ protected:
     bool m_Open;
 
 public:
-    IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = ImGuiWindowFlags_None, bool open = true);
+    static constexpr ImGuiWindowFlags DefaultFlags = ImGuiWindowFlags_NoCollapse;
+
+public:
+    IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = DefaultFlags, bool open = true);
 
     virtual ~IImGuiWindow()
     {

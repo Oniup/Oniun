@@ -58,7 +58,7 @@ project "Oniun Editor"
 
 	filter "configurations:Dist"
 	    kind "WindowedApp"
-	    defines { "ONU_Dist" }
+	    defines { "ONU_DIST" }
 	    runtime "Release"
 	    symbols "Off"
 	    optimize "On"

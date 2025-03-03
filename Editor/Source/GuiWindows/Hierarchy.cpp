@@ -1,7 +1,7 @@
 #include "GuiWindows/Hierarchy.h"
 
 Hierarchy::Hierarchy()
-    : IImGuiWindow("Hierarchy", ImGuiWindowFlags_NoCollapse)
+    : IImGuiWindow("Hierarchy")
 {
 }
 

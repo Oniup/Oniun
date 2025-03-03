@@ -40,22 +40,33 @@ void Logger::AddOutput(ILogOutput* entry)
     Instance()->m_Outputs.Add(entry);
 }
 
+void Logger::RemoveOutput(const StringView& name)
+{
+    Array<ILogOutput*>& outputs = Instance()->m_Outputs;
+    for (uint64 i = 0; i < outputs.Count(); ++i)
+    {
+         if (outputs[i]->GetName() == name)
+         {
+             outputs.RemoveAt(i);
+             return;
+         }
+    }
+}
+
 void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                       const StringView& userMsg)
+                       const StringView& userMessage)
 {
     String path(file);
-    uint64 engineIndex = file.FindLast("Oniun");
-    if (engineIndex != GlobalVars::NoPos)
-    {
-        path.Set(ToSlice(file.begin() + engineIndex, file.end()));
-    }
+    uint64 index = file.Find("Oniun");
+    if (index != GlobalVars::NoPos)
+        path.Set(ToSlice(file.Begin() + index, file.End()));
     path.CorrectPathSlashes();
 
     DateTime time(DateTime::Now());
-    String message = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMsg);
+    String formattedMessage = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMessage);
 
     for (ILogOutput* output : m_Outputs)
-        output->Write(type, message, file, function, line, userMsg, time);
+        output->Write(type, formattedMessage, path, function, line, userMessage, time);
 
     if (type == LogType::Fatal)
         std::exit(-1);
@@ -71,12 +82,12 @@ TerminalLogOutput::~TerminalLogOutput()
 {
 }
 
-void TerminalLogOutput::Write(LogType type, const StringView& message, const StringView& file,
-                              const StringView& function, int32 line, const StringView& userMsg,
+void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
+                              const StringView& function, int32 line, const StringView& userMessage,
                               const DateTime& time)
 {
     File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
-    stream->Write(message.Data(), static_cast<uint32>(message.Length()));
+    stream->Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
 #if !defined(ONU_PLATFORM_WINDOWS)
         stream->Flush();
 #endif
@@ -93,10 +104,10 @@ FileLogOutput::~FileLogOutput()
 {
 }
 
-void FileLogOutput::Write(LogType type, const StringView& message, const StringView& file,
-                          const StringView& function, int32 line, const StringView& userMsg,
+void FileLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
+                          const StringView& function, int32 line, const StringView& userMessage,
                           const DateTime& time)
 {
-    m_Output.Write(message.Data(), static_cast<uint32>(message.Length()));
+    m_Output.Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
     m_Output.Flush();
 }

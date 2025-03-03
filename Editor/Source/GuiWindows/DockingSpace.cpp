@@ -1,4 +1,5 @@
 #include "GuiWindows/DockingSpace.h"
+#include "Oniun/Core/Logger.h"
 
 DockingSpace::DockingSpace()
     : IImGuiWindow("Docking Space",
@@ -12,15 +13,21 @@ DockingSpace::DockingSpace()
 
 void DockingSpace::Draw()
 {
+    bool printMessage = false;
+
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("Options"))
         {
             ImGui::MenuItem("Extra Padding", nullptr, &m_OptPadding);
+            ImGui::MenuItem("Print Message", nullptr, &printMessage);
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
     }
+
+    if (printMessage)
+        LOG(Info, "This is a test. {} nice", 69);
 }
 
 bool DockingSpace::Begin()

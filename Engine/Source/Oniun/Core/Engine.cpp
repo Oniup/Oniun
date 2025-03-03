@@ -48,3 +48,8 @@ EngineLayer* Engine::ImplGetLayer(uint64 fastId)
     }
     return nullptr;
 }
+
+String ToString(const AppInfo::Version& version)
+{
+    return Format("{}, {}, {}", version.Major, version.Minor, version.Patch);
+}

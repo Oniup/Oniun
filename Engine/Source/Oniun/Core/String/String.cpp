@@ -92,7 +92,7 @@ String::String(const char* text)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(m_Data.Ptr(), text, sizeof(char) * m_Length);
+        Crt::Copy(m_Data.Ptr(), text, m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -104,7 +104,7 @@ String::String(const char* text, uint64 length)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(Data(), text, sizeof(char) * m_Length);
+        Crt::Copy(Data(), text, m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -115,7 +115,7 @@ String::String(const Slice<char>& slice)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(Data(), slice.Get(), sizeof(char) * m_Length);
+        Crt::Copy(Data(), slice.Get(), m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -126,7 +126,7 @@ String::String(const Iterator& begin, const Iterator& end)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(Data(), begin.Ptr(), sizeof(char) * m_Length);
+        Crt::Copy(Data(), begin.Ptr(), m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -137,7 +137,7 @@ String::String(const StringView& view)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(Data(), view.Data(), sizeof(char) * m_Length);
+        Crt::Copy(Data(), view.Data(), m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -148,7 +148,7 @@ String::String(const String& other)
     if (m_Length > 0)
     {
         m_Data.Allocate(m_Length + 1);
-        Crt::Copy(Data(), other.Data(), sizeof(char) * m_Length);
+        Crt::Copy(Data(), other.Data(), m_Length);
         m_Data[m_Length] = 0;
     }
 }
@@ -438,7 +438,7 @@ void String::Set(const StringView& text)
     if (!text.IsEmpty())
     {
         Resize(text.Length());
-        Crt::Copy(m_Data.Ptr(), text.Data(), sizeof(char) * text.Length());
+        Crt::Copy(m_Data.Ptr(), text.Data(), text.Length());
         m_Length = text.Length();
         m_Data[m_Length] = 0;
     }
@@ -460,7 +460,7 @@ void String::Append(const StringView& text)
     {
         uint64 oldLength = m_Length;
         Resize(m_Length + text.Length());
-        Crt::Copy(Data() + oldLength, text.Data(), sizeof(char) * text.Length());
+        Crt::Copy(Data() + oldLength, text.Data(), text.Length());
         m_Data[m_Length] = 0;
     }
 }
@@ -472,7 +472,7 @@ void String::Concat(char left, const StringView& text)
         uint64 oldLength = m_Length;
         Resize(m_Length + text.Length() + 1);
         m_Data[oldLength] = left;
-        Crt::Copy(m_Data.Ptr() + oldLength + 1, text.Data(), sizeof(char) * text.Length());
+        Crt::Copy(m_Data.Ptr() + oldLength + 1, text.Data(), text.Length());
         m_Data[m_Length] = 0;
     }
 }
@@ -501,14 +501,14 @@ void String::Insert(uint64 index, const StringView& str)
     ASSERT(index < m_Length);
     uint64 oldLength = m_Length;
     Resize(m_Length + str.Length());
-    Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, sizeof(char) * (oldLength - index));
-    Crt::Copy(m_Data.Ptr() + index, str.Data(), sizeof(char) * str.Length());
+    Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
+    Crt::Copy(m_Data.Ptr() + index, str.Data(), str.Length());
 }
 
 void String::Remove(uint64 index, uint64 length)
 {
     ASSERT(index + length < m_Length);
-    Crt::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, sizeof(char) * (m_Length - index + length));
+    Crt::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, (m_Length - index + length));
     Resize(m_Length - length);
     m_Data[m_Length] = 0;
 }
@@ -517,7 +517,7 @@ bool String::Compare(const StringView& str) const
 {
     if (m_Length == str.Length())
     {
-        if (Crt::Compare(m_Data.Ptr(), str.Data(), sizeof(char) * m_Length) == 0)
+        if (Crt::Compare(m_Data.Ptr(), str.Data(), m_Length) == 0)
             return true;
     }
     return false;

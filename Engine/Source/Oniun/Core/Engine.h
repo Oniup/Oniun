@@ -39,6 +39,9 @@ private:
     AppInfo m_Info;
     bool m_Running;
 
+protected:
+    Engine();
+
 public:
     FORCE_INLINE static void Initialize(const AppInfo& appInfo)
     {
@@ -91,8 +94,6 @@ public:
     }
 
 private:
-    Engine();
-
     void ImplInitialize(const AppInfo& appInfo);
     void ImplRun();
     void ImplTerminate();
@@ -100,3 +101,5 @@ private:
     EngineLayer* ImplRegisterLayer(EngineLayer* layer);
     EngineLayer* ImplGetLayer(uint64 fastId);
 };
+
+String ToString(const AppInfo::Version& version);

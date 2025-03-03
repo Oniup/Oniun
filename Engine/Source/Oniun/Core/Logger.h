@@ -6,7 +6,7 @@
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Platform/File.h"
 
-enum class LogType
+enum class LogType : uint64
 {
     Verbose,
     Trace,
@@ -14,6 +14,7 @@ enum class LogType
     Warning,
     Error,
     Fatal,
+    Count,
 };
 
 StringView ToString(LogType type);
@@ -33,8 +34,13 @@ public:
     {
     }
 
-    virtual void Write(LogType type, const StringView& utf8FinalMsg, const StringView& file,
-                       const StringView& function, int32 line, const StringView& userMsg,
+    FORCE_INLINE String GetName() const
+    {
+        return m_Name;
+    }
+
+    virtual void Write(LogType type, const StringView& formattedMessage, const StringView& file,
+                       const StringView& function, int32 line, const StringView& userMessage,
                        const DateTime& time) = 0;
 };
 
@@ -62,10 +68,11 @@ public:
     }
 
     static void AddOutput(ILogOutput* entry);
+    static void RemoveOutput(const StringView& name);
 
 private:
     void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                   const StringView& userMsg);
+                   const StringView& userMessage);
 };
 
 class TerminalLogOutput : public ILogOutput
@@ -78,8 +85,8 @@ public:
     TerminalLogOutput();
     ~TerminalLogOutput() override;
 
-    void Write(LogType type, const StringView& message, const StringView& file, const StringView& function,
-               int32 line, const StringView& userMsg, const DateTime& time) override;
+    void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
+               int32 line, const StringView& userMessage, const DateTime& time) override;
 };
 
 class FileLogOutput : public ILogOutput
@@ -91,8 +98,8 @@ public:
     FileLogOutput(const StringView& outputPath);
     ~FileLogOutput() override;
 
-    void Write(LogType type, const StringView& message, const StringView& file, const StringView& function,
-               int32 line, const StringView& userMsg, const DateTime& time) override;
+    void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
+               int32 line, const StringView& userMessage, const DateTime& time) override;
 };
 
 #define LOG(_Type, _Format, ...) \
