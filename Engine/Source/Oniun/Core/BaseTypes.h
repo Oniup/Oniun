@@ -15,12 +15,6 @@ using int16 = short;
 using int32 = int;
 using int64 = long long;
 
-#if defined(ONU_PLATFORM_WINDOWS)
-using Char = wchar_t;
-#else
-using Char = char16_t;
-#endif
-
 using Byte = uint8;
 
 // Primitive limits
@@ -52,10 +46,7 @@ using Byte = uint8;
 // Containers forward declarations
 
 class String;
-class CharString;
-
 class StringView;
-class CharStringView;
 
 struct HeapAllocation;
 template <uint64 TCapacity>

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "Oniun/RHI/Base/IEditorGuiManager.h"
+#include "Oniun/RHI/Base/IImGuiWindowManager.h"
 
-class EditorGuiManager : public IEditorGuiManager
+class Renderer;
+
+class ImGuiWindowManager : public IImGuiWindowManager
 {
 public:
-    void Initialize(class Renderer* renderer) override;
+    void Initialize(Renderer& renderer) override;
     void Terminate() override;
     void NewFrame() override;
     void RenderPlatformDrawData() override;

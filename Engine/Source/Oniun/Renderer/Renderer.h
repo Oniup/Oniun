@@ -10,10 +10,10 @@ class Renderer : public EngineLayer
 
 private:
     Window m_Window;
-    EditorGuiManager m_EditorGui;
+    ImGuiWindowManager m_EditorGui;
 
 public:
-    Renderer(const CharStringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags = Window::DefaultFlags);
+    Renderer(const StringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags = Window::DefaultFlags);
     ~Renderer() override;
 
     FORCE_INLINE Window* GetWindow()
@@ -26,12 +26,12 @@ public:
         return &m_Window;
     }
 
-    FORCE_INLINE EditorGuiManager* GetEditorGuiManager()
+    FORCE_INLINE ImGuiWindowManager* GetImGuiWindowManager()
     {
         return &m_EditorGui;
     }
 
-    FORCE_INLINE const EditorGuiManager* GetEditorGuiManager() const
+    FORCE_INLINE const ImGuiWindowManager* GetImGuiWindowManager() const
     {
         return &m_EditorGui;
     }

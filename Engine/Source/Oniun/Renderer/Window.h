@@ -28,7 +28,7 @@ private:
 
 public:
     Window();
-    Window(const CharStringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
+    Window(const StringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
     ~Window();
 
     FORCE_INLINE GLFWwindow* GetInternalWindow()
@@ -54,5 +54,5 @@ public:
     int32 GetYPosition() const;
     void GetPosition(int32& x, int32& y) const;
 
-    CharStringView Title() const;
+    StringView Title() const;
 };

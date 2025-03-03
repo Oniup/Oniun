@@ -3,6 +3,7 @@
 #include <initializer_list>
 
 #include "Oniun/Core/BaseTypes.h"
+#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Allocation.h"
 #include "Oniun/Core/Templates/PackedIterator.h"
 #include "Oniun/Core/Templates/Slice.h"
@@ -55,7 +56,7 @@ public:
         : m_Count(other.m_Count)
     {
         static_assert(std::is_same_v<TAllocationType, HeapAllocation>);
-        m_Data.Move(std::move(other.m_Data));
+        m_Data.Move(Memory::Move(other.m_Data));
         other.m_Count = 0;
     }
 
@@ -372,7 +373,7 @@ public:
     constexpr T Pop()
     {
         ASSERT(m_Count > 0);
-        T item = std::move(Back());
+        T item = Memory::Move(Back());
         RemoveLast();
         return item;
     }
@@ -402,9 +403,7 @@ public:
 
     constexpr std::enable_if<std::is_same_v<TAllocationType, HeapAllocation>> Swap(Array& other)
     {
-        Allocator dataTemp(std::move(*this));
-        m_Data.Move(std::move(other));
-        other.m_Data.Move(dataTemp);
+        Memory::Swap(m_Data, other.m_Data);
 
         uint64 countTemp = m_Count;
         m_Count = other.m_Count;

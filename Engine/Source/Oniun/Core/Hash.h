@@ -24,16 +24,7 @@ struct Hash<String>
 {
     FORCE_INLINE uint64 Get(const String& src) const
     {
-        return Crt::FnvHash(src.Data(), sizeof(Char) * src.Length());
-    }
-};
-
-template <>
-struct Hash<CharString>
-{
-    FORCE_INLINE uint64 Get(const CharString& src) const
-    {
-        return Crt::FnvHash(src.Data(), sizeof(char) * src.Length());
+        return Crt::FnvHash(src.Data(), src.Length());
     }
 };
 
@@ -42,16 +33,7 @@ struct Hash<StringView>
 {
     FORCE_INLINE constexpr uint64 Get(const StringView& src) const
     {
-        return Crt::FnvHash(src.Data(), sizeof(Char) * src.Length());
-    }
-};
-
-template <>
-struct Hash<CharStringView>
-{
-    FORCE_INLINE constexpr uint64 Get(const CharStringView& src) const
-    {
-        return Crt::FnvHash(src.Data(), sizeof(char) * src.Length());
+        return Crt::FnvHash(src.Data(), src.Length());
     }
 };
 

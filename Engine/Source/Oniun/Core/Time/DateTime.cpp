@@ -90,10 +90,10 @@ String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bo
     tm* tm = localtime(&time);
 
     if (includeTime && includeDate)
-        return Format(TEXT("{}:{}:{}:{}/{}/{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec,
+        return Format("{}:{}:{}:{}/{}/{}", dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec,
                       tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
     if (includeTime)
-        return Format(TEXT("{}:{}:{}"), dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec);
+        return Format("{}:{}:{}", dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec);
 
-    return Format(TEXT("{}/{}/{}"), tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+    return Format("{}/{}/{}", tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
 }

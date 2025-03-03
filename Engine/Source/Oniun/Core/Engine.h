@@ -86,7 +86,7 @@ public:
         if (layer)
             return static_cast<TLayer*>(layer);
 
-        LOG(Warning, TEXT("Failed to find engine layer '{}' with fast id: {}"), TypeInfo::GetInfo<TLayer>().Name, id);
+        LOG(Warning, "Failed to find engine layer '{}' with fast id: {}", TypeInfo::GetInfo<TLayer>().Name, id);
         return nullptr;
     }
 

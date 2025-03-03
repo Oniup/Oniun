@@ -25,7 +25,7 @@ String IFileSystem::GetTemporaryFileName(const StringView& currentPath)
     return FileSystem::GetSpecialDirectoryPath(SpecialDirectory::Temporary) / fileName;
 }
 
-Slice<Char> IFileSystem::GetFileNameFromPath(const StringView& path)
+Slice<char> IFileSystem::GetFileNameFromPath(const StringView& path)
 {
     uint64 index = path.FindLast('/');
     if (index != GlobalVars::NoPos && path.Last() != '/')
@@ -33,7 +33,7 @@ Slice<Char> IFileSystem::GetFileNameFromPath(const StringView& path)
     return ToSlice(path);
 }
 
-Slice<Char> IFileSystem::GetDirectoryNameFromFilePath(const StringView& path)
+Slice<char> IFileSystem::GetDirectoryNameFromFilePath(const StringView& path)
 {
     uint64 extIndex = path.FindLast('.');
     uint64 slashIndex = path.FindLast('/');

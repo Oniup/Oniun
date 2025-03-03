@@ -10,7 +10,7 @@ Window::Window()
 {
 }
 
-Window::Window(const CharStringView& title, int32 width, int32 height, Flags flags)
+Window::Window(const StringView& title, int32 width, int32 height, Flags flags)
     : m_Window(nullptr), m_Flags(flags)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -38,7 +38,7 @@ Window::Window(const CharStringView& title, int32 width, int32 height, Flags fla
 
     m_Window = glfwCreateWindow(width, height, *title, monitor, nullptr);
     if (!m_Window)
-        LOG(Fatal, TEXT("Failed to create window"));
+        LOG(Fatal, "Failed to create window");
     glfwMakeContextCurrent(m_Window);
 
     int32 centerX = (vidMode->width - width) / 2;
@@ -110,7 +110,7 @@ void Window::GetPosition(int32& x, int32& y) const
     glfwGetWindowPos(m_Window, &x, &y);
 }
 
-CharStringView Window::Title() const
+StringView Window::Title() const
 {
-    return CharStringView(glfwGetWindowTitle(m_Window));
+    return glfwGetWindowTitle(m_Window);
 }

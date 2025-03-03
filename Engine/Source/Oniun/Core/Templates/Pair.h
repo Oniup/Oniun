@@ -27,17 +27,17 @@ public:
     }
 
     constexpr Pair(const TKey& key, TValue&& value)
-        : Key(key), Value(std::move(value))
+        : Key(key), Value(Memory::Move(value))
     {
     }
 
     constexpr Pair(TKey&& key, const TValue& value)
-        : Key(std::move(key)), Value(value)
+        : Key(Memory::Move(key)), Value(value)
     {
     }
 
     constexpr Pair(TKey&& key, TValue&& value)
-        : Key(std::move(key)), Value(std::move(value))
+        : Key(Memory::Move(key)), Value(Memory::Move(value))
     {
     }
 

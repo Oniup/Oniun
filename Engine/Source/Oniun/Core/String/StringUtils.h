@@ -14,123 +14,101 @@ namespace StringUtils
     // Below up to utf conversions is from Godot but reformatted into the style of this codebase
     // https://github.com/godotengine/godot/blob/master/core/string/char_utils.h
 
-    template<typename TChar>
-    constexpr bool IsUpperCase(TChar ch)
+
+    constexpr bool IsUpperCase(char ch)
     {
         return (ch >= L'A' && ch <= L'Z');
     }
 
-    template<typename TChar>
-    constexpr bool IsAsciiLowerCase(TChar ch)
+    constexpr bool IsAsciiLowerCase(char ch)
     {
         return (ch >= L'a' && ch <= L'z');
     }
 
-    template<typename TChar>
-    constexpr bool IsDigit(TChar ch)
+    constexpr bool IsDigit(char ch)
     {
         return (ch >= L'0' && ch <= L'9');
     }
 
-    template<typename TChar>
-    constexpr bool IsHexDigit(TChar ch)
+    constexpr bool IsHexDigit(char ch)
     {
         return (IsDigit(ch) || (ch >= L'a' && ch <= L'f') || (ch >= L'A' && ch <= L'F'));
     }
 
-    template<typename TChar>
-    constexpr bool IsBinaryDigit(TChar ch)
+    constexpr bool IsBinaryDigit(char ch)
     {
         return (ch == L'0' || ch == L'1');
     }
 
-    template<typename TChar>
-    constexpr bool IsAsciiAlphabetChar(TChar ch)
+    constexpr bool IsAsciiAlphabetChar(char ch)
     {
         return (ch >= L'a' && ch <= L'z') || (ch >= L'A' && ch <= L'Z');
     }
 
-    template<typename TChar>
-    constexpr bool IsAsciiAlphanumericChar(TChar ch)
+    constexpr bool IsAsciiAlphanumericChar(char ch)
     {
         return (ch >= L'a' && ch <= L'z') || (ch >= L'A' && ch <= L'Z') || (ch >= L'0' && ch <= L'9');
     }
 
-    template<typename TChar>
-    constexpr bool IsAsciiIdentifierChar(TChar ch)
+    constexpr bool IsAsciiIdentifierChar(char ch)
     {
         return (ch >= L'a' && ch <= L'z') || (ch >= L'A' && ch <= L'Z') || (ch >= L'0' && ch <= L'9')
             || ch == L'_';
     }
 
-    template<typename TChar>
-    constexpr bool IsSymbol(TChar ch)
+    constexpr bool IsSymbol(char ch)
     {
         return ch != L'_' && ((ch >= L'!' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'['
             && ch <= L'`') || (ch >= L'{' && ch <= L'~') || ch == L'\t' || ch == L' ');
     }
 
-    template<typename TChar>
-    constexpr bool IsControl(TChar ch)
+    constexpr bool IsControl(char ch)
     {
         return (ch <= 0x001f) || (ch >= 0x007f && ch <= 0x009f);
     }
 
-    template<typename TChar>
-    constexpr bool IsWhitespace(TChar ch)
+    constexpr bool IsWhitespace(char ch)
     {
         return (ch == L' ') || (ch == 0x00a0) || (ch == 0x1680) || (ch >= 0x2000 && ch <= 0x200a) ||
             (ch == 0x202f) || (ch == 0x205f) || (ch == 0x3000) || (ch == 0x2028) || (ch == 0x2029)
             || (ch >= 0x0009 && ch <= 0x000d) || (ch == 0x0085);
     }
 
-    template<typename TChar>
-    constexpr bool IsLinebreak(TChar ch)
+    constexpr bool IsLinebreak(char ch)
     {
         return (ch >= 0x000a && ch <= 0x000d) || (ch == 0x0085) || (ch == 0x2028) || (ch == 0x2029);
     }
 
-    template<typename TChar>
-    constexpr bool IsPunctuation(TChar ch)
+    constexpr bool IsPunctuation(char ch)
     {
         return (ch >= L' ' && ch <= L'/') || (ch >= L':' && ch <= L'@') || (ch >= L'[' && ch <= L'^')
             || (ch == L'`') || (ch >= L'{' && ch <= L'~') || (ch >= 0x2000 && ch <= 0x206f) || (ch
                 >= 0x3000 && ch <= 0x303f);
     }
 
-    template<typename TChar>
-    constexpr bool IsUnderscore(TChar ch)
+    constexpr bool IsUnderscore(char ch)
     {
         return (ch == L'_');
     }
 
-    template<typename TChar>
-    constexpr TChar ToUpper(TChar ch)
+    constexpr char ToUpper(char ch)
     {
         if (ch >= 'a' && ch <= 'z')
             return ch - 32;
         return ch;
     }
 
-    template<typename TChar>
-    constexpr TChar ToLower(TChar ch)
+    constexpr char ToLower(char ch)
     {
         if (ch >= 'A' && ch <= 'Z')
             return ch + 32;
         return ch;
     }
 
-    String Utf8ToUtf16(const CharStringView& str);
-    CharString Utf16ToUtf8(const StringView& str);
+    // String Utf8ToUtf16(const CharStringView& str);
+    // bool Utf16ToUtf8(const wchar_t* str, uint64 length, String& dest);
 
-    namespace UftConversion_Internal
-    {
-        bool Utf8ToUnicode(Array<uint32>& unicode, const CharStringView& str, uint64& utf16Length);
-        bool Utf16ToUnicode(Array<uint32>& unicode, const StringView& str, uint64& utf8Length);
-    }
-
-    template<typename TChar>
-    constexpr uint64 Length(const TChar* str)
+    constexpr uint64 Length(const char* str)
     {
         uint64 length = 0;
         while (true)
@@ -141,8 +119,7 @@ namespace StringUtils
         }
     }
 
-    template<typename TChar>
-    constexpr uint64 Find(const TChar* str, uint64 length, const TChar* search, uint64 searchLength, uint64 offset = 0)
+    constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
     {
         if (searchLength > length)
             return GlobalVars::NoPos;
@@ -164,8 +141,8 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr uint64 FindIgnoreCase(const TChar* str, uint64 length, const TChar* search, uint64 searchLength, uint64 offset = 0)
+    constexpr uint64 FindIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
+                                    uint64 offset = 0)
     {
         if (searchLength > length)
             return GlobalVars::NoPos;
@@ -175,8 +152,8 @@ namespace StringUtils
             bool found = true;
             for (uint64 j = 0; j < searchLength; ++j)
             {
-                TChar ch = ToUpper(str[i + j]);
-                TChar sCh = ToUpper(search[j]);
+                char ch = ToUpper(str[i + j]);
+                char sCh = ToUpper(search[j]);
                 if (ch != sCh)
                 {
                     found = false;
@@ -189,8 +166,7 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr uint64 Find(const TChar* str, uint64 length, TChar search, uint64 offset = 0)
+    constexpr uint64 Find(const char* str, uint64 length, char search, uint64 offset = 0)
     {
         for (uint64 i = offset; i < length; ++i)
         {
@@ -200,8 +176,8 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr uint64 FindLast(const TChar* str, uint64 length, const TChar* search, uint64 searchLength,  uint64 offset = 0)
+    constexpr uint64 FindLast(const char* str, uint64 length, const char* search, uint64 searchLength,
+                              uint64 offset = 0)
     {
         if (searchLength > length)
             return GlobalVars::NoPos;
@@ -223,8 +199,8 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr uint64 FindLastIgnoreCase(const TChar* str, uint64 length, const TChar* search, uint64 searchLength,  uint64 offset = 0)
+    constexpr uint64 FindLastIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
+                                        uint64 offset = 0)
     {
         if (searchLength > length)
             return GlobalVars::NoPos;
@@ -234,8 +210,8 @@ namespace StringUtils
             bool found = true;
             for (uint64 j = 0; j < searchLength; ++j)
             {
-                TChar ch = ToUpper(str[i + j]);
-                TChar sCh = ToUpper(search[j]);
+                char ch = ToUpper(str[i + j]);
+                char sCh = ToUpper(search[j]);
                 if (ch != sCh)
                 {
                     found = false;
@@ -248,8 +224,7 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr uint64 FindLast(const TChar* str, uint64 length, TChar search, uint64 offset = 0)
+    constexpr uint64 FindLast(const char* str, uint64 length, char search, uint64 offset = 0)
     {
         for (uint64 i = length - offset; i > 0; --i)
         {
@@ -259,8 +234,8 @@ namespace StringUtils
         return GlobalVars::NoPos;
     }
 
-    template<typename TChar>
-    constexpr bool BeginsWith(const TChar* str, uint64 length, const TChar* search, uint64 searchLength)
+
+    constexpr bool BeginsWith(const char* str, uint64 length, const char* search, uint64 searchLength)
     {
         if (searchLength > length)
             return false;
@@ -272,8 +247,7 @@ namespace StringUtils
         return true;
     }
 
-    template<typename TChar>
-    constexpr bool EndsWith(const TChar* str, uint64 length, const TChar* search, uint64 searchLength)
+    constexpr bool EndsWith(const char* str, uint64 length, const char* search, uint64 searchLength)
     {
         if (searchLength > length)
             return false;

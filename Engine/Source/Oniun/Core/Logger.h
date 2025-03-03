@@ -33,7 +33,7 @@ public:
     {
     }
 
-    virtual void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+    virtual void Write(LogType type, const StringView& utf8FinalMsg, const StringView& file,
                        const StringView& function, int32 line, const StringView& userMsg,
                        const DateTime& time) = 0;
 };
@@ -78,7 +78,7 @@ public:
     TerminalLogOutput();
     ~TerminalLogOutput() override;
 
-    void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+    void Write(LogType type, const StringView& message, const StringView& file, const StringView& function,
                int32 line, const StringView& userMsg, const DateTime& time) override;
 };
 
@@ -91,9 +91,9 @@ public:
     FileLogOutput(const StringView& outputPath);
     ~FileLogOutput() override;
 
-    void Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file, const StringView& function,
+    void Write(LogType type, const StringView& message, const StringView& file, const StringView& function,
                int32 line, const StringView& userMsg, const DateTime& time) override;
 };
 
 #define LOG(_Type, _Format, ...) \
-    Logger::Write(LogType::_Type, __FILEW__, __FUNCTIONW__, __LINE__, _Format, __VA_ARGS__)
+    Logger::Write(LogType::_Type, __FILE__, __FUNCTION__, __LINE__, _Format, __VA_ARGS__)

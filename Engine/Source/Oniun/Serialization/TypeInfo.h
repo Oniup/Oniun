@@ -8,13 +8,13 @@ namespace TypeInfo_Internal
     template <typename T>
     constexpr StringView GetWrappedName()
     {
-        return TEXT(__PRETTY_FUNCTION__);
+        return __PRETTY_FUNCTION__;
     }
 
     constexpr uint64 GetPrefixLength()
     {
         StringView wrapped(GetWrappedName<void>());
-        return wrapped.Find(TEXT("void"));
+        return wrapped.Find("void");
     }
 
     constexpr uint64 GetSuffixLength()
@@ -24,7 +24,7 @@ namespace TypeInfo_Internal
     }
 
     template <typename T>
-    constexpr Slice<Char> GetTypeNameSlice()
+    constexpr Slice<char> GetTypeNameSlice()
     {
         StringView wrapped(GetWrappedName<T>());
         uint64 prefix = GetPrefixLength();
@@ -46,12 +46,12 @@ struct TypeInfo
     static TypeInfo GetInfo()
     {
         String name(TypeInfo_Internal::GetTypeNameSlice<T>());
-        name.Replace(TEXT("class "), TEXT(""));
-        name.Replace(TEXT("struct "), TEXT(""));
+        name.Replace("class ", "");
+        name.Replace("struct ", "");
 
         return TypeInfo
         {
-            .Name = std::move(name),
+            .Name = Memory::Move(name),
             .Id = Hash<String>{}.Get(name),
             .Size = sizeof(T),
             .Alignment = alignof(T),
@@ -62,15 +62,15 @@ struct TypeInfo
     static uint64 GetId()
     {
         String name(TypeInfo_Internal::GetTypeNameSlice<T>());
-        name.Replace(TEXT("class "), TEXT(""));
-        name.Replace(TEXT("struct "), TEXT(""));
+        name.Replace("class ", "");
+        name.Replace("struct ", "");
         return Hash<String>{}.Get(name);
     }
 
     template <typename T>
     static constexpr uint64 GetFastId()
     {
-        Slice<Char> name(TypeInfo_Internal::GetTypeNameSlice<T>());
-        return Hash<Slice<Char>>{}.Get(name);
+        Slice name(TypeInfo_Internal::GetTypeNameSlice<T>());
+        return Hash<Slice<char>>{}.Get(name);
     }
 };

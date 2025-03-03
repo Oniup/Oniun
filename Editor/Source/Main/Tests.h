@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cwchar>
+#include <cstring>
 
 #include "Oniun/Core/Defines.h"
 #include "Oniun/Core/Logger.h"
@@ -43,117 +43,117 @@ namespace Test
 
         // constructor with C-string
         {
-            String str(TEXT("Hello"));
+            String str("Hello");
             ASSERT(str.Length() == 5);
-            ASSERT(wcscmp(str.Data(), TEXT("Hello")) == 0);
+            ASSERT(std::strcmp(str.Data(), "Hello") == 0);
         }
 
         // constructor with C-string and length
         {
-            String str(TEXT("Hello, World!"), 5);
+            String str("Hello, World!", 5);
             ASSERT(str.Length() == 5);
-            ASSERT(wcscmp(str.Data(), TEXT("Hello")) == 0);
+            ASSERT(std::strcmp(str.Data(), "Hello") == 0);
         }
 
         // copy constructor
         {
-            String original(TEXT("Hello"));
+            String original("Hello");
             String str(original);
             ASSERT(str.Length() == original.Length());
-            ASSERT(wcscmp(str.Data(), original.Data()) == 0);
+            ASSERT(std::strcmp(str.Data(), original.Data()) == 0);
         }
 
         // move constructor
         {
-            String original(TEXT("Hello"));
-            String str(std::move(original));
+            String original("Hello");
+            String str(Memory::Move(original));
             ASSERT(str.Length() == 5);
-            ASSERT(wcscmp(str.Data(), TEXT("Hello")) == 0);
+            ASSERT(std::strcmp(str.Data(), "Hello") == 0);
         }
 
         // assignment operator
         {
             String str;
-            String source(TEXT("Hello"));
+            String source("Hello");
             str = source;
             ASSERT(str.Length() == 5);
-            ASSERT(wcscmp(str.Data(), TEXT("Hello")) == 0);
+            ASSERT(std::strcmp(str.Data(), "Hello") == 0);
         }
 
         // Append function
         {
-            String str(TEXT("Hello"));
-            str.Append(TEXT(" World World World World"));
+            String str("Hello");
+            str.Append(" World World World World");
             ASSERT(str.Length() == 29);
-            ASSERT(wcscmp(str.Data(), TEXT("Hello World World World World")) == 0);
+            ASSERT(std::strcmp(str.Data(), "Hello World World World World") == 0);
         }
 
         // concatenation operator
         {
-            String str(TEXT("Hello World"));
-            String result = str + TEXT("!");
+            String str("Hello World");
+            String result = str + "!";
             ASSERT(result.Length() == 12);
-            ASSERT(wcscmp(result.Data(), TEXT("Hello World!")) == 0);
+            ASSERT(std::strcmp(result.Data(), "Hello World!") == 0);
         }
 
         // / operator for concatenation
         {
-            String str(TEXT("Hello World"));
-            String path = str / TEXT("path");
+            String str("Hello World");
+            String path = str / "path";
             ASSERT(path.Length() == 16); // Length should include the separator
-            ASSERT(wcscmp(path.Data(), TEXT("Hello World/path")) == 0); // Assuming Unix path separator
+            ASSERT(std::strcmp(path.Data(), "Hello World/path") == 0); // Assuming Unix path separator
         }
 
         // using const Char* + String
         {
-            String str(TEXT("Hello"));
-            String result = TEXT("Greetings, ") + str;
+            String str("Hello");
+            String result = "Greetings, " + str;
             ASSERT(result.Length() == 16);
-            ASSERT(wcscmp(result.Data(), TEXT("Greetings, Hello")) == 0);
+            ASSERT(std::strcmp(result.Data(), "Greetings, Hello") == 0);
         }
 
         // Substring function
         {
-            String str(TEXT("Hello World"));
+            String str("Hello World");
             String substring = str.Substring(1, 2);
             ASSERT(substring.Length() == 2);
-            ASSERT(wcscmp(substring.Data(), TEXT("el")) == 0);
+            ASSERT(std::strcmp(substring.Data(), "el") == 0);
         }
 
         // Find substring
         {
-            String str(TEXT("Hello World, Hello"));
-            ASSERT(str.Find(String(TEXT("Hello"))) == 0);
-            ASSERT(str.FindLast(String(TEXT("Hello"))) == 13);
+            String str("Hello World, Hello");
+            ASSERT(str.Find(String("Hello")) == 0);
+            ASSERT(str.FindLast(String("Hello")) == 13);
         }
 
         // TrimTrailing function
         {
-            String str(TEXT("Hello   "));
+            String str("Hello   ");
             String trimmed = str.TrimTrailing();
             ASSERT(trimmed.Length() == 5);
-            ASSERT(wcscmp(trimmed.Data(), TEXT("Hello")) == 0);
+            ASSERT(std::strcmp(trimmed.Data(), "Hello") == 0);
         }
 
         // {
-        //     String str(TEXT("Hello World, Hello"));
+        //     String str("Hello World, Hello");
         //
         //     // Find and replace first
         //     {
-        //         String findReplaceFirst = str.ReplaceFirst(TEXT("Hello"), TEXT("Replaced"));
-        //         ASSERT(wcscmp(findReplaceFirst.Data(), TEXT("Replaced World, Hello")) == 0);
+        //         String findReplaceFirst = str.ReplaceFirst("Hello", "Replaced");
+        //         ASSERT(std::strcmp(findReplaceFirst.Data(), "Replaced World, Hello") == 0);
         //     }
         //
         //     // Find and replace last
         //     {
-        //         String findReplaceLast = str.ReplaceLast(TEXT("Hello"), TEXT("word"));
-        //         ASSERT(wcscmp(findReplaceLast.Data(), TEXT("Hello World, word")) == 0);
+        //         String findReplaceLast = str.ReplaceLast("Hello", "word");
+        //         ASSERT(std::strcmp(findReplaceLast.Data(), "Hello World, word") == 0);
         //     }
         //
         //     // Find and replace all
         //     {
-        //         String findReplaceAll = str.Replace(TEXT("Hello"), TEXT("yipeee"));
-        //         ASSERT(wcscmp(findReplaceAll.Data(), TEXT("yipeee World, yipeee")) == 0);
+        //         String findReplaceAll = str.Replace("Hello", "yipeee");
+        //         ASSERT(std::strcmp(findReplaceAll.Data(), "yipeee World, yipeee") == 0);
         //     }
         // }
 
@@ -161,8 +161,8 @@ namespace Test
         {
             int64 res1;
             double res2;
-            String::Parse(TEXT("-123123"), &res1);
-            String::Parse(TEXT("321.123"), &res2);
+            String::Parse("-123123", &res1);
+            String::Parse("321.123", &res2);
             ASSERT(res1 == -123123);
             ASSERT(res2 == 321.123);
         }
@@ -170,11 +170,11 @@ namespace Test
         // Format
         {
             FixedArray<int32, 10> arr = { 1, 2, 3, 4, 5, 6, 7, 8 };
-            String formatted(*Format(TEXT("{}: {}"), TEXT("Fixed array"), arr));
-            ASSERT(formatted == TEXT("Fixed array: [ 1, 2, 3, 4, 5, 6, 7, 8 ]"));
+            String formatted(*Format("{}: {}", "Fixed array", arr));
+            ASSERT(formatted == "Fixed array: [ 1, 2, 3, 4, 5, 6, 7, 8 ]");
         }
 
-        LOG(Info, TEXT("All String tests passed"));
+        LOG(Info, "All String tests passed");
     }
 
     inline void HeapArrayType()
@@ -261,7 +261,7 @@ namespace Test
             ASSERT(arr[4] == 5);
         }
 
-        LOG(Info, TEXT("All Heap Array tests passed"));
+        LOG(Info, "All Heap Array tests passed");
     }
 
     inline void HeapHashMapType()
@@ -276,35 +276,35 @@ namespace Test
         // Adding a key-value pair
         {
             HashMap<StringView, int32> map;
-            map.Add(TEXT("key1"), 42);
+            map.Add("key1", 42);
             ASSERT(map.Count() == 1);
             ASSERT(!map.IsEmpty());
 
             // Verify that the value can be retrieved
-            int32 value = map.Get(TEXT("key1"));
+            int32 value = map.Get("key1");
             ASSERT(value == 42);
 
             // Verify that trying to get a non-existent key returns nullptr
-            ASSERT(map.TryGet(TEXT("key5")) == nullptr);
+            ASSERT(map.TryGet("key5") == nullptr);
         }
 
         // Adding multiple key-value pairs
         {
             HashMap<StringView, int32> map;
-            map.Add(TEXT("key1"), 10);
-            map.Add(TEXT("key2"), 20);
-            map.Add(TEXT("key3"), 30);
+            map.Add("key1", 10);
+            map.Add("key2", 20);
+            map.Add("key3", 30);
 
             ASSERT(map.Count() == 3);
-            ASSERT(map.Get(TEXT("key1")) == 10);
-            ASSERT(map.Get(TEXT("key2")) == 20);
-            ASSERT(map.Get(TEXT("key3")) == 30);
+            ASSERT(map.Get("key1") == 10);
+            ASSERT(map.Get("key2") == 20);
+            ASSERT(map.Get("key3") == 30);
         }
 
         // Clearing the map
         {
             HashMap<StringView, int32> map;
-            map.Add(TEXT("key1"), 100);
+            map.Add("key1", 100);
             map.Clear();
             ASSERT(map.Count() == 0);
             ASSERT(map.IsEmpty());
@@ -313,9 +313,9 @@ namespace Test
         // Iterator functionality
         {
             HashMap<StringView, int32> map;
-            map.Add(TEXT("key1"), 1);
-            map.Add(TEXT("key2"), 2);
-            map.Add(TEXT("key3"), 3);
+            map.Add("key1", 1);
+            map.Add("key2", 2);
+            map.Add("key3", 3);
 
             // iterator
             int32 sum = 0;
@@ -333,52 +333,52 @@ namespace Test
         // Resize and rehash
         {
             // Required checks for this test to work
-            ASSERT(Hash<StringView>{}.Get(TEXT("Key32")) % 10 == 7);
-            ASSERT(Hash<StringView>{}.Get(TEXT("Key3")) % 10 == 7);
-            ASSERT(Hash<StringView>{}.Get(TEXT("Key32")) % 20 == 7);
-            ASSERT(Hash<StringView>{}.Get(TEXT("Key3")) % 20 == 17);
+            ASSERT(Hash<StringView>{}.Get("Key32") % 10 == 7);
+            ASSERT(Hash<StringView>{}.Get("Key3") % 10 == 7);
+            ASSERT(Hash<StringView>{}.Get("Key32") % 20 == 7);
+            ASSERT(Hash<StringView>{}.Get("Key3") % 20 == 17);
 
             HashMap<StringView, int32> map(10);
 
-            map.Add(TEXT("Key32"), 1);
+            map.Add("Key32", 1);
             ASSERT(map.Capacity() == 10);;
-            ASSERT(map.TryGet(TEXT("Key32")));
-            ASSERT(map.Get(TEXT("Key32")) == 1);
+            ASSERT(map.TryGet("Key32"));
+            ASSERT(map.Get("Key32") == 1);
 
-            map.Add(TEXT("Key3"), 2);
+            map.Add("Key3", 2);
             ASSERT(map.Capacity() == 20);
-            ASSERT(map.TryGet(TEXT("Key32")));
-            ASSERT(map.Get(TEXT("Key32")) == 1);
-            ASSERT(map.TryGet(TEXT("Key3")));
-            ASSERT(map.Get(TEXT("Key3")) == 2);
+            ASSERT(map.TryGet("Key32"));
+            ASSERT(map.Get("Key32") == 1);
+            ASSERT(map.TryGet("Key3"));
+            ASSERT(map.Get("Key3") == 2);
         }
 
         // Operator [] adding and getting
         {
             HashMap<StringView, int32> map;
-            map[TEXT("Key")] = 32;
+            map["Key"] = 32;
             ASSERT(map.Count() == 1);
-            ASSERT(map.Get(TEXT("Key")) == 32);
+            ASSERT(map.Get("Key") == 32);
         }
 
         {
             HashMap<StringView, int32> map;
-            map.Add(TEXT("Key1"), 1);
-            map.Add(TEXT("Key2"), 2);
-            map.Add(TEXT("Key3"), 3);
+            map.Add("Key1", 1);
+            map.Add("Key2", 2);
+            map.Add("Key3", 3);
 
             HashMap<StringView, int32> copyed(map);
 
-            ASSERT(copyed.TryGet(TEXT("Key1")));
-            ASSERT(copyed.Get(TEXT("Key1")) == 1);
+            ASSERT(copyed.TryGet("Key1"));
+            ASSERT(copyed.Get("Key1") == 1);
 
-            ASSERT(copyed.TryGet(TEXT("Key2")));
-            ASSERT(copyed.Get(TEXT("Key2")) == 2);
+            ASSERT(copyed.TryGet("Key2"));
+            ASSERT(copyed.Get("Key2") == 2);
 
-            ASSERT(copyed.TryGet(TEXT("Key3")));
-            ASSERT(copyed.Get(TEXT("Key3")) == 3);
+            ASSERT(copyed.TryGet("Key3"));
+            ASSERT(copyed.Get("Key3") == 3);
         }
 
-        LOG(Info, TEXT("All HashMap tests passed"));
+        LOG(Info, "All HashMap tests passed");
     }
 }

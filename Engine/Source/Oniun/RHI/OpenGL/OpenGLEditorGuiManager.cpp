@@ -6,27 +6,27 @@
 
 #include "Oniun/Renderer/Renderer.h"
 
-void EditorGuiManager::Initialize(Renderer* renderer)
+void ImGuiWindowManager::Initialize(Renderer& renderer)
 {
-    IEditorGuiManager::Initialize(renderer);
-    ImGui_ImplGlfw_InitForOpenGL(renderer->GetWindow()->GetInternalWindow(), true);
+    IImGuiWindowManager::Initialize(renderer);
+    ImGui_ImplGlfw_InitForOpenGL(renderer.GetWindow()->GetInternalWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 450");
 }
 
-void EditorGuiManager::Terminate()
+void ImGuiWindowManager::Terminate()
 {
     ImGui_ImplOpenGL3_Shutdown();
-    IEditorGuiManager::Terminate();
+    IImGuiWindowManager::Terminate();
 }
 
-void EditorGuiManager::NewFrame()
+void ImGuiWindowManager::NewFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();
 
-    IEditorGuiManager::NewFrame();
+    IImGuiWindowManager::NewFrame();
 }
 
-void EditorGuiManager::RenderPlatformDrawData()
+void ImGuiWindowManager::RenderPlatformDrawData()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

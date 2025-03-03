@@ -5,9 +5,9 @@
 
 namespace Color_Internal
 {
-    constexpr uint8 HexToInt(const Char* hex)
+    constexpr uint8 HexToInt(const char* hex)
     {
-        constexpr auto calc = [](Char ch) -> uint8
+        constexpr auto calc = [](char ch) -> uint8
         {
             if (ch >= '0' && ch <= '9')
                 return (uint8)(ch - '0');
@@ -131,50 +131,50 @@ constexpr Color32::Color32(const Color& color)
 {
 }
 
-static constexpr Color Black = Color(TEXT("#000000"));
-static constexpr Color White = Color(TEXT("#FFFFFF"));
-static constexpr Color Red = Color(TEXT("#FF0000"));
-static constexpr Color Green = Color(TEXT("#00FF00"));
-static constexpr Color Blue = Color(TEXT("#0000FF"));
-static constexpr Color Yellow = Color(TEXT("#FFFF00"));
-static constexpr Color Cyan = Color(TEXT("#00FFFF"));
-static constexpr Color Magenta = Color(TEXT("#FF00FF"));
-static constexpr Color Silver = Color(TEXT("#C0C0C0"));
-static constexpr Color Gray = Color(TEXT("#808080"));
-static constexpr Color Maroon = Color(TEXT("#800000"));
-static constexpr Color Olive = Color(TEXT("#808000"));
-static constexpr Color Purple = Color(TEXT("#800080"));
-static constexpr Color Teal = Color(TEXT("#008080"));
-static constexpr Color Navy = Color(TEXT("#000080"));
-static constexpr Color Orange = Color(TEXT("#FFA500"));
-static constexpr Color Pink = Color(TEXT("#FFC0CB"));
-static constexpr Color DarkGray = Color(TEXT("#A9A9A9"));
-static constexpr Color DarkRed = Color(TEXT("#8B0000"));
-static constexpr Color LightGray = Color(TEXT("#D3D3D3"));
-static constexpr Color LightBlue = Color(TEXT("#ADD8E6"));
-static constexpr Color LightGreen = Color(TEXT("#90EE90"));
-static constexpr Color LightCoral = Color(TEXT("#F08080"));
-static constexpr Color LightSalmon = Color(TEXT("#FFA07A"));
-static constexpr Color LightGoldenrodYellow = Color(TEXT("#FAFAD2"));
-static constexpr Color LightSkyBlue = Color(TEXT("#87CEFA"));
-static constexpr Color LightSeaGreen = Color(TEXT("#20B2AA"));
-static constexpr Color LightSlateGray = Color(TEXT("#778899"));
-static constexpr Color LightSteelBlue = Color(TEXT("#B0C4DE"));
-static constexpr Color PaleGoldenrod = Color(TEXT("#EEE8AA"));
-static constexpr Color PaleGreen = Color(TEXT("#98FB98"));
-static constexpr Color PaleTurquoise = Color(TEXT("#AFEEEE"));
-static constexpr Color PaleVioletRed = Color(TEXT("#DB7093"));
-static constexpr Color Salmon = Color(TEXT("#FA8072"));
-static constexpr Color SandyBrown = Color(TEXT("#F4A460"));
-static constexpr Color SeaGreen = Color(TEXT("#2E8B57"));
-static constexpr Color SlateBlue = Color(TEXT("#6A5ACD"));
-static constexpr Color SlateGray = Color(TEXT("#708090"));
-static constexpr Color SpringGreen = Color(TEXT("#00FF7F"));
-static constexpr Color Tomato = Color(TEXT("#FF6347"));
-static constexpr Color Turquoise = Color(TEXT("#40E0D0"));
-static constexpr Color Violet = Color(TEXT("#EE82EE"));
-static constexpr Color Wheat = Color(TEXT("#F5DEB3"));
-static constexpr Color YellowGreen = Color(TEXT("#9ACD32"));
+static constexpr Color Black = Color("#000000");
+static constexpr Color White = Color("#FFFFFF");
+static constexpr Color Red = Color("#FF0000");
+static constexpr Color Green = Color("#00FF00");
+static constexpr Color Blue = Color("#0000FF");
+static constexpr Color Yellow = Color("#FFFF00");
+static constexpr Color Cyan = Color("#00FFFF");
+static constexpr Color Magenta = Color("#FF00FF");
+static constexpr Color Silver = Color("#C0C0C0");
+static constexpr Color Gray = Color("#808080");
+static constexpr Color Maroon = Color("#800000");
+static constexpr Color Olive = Color("#808000");
+static constexpr Color Purple = Color("#800080");
+static constexpr Color Teal = Color("#008080");
+static constexpr Color Navy = Color("#000080");
+static constexpr Color Orange = Color("#FFA500");
+static constexpr Color Pink = Color("#FFC0CB");
+static constexpr Color DarkGray = Color("#A9A9A9");
+static constexpr Color DarkRed = Color("#8B0000");
+static constexpr Color LightGray = Color("#D3D3D3");
+static constexpr Color LightBlue = Color("#ADD8E6");
+static constexpr Color LightGreen = Color("#90EE90");
+static constexpr Color LightCoral = Color("#F08080");
+static constexpr Color LightSalmon = Color("#FFA07A");
+static constexpr Color LightGoldenrodYellow = Color("#FAFAD2");
+static constexpr Color LightSkyBlue = Color("#87CEFA");
+static constexpr Color LightSeaGreen = Color("#20B2AA");
+static constexpr Color LightSlateGray = Color("#778899");
+static constexpr Color LightSteelBlue = Color("#B0C4DE");
+static constexpr Color PaleGoldenrod = Color("#EEE8AA");
+static constexpr Color PaleGreen = Color("#98FB98");
+static constexpr Color PaleTurquoise = Color("#AFEEEE");
+static constexpr Color PaleVioletRed = Color("#DB7093");
+static constexpr Color Salmon = Color("#FA8072");
+static constexpr Color SandyBrown = Color("#F4A460");
+static constexpr Color SeaGreen = Color("#2E8B57");
+static constexpr Color SlateBlue = Color("#6A5ACD");
+static constexpr Color SlateGray = Color("#708090");
+static constexpr Color SpringGreen = Color("#00FF7F");
+static constexpr Color Tomato = Color("#FF6347");
+static constexpr Color Turquoise = Color("#40E0D0");
+static constexpr Color Violet = Color("#EE82EE");
+static constexpr Color Wheat = Color("#F5DEB3");
+static constexpr Color YellowGreen = Color("#9ACD32");
 
 String ToString(const Color32& color);
 String ToString(const Color& color);

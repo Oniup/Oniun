@@ -330,5 +330,5 @@ Matrix Matrix::Rotate(const Matrix& mat, float angle, const Vector3& rotate)
 
 String ToString(const Matrix& mat)
 {
-    return Format(TEXT("{}\n{}\n{}\n{}\n"), mat.M[0], mat.M[1], mat.M[2], mat.M[3]);
+    return Format("{}\n{}\n{}\n{}\n", mat.M[0], mat.M[1], mat.M[2], mat.M[3]);
 }

@@ -111,8 +111,8 @@ struct HeapAllocation
 
         FORCE_INLINE void Swap(Data& data)
         {
-            std::swap(m_Data, data.m_Data);
-            std::swap(m_Capacity, data.m_Capacity);
+            Memory::Swap(m_Data, data.m_Data);
+            Memory::Swap(m_Capacity, data.m_Capacity);
         }
     };
 };

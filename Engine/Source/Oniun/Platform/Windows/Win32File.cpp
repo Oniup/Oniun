@@ -27,7 +27,7 @@ File::File(void* handle, bool owns)
 File::File(const StringView& path, FileAccess access, FileMode mode)
     : IFile(true), m_Handle(INVALID_HANDLE_VALUE)
 {
-    HANDLE handle = CreateFileW(*path, (DWORD)access, 0, nullptr, (DWORD)mode, FILE_ATTRIBUTE_NORMAL, nullptr);
+    HANDLE handle = CreateFileA(*path, (DWORD)access, 0, nullptr, (DWORD)mode, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());

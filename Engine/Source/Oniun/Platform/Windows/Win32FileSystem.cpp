@@ -2,19 +2,24 @@
 
 #include "Oniun/Platform/Windows/Win32FileSystem.h"
 
+#include <ShlObj.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
+#include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Platform/Base/IFileSystem.h"
 #include "Oniun/Platform/Windows/Win32Headers.h"
 #include "Oniun/Platform/Windows/Win32Platform.h"
-
-#include <KnownFolders.h>
-#include <ShlObj.h>
+#include "Oniun/Renderer/Renderer.h"
 
 String FileSystem::GetCurrentDirectory()
 {
     String buffer(256);
-    GetCurrentDirectoryW((DWORD)buffer.Capacity(), buffer.Data());
+    GetCurrentDirectoryA((DWORD)buffer.Capacity(), buffer.Data());
     buffer.ReCalcLength();
     buffer.CorrectPathSlashes();
     return buffer;
@@ -22,7 +27,7 @@ String FileSystem::GetCurrentDirectory()
 
 bool FileSystem::CreateDirectory(const StringView& path)
 {
-    DWORD fileAttributes = GetFileAttributesW(*path);
+    DWORD fileAttributes = GetFileAttributesA(*path);
     if (fileAttributes == INVALID_FILE_ATTRIBUTES)
     {
         const DWORD error = GetLastError();
@@ -38,7 +43,7 @@ bool FileSystem::CreateDirectory(const StringView& path)
                 return true;
         }
 
-        if (!CreateDirectoryW(path.Data(), nullptr))
+        if (!CreateDirectoryA(path.Data(), nullptr))
         {
             LOG(Error, *Platform::GetLastErrorMessage());
             return false;
@@ -50,19 +55,19 @@ bool FileSystem::CreateDirectory(const StringView& path)
 
 bool FileSystem::DeleteDirectory(const StringView& path)
 {
-    DWORD fileAttributes = GetFileAttributesW(*path);
+    DWORD fileAttributes = GetFileAttributesA(*path);
     if (fileAttributes == INVALID_FILE_ATTRIBUTES)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
         return false;
     }
 
-    WIN32_FIND_DATA findData;
-    HANDLE handle = FindFirstFileW(*(path / '*'), &findData);
+    WIN32_FIND_DATAA  findData;
+    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
     do
     {
         StringView name(findData.cFileName);
-        if (name == TEXT(".") || name == TEXT(".."))
+        if (name == "." || name == "..")
             continue;
 
         String filePath = path / name;
@@ -76,7 +81,7 @@ bool FileSystem::DeleteDirectory(const StringView& path)
         }
         else
         {
-            if (!DeleteFileW(*filePath))
+            if (!DeleteFileA(*filePath))
             {
                 LOG(Error, *Platform::GetLastErrorMessage());
                 FindClose(handle);
@@ -84,10 +89,10 @@ bool FileSystem::DeleteDirectory(const StringView& path)
             }
         }
     }
-    while (FindNextFileW(handle, &findData));
+    while (FindNextFileA(handle, &findData));
     FindClose(handle);
 
-    if (!RemoveDirectoryW(*path))
+    if (!RemoveDirectoryA(*path))
     {
         LOG(Error, *Platform::GetLastErrorMessage());
         return false;
@@ -98,7 +103,7 @@ bool FileSystem::DeleteDirectory(const StringView& path)
 
 bool FileSystem::DirectoryExists(const StringView& path)
 {
-    DWORD attrib = GetFileAttributesW(*path);
+    DWORD attrib = GetFileAttributesA(*path);
     return attrib != INVALID_FILE_ATTRIBUTES && (attrib & FILE_ATTRIBUTE_DIRECTORY);
 }
 
@@ -112,8 +117,8 @@ bool FileSystem::GetDirectoryFiles(Array<String>& filePaths, const StringView& p
 
 bool FileSystem::GetChildDirectories(Array<String>& directories, const StringView& path)
 {
-    WIN32_FIND_DATA findData;
-    HANDLE handle = FindFirstFileW(*(path / '*'), &findData);
+    WIN32_FIND_DATAA findData;
+    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -124,13 +129,13 @@ bool FileSystem::GetChildDirectories(Array<String>& directories, const StringVie
     do
     {
         StringView name(findData.cFileName);
-        if (name == TEXT(".") || name == TEXT(".."))
+        if (name == "." || name == "..")
             continue;
 
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             directories.Add(path / name);
     }
-    while (FindNextFileW(handle, &findData));
+    while (FindNextFileA(handle, &findData));
 
     FindClose(handle);
     return true;
@@ -162,8 +167,8 @@ String FileSystem::GetSpecialDirectoryPath(SpecialDirectory type)
         break;
     case SpecialDirectory::Temporary:
         {
-            Char tempPath[MAX_PATH];
-            if (GetTempPathW(MAX_PATH, tempPath))
+            char tempPath[MAX_PATH];
+            if (GetTempPathA(MAX_PATH, tempPath))
             {
                 result.Set(tempPath);
                 result.CorrectPathSlashes();
@@ -175,7 +180,8 @@ String FileSystem::GetSpecialDirectoryPath(SpecialDirectory type)
     PWSTR tempPath = nullptr;
     if (SUCCEEDED(SHGetKnownFolderPath(folderId, 0, nullptr, &tempPath)))
     {
-        result.Set(tempPath);
+        result.Resize(WideCharToMultiByte(CP_UTF8, 0, tempPath, -1, nullptr, 0, nullptr, nullptr));
+        WideCharToMultiByte(CP_UTF8, 0, tempPath, -1, result.Data(), (DWORD)result.Length(), nullptr, nullptr);
         result.CorrectPathSlashes();
     }
     CoTaskMemFree(tempPath);
@@ -184,7 +190,7 @@ String FileSystem::GetSpecialDirectoryPath(SpecialDirectory type)
 
 bool FileSystem::DeleteFile(const StringView& path)
 {
-    if (!DeleteFileW(*path))
+    if (!DeleteFileA(*path))
     {
         LOG(Error, *Platform::GetLastErrorMessage());
         return false;
@@ -195,7 +201,7 @@ bool FileSystem::DeleteFile(const StringView& path)
 bool FileSystem::MoveFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting)
 {
     DWORD flags = MOVEFILE_COPY_ALLOWED | (overwriteExisting ? MOVEFILE_REPLACE_EXISTING : 0);
-    if (!MoveFileExW(*srcPath, *destPath, flags))
+    if (!MoveFileExA(*srcPath, *destPath, flags))
     {
         LOG(Error, *Platform::GetLastErrorMessage());
         return false;
@@ -205,7 +211,7 @@ bool FileSystem::MoveFile(const StringView& destPath, const StringView& srcPath,
 
 bool FileSystem::CopyFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting)
 {
-    if (!CopyFileW(*srcPath, *destPath, !overwriteExisting))
+    if (!CopyFileA(*srcPath, *destPath, !overwriteExisting))
     {
         LOG(Error, *Platform::GetLastErrorMessage());
         return false;
@@ -216,7 +222,7 @@ bool FileSystem::CopyFile(const StringView& destPath, const StringView& srcPath,
 uint64 FileSystem::GetFileSize(const StringView& path)
 {
     WIN32_FILE_ATTRIBUTE_DATA attributes;
-    if (GetFileAttributesExW(*path, GetFileExInfoStandard, &attributes))
+    if (GetFileAttributesExA(*path, GetFileExInfoStandard, &attributes))
     {
         if (!(attributes.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
         {
@@ -232,7 +238,7 @@ uint64 FileSystem::GetFileSize(const StringView& path)
 
 bool FileSystem::FileExists(const StringView& path)
 {
-    DWORD attribute = GetFileAttributesW(*path);
+    DWORD attribute = GetFileAttributesA(*path);
     return attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY);
 }
 
@@ -240,7 +246,7 @@ String FileSystem::OpenDialog(const StringView& openPath, const StringView& filt
 {
     String result(MAX_PATH);
 
-    OPENFILENAME openFileName;
+    OPENFILENAMEA openFileName;
     ZeroMemory(&openFileName, sizeof(openFileName));
     openFileName.lStructSize = sizeof(openFileName);
     openFileName.lpstrFilter = filter.Data();
@@ -250,7 +256,7 @@ String FileSystem::OpenDialog(const StringView& openPath, const StringView& filt
     openFileName.lpstrTitle = title.Data();
     openFileName.lpstrInitialDir = openPath.Data();
 
-    if (GetOpenFileNameW(&openFileName) != 0)
+    if (GetOpenFileNameA(&openFileName) != 0)
     {
         result.ReCalcLength();
         result.CorrectPathSlashes();
@@ -264,7 +270,7 @@ Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const S
     Array<String> results;
     String buffer(200 * MAX_PATH);
 
-    OPENFILENAME openFileName;
+    OPENFILENAMEA openFileName;
     ZeroMemory(&openFileName, sizeof(openFileName));
     openFileName.lStructSize = sizeof(openFileName);
     openFileName.lpstrFilter = filter.Data();
@@ -275,10 +281,10 @@ Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const S
     openFileName.lpstrTitle = title.Data();
     openFileName.lpstrInitialDir = openPath.Data();
 
-    if (GetOpenFileNameW(&openFileName) != 0)
+    if (GetOpenFileNameA(&openFileName) != 0)
     {
         buffer.ReCalcLength();
-        const Char* ptr = buffer.Data();
+        const char* ptr = buffer.Data();
         String directory(ptr);
 
         ptr += openFileName.nFileOffset;
@@ -286,7 +292,7 @@ Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const S
         {
             String path(directory / ptr);
             path.CorrectPathSlashes();
-            results.Add(std::move(path));
+            results.Add(Memory::Move(path));
             ptr += StringUtils::Length(ptr) + 1;
         }
     }
@@ -297,7 +303,7 @@ String FileSystem::SaveDialog(const StringView& openPath, const StringView& filt
 {
     String result(MAX_PATH);
 
-    OPENFILENAME openFileName;
+    OPENFILENAMEA openFileName;
     ZeroMemory(&openFileName, sizeof(openFileName));
     openFileName.lStructSize = sizeof(openFileName);
     openFileName.lpstrFilter = filter.Data();
@@ -307,7 +313,7 @@ String FileSystem::SaveDialog(const StringView& openPath, const StringView& filt
     openFileName.lpstrTitle = title.Data();
     openFileName.lpstrInitialDir = openPath.Data();
 
-    if (GetSaveFileNameW(&openFileName) != 0)
+    if (GetSaveFileNameA(&openFileName) != 0)
     {
         result.ReCalcLength();
         result.CorrectPathSlashes();
@@ -319,7 +325,7 @@ String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringV
 {
     String result(MAX_PATH);
 
-    BROWSEINFO browseInfo;
+    BROWSEINFOA browseInfo;
     ZeroMemory(&browseInfo, sizeof(browseInfo));
     browseInfo.hwndOwner = nullptr;
     browseInfo.pidlRoot = nullptr;
@@ -330,11 +336,11 @@ String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringV
     browseInfo.lParam = NULL;
     browseInfo.iImage = 0;
 
-    LPITEMIDLIST itemIdList = SHBrowseForFolderW(&browseInfo);
+    LPITEMIDLIST itemIdList = SHBrowseForFolderA(&browseInfo);
     if (itemIdList != nullptr)
     {
-        Char path[MAX_PATH];
-        if (SHGetPathFromIDListW(itemIdList, path))
+        char path[MAX_PATH];
+        if (SHGetPathFromIDListA(itemIdList, path))
         {
             result = path;
             result.CorrectPathSlashes();
@@ -351,15 +357,18 @@ String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringV
 
 void FileSystem::OpenFileExplorer(const StringView& openPath)
 {
-    ShellExecuteW(nullptr, TEXT("open"), TEXT("explorer.exe"), *openPath, nullptr, SW_SHOWNORMAL);
+    Renderer* renderer = Engine::GetLayer<Renderer>();
+    ASSERT(renderer);
+    HWND handle = glfwGetWin32Window(renderer->GetWindow()->GetInternalWindow());
+    ShellExecuteA(handle, "explore", *openPath, nullptr, nullptr, SW_SHOWNORMAL);
 }
 
 bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringView& path,
                                        const StringView& searchPattern)
 {
     // Combine the path and the pattern into one string and initialize windows search handle
-    WIN32_FIND_DATAW findData;
-    HANDLE handle = FindFirstFileW(*(path / searchPattern), &findData);
+    WIN32_FIND_DATAA findData;
+    HANDLE handle = FindFirstFileA(*(path / searchPattern), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -371,13 +380,13 @@ bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringVie
     do
     {
         StringView name(findData.cFileName);
-        if (name == TEXT(".") || name == TEXT(".."))
+        if (name == "." || name == "..")
             continue;
 
         if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             filePaths.Add(path / name);
     }
-    while (FindNextFileW(handle, &findData));
+    while (FindNextFileA(handle, &findData));
 
     FindClose(handle);
     return true;
@@ -389,8 +398,8 @@ bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView
     GetDirectoryFilesOnly(filePaths, path, searchPattern);
 
     // Combine the path and the pattern into one string and initialize windows search handle
-    WIN32_FIND_DATAW findData;
-    HANDLE handle = FindFirstFileW(*(path / '*'), &findData);
+    WIN32_FIND_DATAA findData;
+    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -402,7 +411,7 @@ bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView
     do
     {
         StringView name(findData.cFileName);
-        if (name == TEXT(".") || name == TEXT(".."))
+        if (name == "." || name == "..")
             continue;
 
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -414,7 +423,7 @@ bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView
             }
         }
     }
-    while (FindNextFileW(handle, &findData));
+    while (FindNextFileA(handle, &findData));
 
     FindClose(handle);
     return false;

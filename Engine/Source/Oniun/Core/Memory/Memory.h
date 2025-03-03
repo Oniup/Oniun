@@ -9,6 +9,20 @@
 
 namespace Memory
 {
+    template<typename T>
+    constexpr std::remove_reference_t<T>&& Move(T&& item)
+    {
+        return static_cast<std::remove_reference_t<T>&&>(item);
+    }
+
+    template<typename T>
+    constexpr void Swap(T& val0, T& val1)
+    {
+        T temp = Move(val0);
+        val0 = Move(val1);
+        val1 = Move(temp);
+    }
+
     constexpr uint64 CalcCapacityGrow(uint64 count, uint64 capacity)
     {
         while (count >= capacity)
@@ -118,7 +132,7 @@ namespace Memory
         {
             for (uint64 i = 0; i < count; ++i)
             {
-                new(dest) T(std::move(*src));
+                new(dest) T(Move(*src));
                 ++dest;
                 ++src;
             }

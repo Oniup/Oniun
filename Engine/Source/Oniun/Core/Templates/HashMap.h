@@ -230,7 +230,7 @@ public:
     }
 
     HashMap(HashMap&& other)
-        : m_Count(other.m_Count), m_Data(std::move(other.m_Data))
+        : m_Count(other.m_Count), m_Data(Memory::Move(other.m_Data))
     {
         other.m_Count = 0;
     }
@@ -449,7 +449,7 @@ public:
             Reserve(Capacity() * 2);
             hash = GetHash(key);
         }
-        m_Data[hash].Set(key, std::move(value));
+        m_Data[hash].Set(key, Memory::Move(value));
         m_Count++;
         return m_Data[hash].Value;
     }
@@ -469,12 +469,12 @@ public:
             for (Bucket& bucket : *this)
             {
                 uint64 hash = THash{}.Get(bucket.m_Key) % newCapacity;
-                newData[hash].Set(std::move(bucket.m_Key), std::move(bucket.Value));
+                newData[hash].Set(Memory::Move(bucket.m_Key), Memory::Move(bucket.Value));
                 bucket.m_IsEmpty = true;
             }
             m_Data.Free();
         }
-        m_Data.Move(std::move(newData));
+        m_Data.Move(Memory::Move(newData));
     }
 
 private:

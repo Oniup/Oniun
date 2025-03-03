@@ -87,7 +87,7 @@ Vector3& Vector3::operator/=(const Vector3& vec)
     {
         if (vec.Raw[i] == 0.0f)
         {
-            LOG(Warning, TEXT("Cannot divide a 0 value"));
+            LOG(Warning, "Cannot divide a 0 value");
             return *this;
         }
     }
@@ -104,7 +104,7 @@ Vector3 Vector3::operator/(const Vector3& vec) const
     {
         if (vec.Raw[i] == 0.0f)
         {
-            LOG(Warning, TEXT("Cannot divide a 0 value"));
+            LOG(Warning, "Cannot divide a 0 value");
             return *this;
         }
     }
@@ -137,7 +137,7 @@ Vector3& Vector3::operator/=(float scalar)
 {
     if (scalar == 0)
     {
-        LOG(Warning, TEXT("Cannot divide a 0 value"));
+        LOG(Warning, "Cannot divide a 0 value");
         return *this;
     }
     X /= scalar;
@@ -150,7 +150,7 @@ Vector3 Vector3::operator/(float scalar) const
 {
     if (scalar == 0)
     {
-        LOG(Warning, TEXT("Cannot divide a 0 value"));
+        LOG(Warning, "Cannot divide a 0 value");
         return *this;
     }
     Vector3 res(*this);
@@ -347,12 +347,8 @@ Vector3 Vector3::Clamp(float min, float max) const
 
 String ToString(const Vector3& vec)
 {
-    Char buffer[100];
-#if ONU_PLATFORM_WINDOWS
-    _snwprintf(buffer, 100, TEXT("[ %f, %f, %f ]"), vec.X, vec.Y, vec.Z);
-#else
-        swprintf(buffer, TEXT("[ %f, %f, %f ]"), vec.X, vec.Y, vec.Z);
-#endif
+    char buffer[100];
+    snprintf(buffer, 100, "[ %f, %f, %f ]", vec.X, vec.Y, vec.Z);
     return String(buffer);
 }
 

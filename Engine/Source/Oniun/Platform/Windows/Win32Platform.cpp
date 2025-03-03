@@ -12,12 +12,12 @@ String Platform::GetLastErrorMessage()
 {
     uint32 errorCode = GetLastError();
     constexpr uint32 maxLength = 512;
-    Char buffer[maxLength];
-    DWORD msgSize = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
+    char buffer[maxLength];
+    DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
                                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
     if (msgSize > 0)
-        return Format(TEXT("Windows Error:{} => {}"), errorCode, String(buffer, msgSize));
-    return Format(TEXT("Windows Error:{} => Unknown"), errorCode);
+        return Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
+    return Format("Windows Error:{} => Unknown", errorCode);
 }
 
 File Platform::GetStdOutStream()

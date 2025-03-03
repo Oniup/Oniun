@@ -9,19 +9,19 @@ StringView ToString(LogType type)
     switch (type)
     {
     case LogType::Verbose:
-        return TEXT("Verbose");
+        return "Verbose";
     case LogType::Trace:
-        return TEXT("Trace");
+        return "Trace";
     case LogType::Info:
-        return TEXT("Info");
+        return "Info";
     case LogType::Warning:
-        return TEXT("Warning");
+        return "Warning";
     case LogType::Error:
-        return TEXT("Error");
+        return "Error";
     case LogType::Fatal:
-        return TEXT("Fatal");
+        return "Fatal";
     default:
-        return TEXT("Invalid");
+        return "Invalid";
     }
 }
 
@@ -44,7 +44,7 @@ void Logger::WriteImpl(LogType type, const StringView& file, const StringView& f
                        const StringView& userMsg)
 {
     String path(file);
-    uint64 engineIndex = file.FindLast(TEXT("Oniun"));
+    uint64 engineIndex = file.FindLast("Oniun");
     if (engineIndex != GlobalVars::NoPos)
     {
         path.Set(ToSlice(file.begin() + engineIndex, file.end()));
@@ -52,18 +52,17 @@ void Logger::WriteImpl(LogType type, const StringView& file, const StringView& f
     path.CorrectPathSlashes();
 
     DateTime time(DateTime::Now());
-    String utf16Message = Format(TEXT("[{} {} {}:{} {}]:\n{}\n"), type, time, function, line, path, userMsg);
-    CharString utf8Message(StringUtils::Utf16ToUtf8(utf16Message));
+    String message = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMsg);
 
     for (ILogOutput* output : m_Outputs)
-        output->Write(type, utf8Message, file, function, line, userMsg, time);
+        output->Write(type, message, file, function, line, userMsg, time);
 
     if (type == LogType::Fatal)
         std::exit(-1);
 }
 
 TerminalLogOutput::TerminalLogOutput()
-    : ILogOutput(TEXT("Terminal Output")), m_StdStream(Platform::GetStdOutStream()),
+    : ILogOutput("Terminal Output"), m_StdStream(Platform::GetStdOutStream()),
       m_ErrorStream(Platform::GetStdOutStream())
 {
 }
@@ -72,19 +71,19 @@ TerminalLogOutput::~TerminalLogOutput()
 {
 }
 
-void TerminalLogOutput::Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+void TerminalLogOutput::Write(LogType type, const StringView& message, const StringView& file,
                               const StringView& function, int32 line, const StringView& userMsg,
                               const DateTime& time)
 {
     File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
-    stream->Write(utf8FinalMsg.Data(), static_cast<uint32>(utf8FinalMsg.Length()));
+    stream->Write(message.Data(), static_cast<uint32>(message.Length()));
 #if !defined(ONU_PLATFORM_WINDOWS)
         stream->Flush();
 #endif
 }
 
 FileLogOutput::FileLogOutput(const StringView& outputPath)
-    : ILogOutput(TEXT("Log File Output")), m_Output(outputPath, FileAccess::Write)
+    : ILogOutput("Log File Output"), m_Output(outputPath, FileAccess::Write)
 {
     uint32 size = m_Output.GetSize();
     m_Output.SetPosition(size);
@@ -94,10 +93,10 @@ FileLogOutput::~FileLogOutput()
 {
 }
 
-void FileLogOutput::Write(LogType type, const CharStringView& utf8FinalMsg, const StringView& file,
+void FileLogOutput::Write(LogType type, const StringView& message, const StringView& file,
                           const StringView& function, int32 line, const StringView& userMsg,
                           const DateTime& time)
 {
-    m_Output.Write(utf8FinalMsg.Data(), static_cast<uint32>(utf8FinalMsg.Length()));
+    m_Output.Write(message.Data(), static_cast<uint32>(message.Length()));
     m_Output.Flush();
 }

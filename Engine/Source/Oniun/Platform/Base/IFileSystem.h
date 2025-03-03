@@ -120,6 +120,6 @@ struct IFileSystem
     static String AbsolutePathToRelative(const StringView& path);
 
     static String GetTemporaryFileName(const StringView& currentPath);
-    static Slice<Char> GetFileNameFromPath(const StringView& path);
-    static Slice<Char> GetDirectoryNameFromFilePath(const StringView& path);
+    static Slice<char> GetFileNameFromPath(const StringView& path);
+    static Slice<char> GetDirectoryNameFromFilePath(const StringView& path);
 };

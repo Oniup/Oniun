@@ -98,7 +98,7 @@ Vector4& Vector4::operator/=(const Vector4& vec)
     {
         if (vec.V[i] == 0.0f)
         {
-            LOG(Warning, TEXT("Cannot divide a 0 value"));
+            LOG(Warning, "Cannot divide a 0 value");
             return *this;
         }
     }
@@ -116,7 +116,7 @@ Vector4 Vector4::operator/(const Vector4& vec) const
     {
         if (vec.V[i] == 0.0f)
         {
-            LOG(Warning, TEXT("Cannot divide a 0 value"));
+            LOG(Warning, "Cannot divide a 0 value");
             return *this;
         }
     }
@@ -152,7 +152,7 @@ Vector4& Vector4::operator/=(float scalar)
 {
     if (scalar == 0)
     {
-        LOG(Warning, TEXT("Cannot divide a 0 value"));
+        LOG(Warning, "Cannot divide a 0 value");
         return *this;
     }
     X /= scalar;
@@ -166,7 +166,7 @@ Vector4 Vector4::operator/(float scalar) const
 {
     if (scalar == 0)
     {
-        LOG(Warning, TEXT("Cannot divide a 0 value"));
+        LOG(Warning, "Cannot divide a 0 value");
         return *this;
     }
     Vector4 res(*this);
@@ -374,11 +374,7 @@ Vector4 Vector4::Normalized() const
 
 String ToString(const Vector4& vec)
 {
-    Char buffer[100];
-#if ONU_PLATFORM_WINDOWS
-    _snwprintf(buffer, 100, TEXT("[ %f, %f, %f, %f ]"), vec.X, vec.Y, vec.Z, vec.W);
-#else
-        swprintf(buffer, TEXT("[ %f, %f, %f, %f ]"), vec.X, vec.Y, vec.Z, vec.W);
-#endif
+    char buffer[100];
+    snprintf(buffer, 100, "[ %f, %f, %f, %f ]", vec.X, vec.Y, vec.Z, vec.W);
     return String(buffer);
 }

@@ -1,4 +1,4 @@
-#include "Oniun/RHI/Base/IEditorGuiManager.h"
+#include "Oniun/RHI/Base/IImGuiWindowManager.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
@@ -7,11 +7,25 @@
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Renderer/Renderer.h"
 
-IEditorGuiManager::IEditorGuiManager()
+IImGuiWindowManager::IImGuiWindowManager()
 {
 }
 
-void IEditorGuiManager::Initialize(Renderer* renderer)
+bool IImGuiWindowManager::Add(IImGuiWindow* window)
+{
+    if (window)
+    {
+        if (!window->GetTitle().IsEmpty())
+        {
+            m_Windows.Add(window);
+            return true;
+        }
+        Memory::Free(window);
+    }
+    return false;
+}
+
+void IImGuiWindowManager::Initialize(Renderer& renderer)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -27,24 +41,38 @@ void IEditorGuiManager::Initialize(Renderer* renderer)
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 }
 
-void IEditorGuiManager::Terminate()
+void IImGuiWindowManager::Terminate()
 {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void IEditorGuiManager::NewFrame()
+void IImGuiWindowManager::NewFrame()
 {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void IEditorGuiManager::Render()
+void IImGuiWindowManager::Render(Renderer& renderer)
 {
+    NewFrame();
+
+    for (IImGuiWindow* window : m_Windows)
+    {
+        if (window->Begin())
+        {
+            window->Draw();
+            window->End();
+        }
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2((float)renderer.GetWindow()->GetWidth(), (float)renderer.GetWindow()->GetHeight());
+
     ImGui::Render();
 }
 
-void IEditorGuiManager::UpdatePlatformWindows()
+void IImGuiWindowManager::UpdatePlatformWindows()
 {
     GLFWwindow* backupCurrentContext = glfwGetCurrentContext();
     ImGui::UpdatePlatformWindows();

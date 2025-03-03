@@ -5,7 +5,7 @@
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Core/Templates/HashMap.h"
 
-#define FORMAT_SYNTAX TEXT("{}")
+#define FORMAT_SYNTAX "{}"
 
 String ToString(int64 val);
 String ToString(int32 val);
@@ -25,25 +25,23 @@ FORCE_INLINE StringView ToString(const StringView& val)
     return val;
 }
 
-String ToString(const CharStringView& str);
-
 template <typename T, typename TAllocationType>
 String ToString(const Array<T, TAllocationType>& array, bool sameLine = true)
 {
     String result(array.Count() * sizeof(T));
-    result.Append(TEXT("["));
+    result.Append("[");
     bool first = true;
     for (const T& val : array)
     {
         if (first)
         {
             first = false;
-            result.Append(StringView(sameLine ? TEXT(" ") : TEXT("\n")) + ToString(val));
+            result.Append(StringView(sameLine ? " " : "\n")) + ToString(val);
         }
         else
-            result.Append(StringView(sameLine ? TEXT(", ") : TEXT("\n")) + ToString(val));
+            result.Append(StringView(sameLine ? ", " : "\n")) + ToString(val);
     }
-    result.Append(sameLine ? TEXT(" ]") : TEXT("\n]"));
+    result.Append(sameLine ? " ]" : "\n]");
     return result;
 }
 
@@ -51,20 +49,20 @@ template <typename TKey, typename TValue, typename THash, typename TAllocationTy
 String ToString(const HashMap<TKey, TValue, THash, TAllocationType>& map, bool sameLine = true)
 {
     String result(map.Count() * sizeof(TKey) + sizeof(TValue));
-    result.Append(TEXT("["));
+    result.Append("[");
     bool first = true;
     for (const auto& bucket : map)
     {
         if (first)
         {
             first = false;
-            result.Append((sameLine ? TEXT(" { ") : TEXT("\n{ ")));
+            result.Append((sameLine ? " { " : "\n{ "));
         }
         else
-            result.Append((sameLine ? TEXT(", { ") : TEXT("\n{ ")));
-        result.Append(ToString(bucket.Value) + StringView(TEXT(", ")) + ToString(bucket.GetKey()) + TEXT(" }"));
+            result.Append((sameLine ? ", { " : "\n{ "));
+        result.Append(ToString(bucket.Value) + StringView(", ")) + ToString(bucket.GetKey()) + " }";
     }
-    result.Append(sameLine ? TEXT(" ]") : TEXT("\n]"));
+    result.Append(sameLine ? " ]" : "\n]");
     return result;
 }
 

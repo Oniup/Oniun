@@ -7,11 +7,11 @@
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/StringView.h"
 
-Renderer::Renderer(const CharStringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags)
+Renderer::Renderer(const StringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags)
     : m_Window(winTitle, winWidth, winHeight, winFlags)
 {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        LOG(Fatal, TEXT("Failed to load glad which is required for OpenGL rendering"));
+        LOG(Fatal, "Failed to load glad which is required for OpenGL rendering");
 }
 
 Renderer::~Renderer()
@@ -21,7 +21,7 @@ Renderer::~Renderer()
 
 void Renderer::OnStart()
 {
-    m_EditorGui.Initialize(this);
+    m_EditorGui.Initialize(*this);
 }
 
 void Renderer::OnUpdate()
@@ -30,13 +30,11 @@ void Renderer::OnUpdate()
         Engine::Quit();
 
     m_Window.PollEvents();
-    m_EditorGui.NewFrame();
 
-    // TODO: Renderer all editor gui windows here
 
-    m_EditorGui.Render();
+    m_EditorGui.Render(*this);
 
-    glClearColor(0.2f, 0.5f, 0.7f, 1.0);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     m_EditorGui.RenderPlatformDrawData();
