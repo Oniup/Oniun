@@ -14,7 +14,7 @@
 #include "Oniun/Platform/Base/IFileSystem.h"
 #include "Oniun/Platform/Windows/Win32Headers.h"
 #include "Oniun/Platform/Windows/Win32Platform.h"
-#include "Oniun/Renderer/Renderer.h"
+#include "Oniun/Renderer/RendererLayer.h"
 
 String FileSystem::GetCurrentDirectory()
 {
@@ -357,7 +357,7 @@ String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringV
 
 void FileSystem::OpenFileExplorer(const StringView& openPath)
 {
-    Renderer* renderer = Engine::GetLayer<Renderer>();
+    RendererLayer* renderer = Engine::GetLayer<RendererLayer>();
     ASSERT(renderer);
     HWND handle = glfwGetWin32Window(renderer->GetWindow()->GetInternalWindow());
     ShellExecuteA(handle, "explore", *openPath, nullptr, nullptr, SW_SHOWNORMAL);

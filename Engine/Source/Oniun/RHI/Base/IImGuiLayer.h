@@ -1,27 +1,26 @@
 #pragma once
 
+#include "Oniun/Core/EngineLayer.h"
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/RHI/IImGuiWindow.h"
 
-class Renderer;
+class RendererLayer;
 
-class IImGuiWindowManager
+class IImGuiLayer : public EngineLayer
 {
     Array<IImGuiWindow*> m_Windows;
 
 public:
-    IImGuiWindowManager();
-    virtual ~IImGuiWindowManager()
-    {
-    }
+    IImGuiLayer();
+    ~IImGuiLayer() override;
 
     bool Add(IImGuiWindow* window);
 
-    virtual void Initialize(Renderer& renderer);
-    virtual void Terminate();
+    void OnStart() override;
+
     virtual void NewFrame();
     virtual void RenderPlatformDrawData() = 0;
 
-    void Render(Renderer& renderer);
+    void Render(RendererLayer& renderer);
     void UpdatePlatformWindows();
 };

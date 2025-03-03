@@ -5,7 +5,7 @@
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/PLatform/EntryPoint.h"
-#include "Oniun/Renderer/Renderer.h"
+#include "Oniun/Renderer/RendererLayer.h"
 
 int EntryPoint(int argc, char** argv)
 {
@@ -21,12 +21,12 @@ int EntryPoint(int argc, char** argv)
     });
 
     const AppInfo& info = Engine::GetAppInfo();
-    Renderer* renderer = Engine::RegisterLayer<Renderer>(Format("{} ({})", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
-    ImGuiWindowManager* guiManager = renderer->GetImGuiWindowManager();
+    Engine::RegisterLayer<RendererLayer>(Format("{} ({})", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
 
-    guiManager->Add(Memory::Allocate<DockingSpace>());
-    guiManager->Add(Memory::Allocate<Console>());
-    guiManager->Add(Memory::Allocate<Hierarchy>());
+    ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
+    imGui->Add(Memory::Allocate<DockingSpace>());
+    imGui->Add(Memory::Allocate<Console>());
+    imGui->Add(Memory::Allocate<Hierarchy>());
 
     Engine::Run();
     Engine::Terminate();
