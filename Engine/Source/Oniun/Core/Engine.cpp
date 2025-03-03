@@ -8,13 +8,6 @@ Engine::Engine()
     glfwInit();
 }
 
-Engine::~Engine()
-{
-    for (EngineLayer* layer : m_Layers)
-        Memory::Free(layer);
-    glfwTerminate();
-}
-
 void Engine::ImplInitialize(const AppInfo& appInfo)
 {
     m_Info = appInfo;
@@ -29,9 +22,27 @@ void Engine::ImplRun()
     }
 }
 
+void Engine::ImplTerminate()
+{
+    for (uint64 i = m_Layers.Count(); i > 0; --i)
+        Memory::Free(m_Layers[i - 1]);
+
+    glfwTerminate();
+}
+
 EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)
 {
     m_Layers.Add(layer);
     m_Layers.Last()->OnStart();
     return m_Layers.Last();
+}
+
+EngineLayer* Engine::ImplGetLayer(uint64 fastId)
+{
+    for (EngineLayer* layer : m_Layers)
+    {
+        if (layer->GetFastId() == fastId)
+            return layer;
+    }
+    return nullptr;
 }

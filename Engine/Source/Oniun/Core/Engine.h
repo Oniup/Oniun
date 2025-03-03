@@ -2,6 +2,7 @@
 
 #include "Oniun/Core/ClassConstraints.h"
 #include "Oniun/Core/EngineLayer.h"
+#include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
 
@@ -44,6 +45,11 @@ public:
         Instance()->ImplInitialize(appInfo);
     }
 
+    FORCE_INLINE static void Terminate()
+    {
+        Instance()->ImplTerminate();
+    }
+
     FORCE_INLINE static void Run()
     {
         Instance()->ImplRun();
@@ -71,12 +77,26 @@ public:
         return static_cast<TLayer*>(Instance()->ImplRegisterLayer(layer));
     }
 
+    template <typename TLayer>
+    FORCE_INLINE static TLayer* GetLayer()
+    {
+        uint64 id = TypeInfo::GetFastId<TLayer>();
+        EngineLayer* layer = Instance()->ImplGetLayer(id);
+
+        if (layer)
+            return static_cast<TLayer*>(layer);
+
+        LOG(Warning, TEXT("Failed to find engine layer '{}' with fast id: {}"), TypeInfo::GetInfo<TLayer>().Name, id);
+        return nullptr;
+    }
+
 private:
     Engine();
-    ~Engine();
 
     void ImplInitialize(const AppInfo& appInfo);
     void ImplRun();
+    void ImplTerminate();
 
     EngineLayer* ImplRegisterLayer(EngineLayer* layer);
+    EngineLayer* ImplGetLayer(uint64 fastId);
 };

@@ -66,4 +66,11 @@ struct TypeInfo
         name.Replace(TEXT("struct "), TEXT(""));
         return Hash<String>{}.Get(name);
     }
+
+    template <typename T>
+    static constexpr uint64 GetFastId()
+    {
+        Slice<Char> name(TypeInfo_Internal::GetTypeNameSlice<T>());
+        return Hash<Slice<Char>>{}.Get(name);
+    }
 };

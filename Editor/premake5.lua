@@ -17,7 +17,10 @@ project "Oniun Editor"
     includedirs {
         "Source",
         "%{wks.location}/Engine/Source",
-        "%{wks.location}/Thirdparty/glm",
+        "%{wks.location}/Thirdparty/imgui",
+
+        -- Only needed for ImGui when accessing their own files within their API (Don't use this include path use the other)
+        "%{wks.location}/Thirdparty/imgui/imgui",
     }
 
     links {

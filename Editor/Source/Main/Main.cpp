@@ -14,7 +14,9 @@ int main()
     });
 
     Engine::RegisterLayer<Renderer>("Test Window", -1, -1);
+
     Engine::Run();
+    Engine::Terminate();
 
     return 0;
 }

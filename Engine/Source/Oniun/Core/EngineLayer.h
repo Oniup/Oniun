@@ -7,18 +7,25 @@
     public: \
     FORCE_INLINE uint64 GetId() override \
     { \
-        return TypeInfo::GetId<decltype(*this)>(); \
+        return TypeInfo::GetId<std::remove_reference_t<decltype(*this)>>(); \
+    } \
+    FORCE_INLINE uint64 GetFastId() override \
+    { \
+        return TypeInfo::GetFastId<std::remove_reference_t<decltype(*this)>>(); \
     } \
     FORCE_INLINE TypeInfo GetTypeInfo() override \
     { \
-        return TypeInfo::GetInfo<decltype(*this)>(); \
+        return TypeInfo::GetInfo<std::remove_reference_t<decltype(*this)>>(); \
     } \
-    private: \
-
+    private:
 
 class EngineLayer
 {
 public:
+    virtual uint64 GetId() = 0;
+    virtual uint64 GetFastId() = 0;
+    virtual TypeInfo GetTypeInfo() = 0;
+
     virtual ~EngineLayer()
     {
     }
@@ -30,7 +37,4 @@ public:
     virtual void OnUpdate()
     {
     }
-
-    virtual uint64 GetId() = 0;
-    virtual TypeInfo GetTypeInfo() = 0;
 };

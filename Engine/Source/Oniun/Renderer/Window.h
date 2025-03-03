@@ -31,6 +31,16 @@ public:
     Window(const CharStringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
     ~Window();
 
+    FORCE_INLINE GLFWwindow* GetInternalWindow()
+    {
+        return m_Window;
+    }
+
+    FORCE_INLINE const GLFWwindow* GetInternalWindow() const
+    {
+        return m_Window;
+    }
+
     void PollEvents();
     void SwapBuffers();
     bool IsOpen() const;
