@@ -9,8 +9,24 @@
 #define RAD_TO_DEG 57.295779513082320876798154814105f
 #define DEG_TO_RAD 0.01745329251994329576923690768489f
 
+#define IMAX_BITS(m)   ((m) / ((m) % 255 + 1) / 255 % 255 * 8 + 7 - 86 / ((m) % 255 + 12))
+#define RAND_MAX_WIDTH IMAX_BITS(RAND_MAX)
+static_assert((RAND_MAX & (RAND_MAX + 1u)) == 0, "RAND_MAX not a Mersenne number");
+
 namespace Math
 {
+    FORCE_INLINE uint64 RandomUInt64()
+    {
+        // https://stackoverflow.com/a/33021408
+        uint64 val = 0;
+        for (uint64 i = 0; i < 64; i += RAND_MAX_WIDTH)
+        {
+            val <<= RAND_MAX_WIDTH;
+            val ^= (unsigned)rand();
+        }
+        return val;
+    }
+
     FORCE_INLINE float Radians(float degrees)
     {
         return degrees * DEG_TO_RAD;
@@ -212,7 +228,7 @@ namespace Math
     template<typename T>
     FORCE_INLINE T Lerp(const T& v0, const T& v1, const T& t)
     {
-        return (1.0f - t) * v0 + t * v1;
+        return v0 * (1.0f - t) + v1 * t;
     }
 
     template<typename T>

@@ -36,7 +36,7 @@ bool FileSystem::CreateDirectory(const StringView& path)
 
         // Recursively create all sub directories
         uint64 slash = path.FindLast('/');
-        if (slash != GlobalVars::NoPos)
+        if (slash != INVALID_INDEX)
         {
             String subPath(Slice(path.begin(), path.begin() + slash));
             if (CreateDirectory(subPath))

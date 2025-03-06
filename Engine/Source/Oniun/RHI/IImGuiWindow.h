@@ -6,11 +6,6 @@
 
 class IImGuiWindow
 {
-protected:
-    String m_Title;
-    ImGuiWindowFlags m_Flags;
-    bool m_Open;
-
 public:
     static constexpr ImGuiWindowFlags DefaultFlags = ImGuiWindowFlags_NoCollapse;
 
@@ -21,6 +16,7 @@ public:
     {
     }
 
+public:
     FORCE_INLINE const String& GetTitle() const
     {
         return m_Title;
@@ -55,4 +51,10 @@ public:
 
     virtual bool Begin();
     virtual void End();
+
+protected:
+    String m_Title;
+    ImGuiWindowFlags m_Flags;
+    bool m_Open;
+
 };

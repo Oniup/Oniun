@@ -6,9 +6,6 @@
 
 class File : public IFile
 {
-private:
-    void* m_Handle;
-
 public:
     File();
     File(File&& file);
@@ -16,8 +13,10 @@ public:
     File(const StringView& path, FileAccess access, FileMode mode = FileMode::OpenAlways);
     ~File() override;
 
+public:
     File& operator=(File&& file);
 
+public:
     bool Read(void* buffer, uint32 bytesToRead, uint32* bytesRead = nullptr) override;
     bool Write(const void* buffer, uint32 bytesToWrite, uint32* bytesWritten = nullptr) override;
 
@@ -29,6 +28,9 @@ public:
     uint32 GetPosition() const override;
     void SetPosition(uint32 seek) const override;
     DateTime LastWriteTime() const override;
+
+private:
+    void* m_Handle;
 };
 
 #endif

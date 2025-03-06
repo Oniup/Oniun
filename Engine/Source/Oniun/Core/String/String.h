@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Allocation.h"
 #include "Oniun/Core/String/StringView.h"
 #include "Oniun/Core/Templates/PackedIterator.h"
@@ -17,14 +16,11 @@ public:
 
     static const String Empty;
 
-private:
-    uint64 m_Length;
-    Allocator m_Data;
-
 public:
     static bool Parse(const StringView& str, int64* result);
     static bool Parse(const StringView& str, double* result);
 
+public:
     String();
     String(uint64 capacity);
     String(const char* text);
@@ -35,6 +31,7 @@ public:
     String(const String& other);
     String(String&& other);
 
+public:
     String& operator=(const String& text);
     String& operator=(const char* text);
     String& operator=(const StringView& text);
@@ -99,6 +96,7 @@ public:
         return m_Data[index];
     }
 
+public:
     FORCE_INLINE char* Data()
     {
         return m_Data.Ptr();
@@ -181,9 +179,10 @@ public:
 
     FORCE_INLINE bool IsEmpty() const
     {
-        return m_Length == 0 || m_Length == GlobalVars::NoPos || !m_Data.Ptr();
+        return m_Length == 0 || m_Length == INVALID_INDEX || !m_Data.Ptr();
     }
 
+public:
     void Clear();
     void Free();
     void Resize(uint64 newLength);
@@ -210,7 +209,7 @@ public:
 
     bool Compare(const StringView& str) const;
 
-    String Substring(uint64 startIndex, uint64 length = GlobalVars::NoPos) const;
+    String Substring(uint64 startIndex, uint64 length = INVALID_INDEX) const;
     String TrimTrailing() const;
 
     uint64 Find(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
@@ -225,6 +224,10 @@ public:
     void Replace(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
     void ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
     void ReplaceLast(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+
+private:
+    uint64 m_Length;
+    Allocator m_Data;
 };
 
 template <typename... TArgs>

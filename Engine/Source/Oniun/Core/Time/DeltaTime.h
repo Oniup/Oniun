@@ -7,10 +7,6 @@ class DeltaTime : public Singleton<DeltaTime>
 {
     friend Singleton;
 
-private:
-    float m_Last;
-    float m_Delta;
-
 public:
     static void CalcDelta();
     static float GetElapsedTime();
@@ -22,4 +18,8 @@ public:
 
 private:
     DeltaTime();
+
+private:
+    float m_Last;
+    float m_Delta;
 };

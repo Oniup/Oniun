@@ -581,7 +581,7 @@ uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char*
     bool findFirst, StringSearch opt, uint64 offset)
 {
     if (m_Length == 0 || searchLength == 0 || searchLength > m_Length)
-        return GlobalVars::NoPos;
+        return INVALID_INDEX;
 
     uint64 index;
     if (opt == StringSearch::CaseSensitive)
@@ -589,7 +589,7 @@ uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char*
     else
         index = findFirst ? StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset);
 
-    if (index != GlobalVars::NoPos)
+    if (index != INVALID_INDEX)
     {
         if (searchLength == replaceLength)
             Crt::Copy(m_Data.Ptr() + index, replace, replaceLength);
@@ -608,7 +608,7 @@ uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char*
 void String::Replace(const StringView& find, const StringView& replace, StringSearch opt)
 {
     uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
-    while (index != GlobalVars::NoPos)
+    while (index != INVALID_INDEX)
         index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt, index + find.Length());
 }
 

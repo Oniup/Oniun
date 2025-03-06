@@ -45,7 +45,7 @@ namespace Memory
     template<typename T, typename... TArgs>
     FORCE_INLINE constexpr void ConstructItemArgs(T* dest, TArgs&&... args)
     {
-        new(dest) T(args...);
+        new(dest) T(Memory::Move(args)...);
     }
 
     template<typename T, typename TU>
@@ -125,7 +125,7 @@ namespace Memory
     }
 
     template<typename T, typename TU>
-    FORCE_INLINE constexpr void MoveItems(T* dest, const TU* src, uint64 count)
+    FORCE_INLINE constexpr void MoveItems(T* dest, TU* src, uint64 count)
     {
         static_assert(std::is_constructible_v<T, TU>, "The two types are not constructible");
         if constexpr (!std::is_trivially_move_constructible_v<T>)

@@ -8,14 +8,11 @@ class RendererLayer : public EngineLayer
 {
     API_ENGINE_LAYER()
 
-private:
-    Window m_Window;
-    ImGuiLayer* m_ImGuiLayer;
-
 public:
     RendererLayer(const StringView& winTitle, int32 winWidth, int32 winHeight, int32 winFlags = Window::DefaultFlags);
     ~RendererLayer() override;
 
+public:
     FORCE_INLINE Window* GetWindow()
     {
         return &m_Window;
@@ -36,7 +33,13 @@ public:
         return m_ImGuiLayer;
     }
 
+public:
     void SetImGuiWindowLayer(ImGuiLayer* layer);
 
     void OnUpdate() override;
+
+private:
+    Window m_Window;
+    ImGuiLayer* m_ImGuiLayer;
+
 };

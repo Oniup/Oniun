@@ -4,8 +4,31 @@
 
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
+#include "Oniun/Core/Math/Vector3.h"
 #include "Oniun/PLatform/EntryPoint.h"
 #include "Oniun/Renderer/RendererLayer.h"
+#include "Oniun/Scene/Scene.h"
+
+struct TransformComponent
+{
+    Vector3 Position;
+    Vector3 Scale;
+    Vector3 Rotation;
+};
+
+struct MeshComponent
+{
+    struct Vertex
+    {
+        Vector3 Position;
+        Vector3 Normal;
+        float UvX;
+        float UvY;
+    };
+
+    Array<Vertex> Vertices;
+    Array<uint32> Indices;
+};
 
 int EntryPoint(int argc, char** argv)
 {
@@ -27,6 +50,9 @@ int EntryPoint(int argc, char** argv)
     imGui->Add(Memory::Allocate<DockingSpace>());
     imGui->Add(Memory::Allocate<Console>());
     imGui->Add(Memory::Allocate<Hierarchy>());
+
+    Scene scene;
+    scene.AddMultiComponentRegistry<TransformComponent, MeshComponent>();
 
     Engine::Run();
     Engine::Terminate();

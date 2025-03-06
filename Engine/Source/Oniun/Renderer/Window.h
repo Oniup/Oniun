@@ -22,15 +22,12 @@ public:
 
     static constexpr Flags DefaultFlags = WindowFlag_ResizableBit;
 
-private:
-    GLFWwindow* m_Window;
-    Flags m_Flags;
-
 public:
     Window();
     Window(const StringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
     ~Window();
 
+public:
     FORCE_INLINE GLFWwindow* GetInternalWindow()
     {
         return m_Window;
@@ -41,6 +38,7 @@ public:
         return m_Window;
     }
 
+public:
     void PollEvents();
     void SwapBuffers();
     bool IsOpen() const;
@@ -55,4 +53,8 @@ public:
     void GetPosition(int32& x, int32& y) const;
 
     StringView Title() const;
+
+private:
+    GLFWwindow* m_Window;
+    Flags m_Flags;
 };

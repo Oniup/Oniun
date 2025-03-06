@@ -27,8 +27,6 @@ enum class FileAccess : uint32
 
 class IFile : public INonCopyable
 {
-protected:
-    bool m_Owns;
 
 public:
     IFile(bool owns)
@@ -40,6 +38,7 @@ public:
     {
     }
 
+public:
     virtual bool Read(void* buffer, uint32 bytesToRead, uint32* bytesRead = nullptr) = 0;
     virtual bool Write(const void* buffer, uint32 bytesToWrite, uint32* bytesWritten = nullptr) = 0;
 
@@ -56,4 +55,7 @@ public:
     virtual uint32 GetPosition() const = 0;
     virtual void SetPosition(uint32 seek) const = 0;
     virtual DateTime LastWriteTime() const = 0;
+
+protected:
+    bool m_Owns;
 };

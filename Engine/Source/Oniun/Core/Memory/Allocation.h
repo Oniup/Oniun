@@ -13,10 +13,6 @@ struct HeapAllocation
     public:
         using Type = T;
 
-    private:
-        uint64 m_Capacity;
-        T* m_Data;
-
     public:
         FORCE_INLINE Data()
             : m_Capacity(0), m_Data(nullptr)
@@ -36,6 +32,7 @@ struct HeapAllocation
                 Free();
         }
 
+    public:
         FORCE_INLINE T& operator[](uint64 index)
         {
             return m_Data[index];
@@ -46,6 +43,7 @@ struct HeapAllocation
             return m_Data[index];
         }
 
+    public:
         FORCE_INLINE T* Ptr()
         {
             return m_Data;
@@ -61,6 +59,7 @@ struct HeapAllocation
             return m_Capacity;
         }
 
+    public:
         FORCE_INLINE void Allocate(uint64 capacity)
         {
             ASSERT(!m_Data);
@@ -114,6 +113,10 @@ struct HeapAllocation
             Memory::Swap(m_Data, data.m_Data);
             Memory::Swap(m_Capacity, data.m_Capacity);
         }
+
+    private:
+        uint64 m_Capacity;
+        T* m_Data;
     };
 };
 
@@ -125,9 +128,6 @@ struct FixedAllocation
     {
     public:
         using Type = T;
-
-    private:
-        T m_Data[TCapacity];
 
     public:
         FORCE_INLINE constexpr Data()
@@ -142,6 +142,7 @@ struct FixedAllocation
         {
         }
 
+    public:
         FORCE_INLINE constexpr T& operator[](uint64 index)
         {
             return m_Data[index];
@@ -152,6 +153,7 @@ struct FixedAllocation
             return m_Data[index];
         }
 
+    public:
         FORCE_INLINE constexpr T* Ptr()
         {
             return m_Data;
@@ -167,6 +169,7 @@ struct FixedAllocation
             return TCapacity;
         }
 
+    public:
         FORCE_INLINE constexpr void Allocate(uint64 capacity)
         {
             ASSERT(capacity <= TCapacity);
@@ -189,5 +192,8 @@ struct FixedAllocation
         {
             ASSERT(false && "Swapping fixed allocation is not supported");
         }
+
+    private:
+        T m_Data[TCapacity];
     };
 };

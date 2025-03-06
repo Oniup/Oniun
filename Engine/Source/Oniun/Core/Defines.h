@@ -1,5 +1,33 @@
 #pragma once
 
+// Primitive limits
+
+#define MIN_UINT8   0x00
+#define	MIN_UINT16  0x0000
+#define	MIN_UINT32  0x00000000
+#define MIN_UINT64  0x0000000000000000
+#define MIN_INT8    -128
+#define MIN_INT16   -32768
+#define MIN_INT32   -2147483648ll
+#define MIN_INT64   -9223372036854775808
+
+#define MAX_UINT8   0xff
+#define MAX_UINT16  0xffff
+#define MAX_UINT32  0xffffffff
+#define MAX_UINT64  0xffffffffffffffff
+#define MAX_INT8    127
+#define MAX_INT16   32767
+#define MAX_INT32   2147483647
+#define MAX_INT64   9223372036854775807
+
+#define MIN_FLOAT   -3.402823466e+38f
+#define MIN_DOUBLE  -1.7976931348623158e+308
+
+#define MAX_FLOAT   3.402823466e+38f
+#define MAX_DOUBLE  1.7976931348623158e+308
+
+#define INVALID_INDEX MAX_UINT64
+
 enum PlatformType
 {
     PlatformType_Windows,
@@ -74,18 +102,6 @@ namespace Assert_Internal
 #undef ONU_DIST
 #define ONU_DIST 1
 #endif
-
-// Unicode text support
-
-#if !defined(TEXT)
-#ifdef ONU_PLATFORM_WINDOWS
-#define INTL_TEXT(_X) L ## _X
-#else
-#define INTL_TEXT(_X) u ## _X
-#endif
-#define TEXT(_X) INTL_TEXT(_X)
-#endif
-
 
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
 #define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])

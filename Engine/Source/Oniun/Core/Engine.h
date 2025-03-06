@@ -34,11 +34,6 @@ class Engine : public Singleton<Engine>
 {
     friend Singleton;
 
-private:
-    Array<EngineLayer*> m_Layers;
-    AppInfo m_Info;
-    bool m_Running;
-
 protected:
     Engine();
 
@@ -100,6 +95,12 @@ private:
 
     EngineLayer* ImplRegisterLayer(EngineLayer* layer);
     EngineLayer* ImplGetLayer(uint64 fastId);
+
+private:
+    Array<EngineLayer*> m_Layers;
+    AppInfo m_Info;
+    bool m_Running;
+
 };
 
 String ToString(const AppInfo::Version& version);

@@ -6,6 +6,27 @@
 namespace TypeInfo_Internal
 {
     template <typename T>
+    struct RemoveAllPointers
+    {
+        using Type = T;
+    };
+
+    template <typename T>
+    struct RemoveAllPointers<T*>
+    {
+        using Type = typename RemoveAllPointers<T>::Type;
+    };
+
+    template <typename T>
+    struct TypeStripped
+    {
+        using TypeRemovedExtents = std::remove_all_extents_t<T>;
+        using TypeRemovedRefs = std::remove_reference_t<TypeRemovedExtents>;
+        using TypeRemovedPointers = typename RemoveAllPointers<TypeRemovedRefs>::Type;
+        using Type = std::remove_cvref_t<TypeRemovedPointers>;
+    };
+
+    template <typename T>
     constexpr StringView GetWrappedName()
     {
         return __PRETTY_FUNCTION__;
@@ -35,8 +56,10 @@ namespace TypeInfo_Internal
 
 struct TypeInfo
 {
-    String Name;
     uint64 Id;
+    uint64 FastId;
+
+    String Name;
     uint64 Size;
     uint64 Alignment;
 
@@ -45,23 +68,26 @@ struct TypeInfo
     template <typename T>
     static TypeInfo GetInfo()
     {
-        String name(TypeInfo_Internal::GetTypeNameSlice<T>());
+        using Type = typename TypeInfo_Internal::TypeStripped<T>::Type;
+
+        String name(TypeInfo_Internal::GetTypeNameSlice<Type>());
         name.Replace("class ", "");
         name.Replace("struct ", "");
 
         return TypeInfo
         {
-            .Name = Memory::Move(name),
             .Id = Hash<String>{}.Get(name),
-            .Size = sizeof(T),
-            .Alignment = alignof(T),
+            .FastId = TypeInfo::GetFastId<Type>(),
+            .Name = Memory::Move(name),
+            .Size = sizeof(Type),
+            .Alignment = alignof(Type),
         };
     }
 
     template <typename T>
     static uint64 GetId()
     {
-        String name(TypeInfo_Internal::GetTypeNameSlice<T>());
+        String name(TypeInfo_Internal::GetTypeNameSlice<typename TypeInfo_Internal::TypeStripped<T>::Type>());
         name.Replace("class ", "");
         name.Replace("struct ", "");
         return Hash<String>{}.Get(name);
@@ -70,7 +96,7 @@ struct TypeInfo
     template <typename T>
     static constexpr uint64 GetFastId()
     {
-        Slice name(TypeInfo_Internal::GetTypeNameSlice<T>());
+        Slice name(TypeInfo_Internal::GetTypeNameSlice<typename TypeInfo_Internal::TypeStripped<T>::Type>());
         return Hash<Slice<char>>{}.Get(name);
     }
 };

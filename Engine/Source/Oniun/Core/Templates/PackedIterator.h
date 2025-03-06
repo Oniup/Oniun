@@ -6,124 +6,126 @@ class PackedIterator
 public:
     using Type = T;
 
-private:
-    T* m_Ptr;
-
 public:
-    constexpr PackedIterator(T* ptr)
+    FORCE_INLINE constexpr PackedIterator(T* ptr)
         : m_Ptr(ptr)
     {
     }
 
-    constexpr PackedIterator()
+    FORCE_INLINE constexpr PackedIterator()
         : m_Ptr(nullptr)
     {
     }
 
-    constexpr PackedIterator(const PackedIterator& iterator)
-        : m_Ptr(iterator.m_Ptr)
+    FORCE_INLINE constexpr PackedIterator(const PackedIterator& iter)
+        : m_Ptr(iter.m_Ptr)
     {
     }
 
-    constexpr PackedIterator(PackedIterator&& iterator)
-        : m_Ptr(iterator.m_Ptr)
+    FORCE_INLINE constexpr PackedIterator(PackedIterator&& iter)
+        : m_Ptr(iter.m_Ptr)
     {
-        iterator.m_Ptr = nullptr;
+        iter.m_Ptr = nullptr;
     }
 
-    constexpr T& operator*()
-    {
-        return *m_Ptr;
-    }
-
-    constexpr const T& operator*() const
+public:
+    FORCE_INLINE constexpr T& operator*()
     {
         return *m_Ptr;
     }
 
-    constexpr T* operator->()
+    FORCE_INLINE constexpr const T& operator*() const
+    {
+        return *m_Ptr;
+    }
+
+    FORCE_INLINE constexpr T* operator->()
     {
         return m_Ptr;
     }
 
-    constexpr const T* operator->() const
+    FORCE_INLINE constexpr const T* operator->() const
     {
         return m_Ptr;
     }
 
-    constexpr bool operator==(const PackedIterator& iterator)
+    FORCE_INLINE constexpr bool operator==(const PackedIterator& iter)
     {
-        return m_Ptr == iterator.m_Ptr;
+        return m_Ptr == iter.m_Ptr;
     }
 
-    constexpr bool operator!=(const PackedIterator& iterator)
+    FORCE_INLINE constexpr bool operator!=(const PackedIterator& iter)
     {
-        return m_Ptr != iterator.m_Ptr;
+        return m_Ptr != iter.m_Ptr;
     }
 
-    constexpr PackedIterator& operator=(const PackedIterator& iterator)
+    FORCE_INLINE constexpr PackedIterator& operator=(const PackedIterator& iter)
     {
-        m_Ptr = iterator.m_Ptr;
+        m_Ptr = iter.m_Ptr;
         return *this;
     }
 
-    constexpr PackedIterator& operator=(PackedIterator&& iterator)
+    FORCE_INLINE constexpr PackedIterator& operator=(PackedIterator&& iter)
     {
-        m_Ptr = iterator.m_Ptr;
+        m_Ptr = iter.m_Ptr;
 
-        iterator.m_Ptr = nullptr;
+        iter.m_Ptr = nullptr;
         return *this;
     }
 
-    constexpr int64 operator-(const PackedIterator& iterator) const
+    FORCE_INLINE constexpr int64 operator-(const PackedIterator& iter) const
     {
-        return m_Ptr - iterator.m_Ptr;
+        return m_Ptr - iter.m_Ptr;
     }
 
-    constexpr int64 operator+(const PackedIterator& iterator) const
+    FORCE_INLINE constexpr int64 operator+(const PackedIterator& iter) const
     {
-        return m_Ptr + iterator.m_Ptr;
+        return m_Ptr + iter.m_Ptr;
     }
 
-    constexpr PackedIterator operator-(uint64 offset) const
+    FORCE_INLINE constexpr PackedIterator operator-(uint64 offset) const
     {
         return PackedIterator(m_Ptr - offset);
     }
 
-    constexpr PackedIterator operator+(uint64 offset) const
+    FORCE_INLINE constexpr PackedIterator operator+(uint64 offset) const
     {
         return PackedIterator(m_Ptr + offset);
     }
 
-    friend constexpr PackedIterator operator-(uint64 offset, const PackedIterator& self)
+    friend FORCE_INLINE constexpr PackedIterator operator-(uint64 offset, const PackedIterator& self)
     {
         return PackedIterator(self.m_Ptr - offset);
     }
 
-    friend constexpr PackedIterator operator+(uint64 offset, const PackedIterator& self)
+    friend FORCE_INLINE constexpr PackedIterator operator+(uint64 offset, const PackedIterator& self)
     {
         return PackedIterator(self.m_Ptr + offset);
     }
 
-    constexpr PackedIterator& operator++()
+    FORCE_INLINE constexpr PackedIterator& operator++()
     {
         ++m_Ptr;
         return *this;
     }
 
-    constexpr PackedIterator& operator--()
+    FORCE_INLINE constexpr PackedIterator& operator--()
     {
         --m_Ptr;
         return *this;
     }
 
-    constexpr T* Ptr()
+public:
+    FORCE_INLINE constexpr T* Ptr()
     {
         return m_Ptr;
     }
 
-    constexpr const T* Ptr() const
+    FORCE_INLINE constexpr const T* Ptr() const
     {
         return m_Ptr;
     }
+
+private:
+    T* m_Ptr;
 };

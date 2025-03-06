@@ -23,7 +23,7 @@ project "Oniun"
         "%{wks.location}/Thirdparty/stb",
         "%{wks.location}/Thirdparty/glm",
 
-        -- Only needed for ImGui when accessing their own files within their API (Don't use this include path use the other)
+        -- Only needed for the library when accessing their own files within their API (Don't use this include path use the other)
         "%{wks.location}/Thirdparty/imgui/imgui",
     }
 

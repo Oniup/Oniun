@@ -21,9 +21,6 @@ StringView ToString(LogType type);
 
 class ILogOutput
 {
-private:
-    String m_Name;
-
 public:
     ILogOutput(const StringView& name)
         : m_Name(name)
@@ -34,6 +31,7 @@ public:
     {
     }
 
+public:
     FORCE_INLINE String GetName() const
     {
         return m_Name;
@@ -42,17 +40,18 @@ public:
     virtual void Write(LogType type, const StringView& formattedMessage, const StringView& file,
                        const StringView& function, int32 line, const StringView& userMessage,
                        const DateTime& time) = 0;
+
+private:
+    String m_Name;
 };
 
 class Logger : public Singleton<Logger>
 {
-private:
-    Array<ILogOutput*> m_Outputs;
-
 public:
     Logger();
     ~Logger();
 
+public:
     static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
                       const StringView& format)
     {
@@ -73,33 +72,36 @@ public:
 private:
     void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
                    const StringView& userMessage);
+
+private:
+    Array<ILogOutput*> m_Outputs;
 };
 
 class TerminalLogOutput : public ILogOutput
 {
-private:
-    File m_StdStream;
-    File m_ErrorStream;
-
 public:
     TerminalLogOutput();
     ~TerminalLogOutput() override;
 
+public:
     void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
                int32 line, const StringView& userMessage, const DateTime& time) override;
+private:
+    File m_StdStream;
+    File m_ErrorStream;
 };
 
 class FileLogOutput : public ILogOutput
 {
-private:
-    File m_Output;
-
 public:
     FileLogOutput(const StringView& outputPath);
     ~FileLogOutput() override;
 
+public:
     void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
                int32 line, const StringView& userMessage, const DateTime& time) override;
+private:
+    File m_Output;
 };
 
 #define LOG(_Type, _Format, ...) \

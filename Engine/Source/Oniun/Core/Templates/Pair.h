@@ -3,9 +3,8 @@
 #include "Oniun/Core/Memory/Memory.h"
 
 template <typename TKey, typename TValue>
-class Pair
+struct Pair
 {
-public:
     using KeyType = TKey;
     using ValueType = TValue;
 

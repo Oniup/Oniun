@@ -10,10 +10,6 @@ public:
     using Type = T;
     using Iterator = PackedIterator<T>;
 
-private:
-    T* m_Data;
-    uint64 m_Length;
-
 public:
     constexpr Slice()
         : m_Data(nullptr), m_Length(0)
@@ -40,6 +36,7 @@ public:
         return *this;
     }
 
+public:
     constexpr Slice& operator=(const Slice& other) = default;
 
     constexpr Slice& operator=(Slice&& other)
@@ -69,6 +66,7 @@ public:
         return !Compare(other);
     }
 
+public:
     constexpr T* Get() const
     {
         return m_Data;
@@ -109,6 +107,7 @@ public:
         return m_Data[index];
     }
 
+public:
     constexpr bool Contains(const T& value)
     {
         for (uint64 i = 0; i < m_Length; ++i)
@@ -133,6 +132,10 @@ public:
         }
         return true;
     }
+
+private:
+    T* m_Data;
+    uint64 m_Length;
 };
 
 template <typename T>

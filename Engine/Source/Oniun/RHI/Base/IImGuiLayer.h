@@ -8,12 +8,11 @@ class RendererLayer;
 
 class IImGuiLayer : public EngineLayer
 {
-    Array<IImGuiWindow*> m_Windows;
-
 public:
     IImGuiLayer();
     ~IImGuiLayer() override;
 
+public:
     bool Add(IImGuiWindow* window);
 
     void OnStart() override;
@@ -23,4 +22,7 @@ public:
 
     void Render(RendererLayer& renderer);
     void UpdatePlatformWindows();
+
+private:
+    Array<IImGuiWindow*> m_Windows;
 };

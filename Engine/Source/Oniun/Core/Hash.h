@@ -10,7 +10,10 @@ struct Hash
 {
     FORCE_INLINE constexpr uint64 Get(const T& src) const
     {
-        return Crt::FnvHash(src, sizeof(T));
+        if constexpr (std::is_pointer_v<T>)
+            return Crt::FnvHash(src, sizeof(T));
+        else
+            return Crt::FnvHash(&src, sizeof(T));
     }
 
     FORCE_INLINE constexpr uint64 Get(const T* src, uint64 count) const

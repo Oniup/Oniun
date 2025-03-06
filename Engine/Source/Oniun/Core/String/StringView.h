@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Crt.h"
 #include "Oniun/Core/String/StringUtils.h"
 #include "Oniun/Core/Templates/Array.h"
@@ -12,18 +11,14 @@ class StringView
 public:
     using Iterator = PackedIterator<char>;
 
-protected:
-    uint64 m_Length;
-    const char* m_Data;
-
 public:
     FORCE_INLINE constexpr StringView()
         : m_Length(0), m_Data(nullptr)
     {
     }
 
-    FORCE_INLINE constexpr StringView(const char* str, uint64 length = GlobalVars::NoPos)
-        : m_Length(length == GlobalVars::NoPos ? StringUtils::Length(str) : length), m_Data(str)
+    FORCE_INLINE constexpr StringView(const char* str, uint64 length = INVALID_INDEX)
+        : m_Length(length == INVALID_INDEX ? StringUtils::Length(str) : length), m_Data(str)
     {
     }
 
@@ -46,6 +41,7 @@ public:
 
     StringView(const String& str);
 
+public:
     FORCE_INLINE constexpr StringView& operator=(const StringView& str)
     {
         m_Data = str.m_Data;
@@ -112,6 +108,7 @@ public:
     String operator/(char ch) const;
     String operator/(const String& str) const;
 
+public:
     FORCE_INLINE constexpr bool IsEmpty() const
     {
         return m_Data == nullptr;
@@ -177,6 +174,7 @@ public:
         return end();
     }
 
+public:
     constexpr int32 Compare(const StringView& str) const
     {
         if (m_Length != str.m_Length)
@@ -258,6 +256,10 @@ public:
     {
         return StringUtils::EndsWith(m_Data, m_Length, str.m_Data, str.m_Length);
     }
+
+private:
+    uint64 m_Length;
+    const char* m_Data;
 };
 
 constexpr Slice<char> ToSlice(const StringView& string)

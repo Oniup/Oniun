@@ -14,7 +14,7 @@ String IFileSystem::AbsolutePathToRelative(const StringView& path)
     String cwd(FileSystem::GetCurrentDirectory());
     uint64 index = path.Find(cwd);
 
-    if (index == GlobalVars::NoPos)
+    if (index == INVALID_INDEX)
         return path;
     return ToSlice(path, index + cwd.Length() + 1, path.Length() - (index + 1));
 }
@@ -28,7 +28,7 @@ String IFileSystem::GetTemporaryFileName(const StringView& currentPath)
 Slice<char> IFileSystem::GetFileNameFromPath(const StringView& path)
 {
     uint64 index = path.FindLast('/');
-    if (index != GlobalVars::NoPos && path.Last() != '/')
+    if (index != INVALID_INDEX && path.Last() != '/')
         return ToSlice(path.Begin() + index + 1, path.End());
     return ToSlice(path);
 }
@@ -37,7 +37,7 @@ Slice<char> IFileSystem::GetDirectoryNameFromFilePath(const StringView& path)
 {
     uint64 extIndex = path.FindLast('.');
     uint64 slashIndex = path.FindLast('/');
-    if (extIndex != GlobalVars::NoPos && slashIndex != GlobalVars::NoPos && extIndex > slashIndex)
+    if (extIndex != INVALID_INDEX && slashIndex != INVALID_INDEX && extIndex > slashIndex)
         return ToSlice(path.Begin(), path.Begin() + slashIndex - 1);
     return ToSlice(path);
 }

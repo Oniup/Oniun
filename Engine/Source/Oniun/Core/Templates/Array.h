@@ -3,7 +3,6 @@
 #include <initializer_list>
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/GlobalVars.h"
 #include "Oniun/Core/Memory/Allocation.h"
 #include "Oniun/Core/Templates/PackedIterator.h"
 #include "Oniun/Core/Templates/Slice.h"
@@ -20,10 +19,6 @@ public:
     using Type = T;
     using Allocator = typename TAllocationType::template Data<T>;
     using Iterator = PackedIterator<T>;
-
-private:
-    uint64 m_Count;
-    Allocator m_Data;
 
 public:
     constexpr Array()
@@ -49,7 +44,7 @@ public:
         : m_Count(other.m_Count)
     {
         m_Data.Allocate(other.Capacity());
-        Memory::ConstructItems(m_Data, other.m_Data, m_Count);
+        Memory::ConstructItems(m_Data.Ptr(), other.m_Data.Ptr(), m_Count);
     }
 
     constexpr Array(Array&& other)
@@ -86,6 +81,7 @@ public:
         Clear();
     }
 
+public:
     FORCE_INLINE constexpr Array& operator=(const Array& array)
     {
         Clear();
@@ -114,6 +110,7 @@ public:
         return Get(index);
     }
 
+public:
     FORCE_INLINE constexpr uint64 Count() const
     {
         return m_Count;
@@ -240,6 +237,7 @@ public:
         return m_Count == 0;
     }
 
+public:
     constexpr void Clear()
     {
         if (m_Data.Ptr())
@@ -280,13 +278,10 @@ public:
             if constexpr (std::is_same_v<TAllocationType, HeapAllocation>)
             {
                 Reserve(Memory::CalcCapacityGrow(count, Capacity()));
-                Memory::ConstructItems(m_Data.Ptr() + m_Count, count - m_Count);
+                // Memory::ConstructItems(m_Data.Ptr() + m_Count, count - m_Count);
             }
             else
-            {
-                // TODO: Print error message for trying to resize fixed array
                 return false;
-            }
         }
         m_Count = count;
         return true;
@@ -298,10 +293,6 @@ public:
         {
             uint64 count = preserveContents ? (m_Count < newCapacity ? m_Count : newCapacity) : 0;
             m_Data.Relocate(newCapacity, m_Count, count);
-        }
-        else
-        {
-            // TODO: Print error message for trying to resize fixed array
         }
     }
 
@@ -386,13 +377,13 @@ public:
             if (m_Data[i] == item)
                 return i;
         }
-        return GlobalVars::NoPos;
+        return INVALID_INDEX;
     }
 
     template <typename TComparableType>
     constexpr uint64 FindLast(const TComparableType& item) const
     {
-        uint64 last = GlobalVars::NoPos;
+        uint64 last = INVALID_INDEX;
         for (uint64 i = 0; i < m_Count; ++i)
         {
             if (m_Data[i] == item)
@@ -410,6 +401,10 @@ public:
         other.m_Count = countTemp;
         return;
     }
+
+private:
+    uint64 m_Count;
+    Allocator m_Data;
 };
 
 template <typename T, uint64 TCount>
