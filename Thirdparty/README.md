@@ -41,7 +41,7 @@
 ## ImGui
 
 * Upstream: https://github.com/ocornut/imgui
-* Branch: docking
+* Branch: features/dynamic_fonts
 * License: MIT
 
 #### Files Extracted:

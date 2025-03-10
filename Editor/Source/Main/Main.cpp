@@ -83,8 +83,8 @@ int EntryPoint(const CommandLineArguments& args)
                 entity = ent;
         }
 
-        TransformComponent* sameTransform = entity.GetComponent<TransformComponent>();
-        LOG(Info, "Transform Position: {}", sameTransform->Position);
+        TransformComponent* transform = entity.GetComponent<TransformComponent>();
+        LOG(Info, "Transform Position: {}", transform->Position);
     }
 
     engine.Run();

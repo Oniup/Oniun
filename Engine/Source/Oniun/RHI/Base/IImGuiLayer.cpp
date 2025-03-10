@@ -11,35 +11,27 @@
 static constexpr StringView EngineDefaultFont = "../../../Engine/Assets/Fonts/Lato/Lato-Regular.ttf";
 static constexpr uint64 EngineDefaultFontSize = 20;
 
-// void WindowPosCallback(GLFWwindow* window, int xPos, int yPos)
-// {
-//     static GLFWmonitor* lastMonitor = nullptr;
-//     int32 count;
-//     GLFWmonitor** monitors = glfwGetMonitors(&count);
-//
-//     GLFWmonitor* monitor = nullptr;
-//     for (int32 i = 0; i < count; ++i)
-//     {
-//         const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
-//         int32 mX, mY;
-//         glfwGetMonitorPos(monitors[i], &mX, &mY);
-//         if (xPos >= mX && xPos < (mX + mode->width))
-//         {
-//             if (yPos >= mY && yPos < (mY + mode->height))
-//             {
-//                 monitor = monitors[i];
-//                 break;
-//             }
-//         }
-//     }
-//
-//     if (monitor != lastMonitor)
-//     {
-//         ImGuiIO& io = ImGui::GetIO();
-//         io.FontGlobalScale =  1.0f / io.FontDefault->FontSize;
-//         lastMonitor = monitor;
-//     }
-// }
+void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)
+{
+    static float lastXScale = 1, lastYScale = 1;
+    float xScale, yScale;
+    glfwGetWindowContentScale(window, &xScale, &yScale);
+    if (xScale != lastXScale || yScale != lastYScale)
+    {
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+
+        int32 newWidth = (int32)(width * xScale / lastXScale);
+        int32 newHeight = (int32)(height * yScale / lastYScale);
+        glfwSetWindowSize(window, newWidth, newHeight);
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.FontGlobalScale = (xScale + yScale) / 2.0f;
+
+        lastXScale = xScale;
+        lastYScale = yScale;
+    }
+}
 
 IImGuiLayer::IImGuiLayer()
 {
@@ -56,7 +48,8 @@ IImGuiLayer::IImGuiLayer()
     style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
-    ImGui::GetIO().Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
+    SetFont(nullptr, 0);
+    glfwSetWindowPosCallback(Engine::GetLayer<RendererLayer>()->GetWindow()->GetInternalWindow(), WindowPositionCallback);
 }
 
 IImGuiLayer::~IImGuiLayer()
@@ -77,6 +70,24 @@ bool IImGuiLayer::Add(IImGuiWindow* window)
         Memory::Free(window);
     }
     return false;
+}
+
+void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    bool setDefaults = false;
+    if (font.IsEmpty() || fontSize == 0)
+        setDefaults = true;
+
+    if (!setDefaults || !io.Fonts->AddFontFromFileTTF(*font, fontSize))
+        setDefaults = true;
+
+    if (setDefaults)
+        io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
+
+    io.Fonts->Build();
 }
 
 void IImGuiLayer::OnStart()
@@ -116,13 +127,4 @@ void IImGuiLayer::UpdatePlatformWindows()
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     glfwMakeContextCurrent(backupCurrentContext);
-}
-
-void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->Clear();
-
-    if (!io.Fonts->AddFontFromFileTTF(*font, fontSize))
-        io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
 }

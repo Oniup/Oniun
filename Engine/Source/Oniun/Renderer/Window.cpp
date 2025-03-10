@@ -5,29 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "RendererLayer.h"
-#include "Oniun/Core/Engine.h"
-
-void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)
-{
-    static float lastXScale = 0, lastYScale = 0;
-    float xScale, yScale;
-    glfwGetWindowContentScale(window, &xScale, &yScale);
-    if (xScale != lastXScale || yScale != lastYScale)
-    {
-        LOG(Info, "Scale {}x{}", xScale, yScale);
-
-        int width, height;
-        glfwGetWindowSize(window, &width, &height);
-
-        int newWidth = static_cast<int>(width * xScale);
-        int newHeight = static_cast<int>(height * yScale);
-        glfwSetWindowSize(window, newWidth, newHeight);
-
-        lastXScale = xScale;
-        lastYScale = yScale;
-    }
-}
+#include "Oniun/Core/Math/Math.h"
 
 Window::Window()
     : m_Window(nullptr), m_Flags(WindowFlag_None)
@@ -72,7 +50,6 @@ Window::Window(const StringView& title, int32 width, int32 height, Flags flags)
     int32 centerX = (vidMode->width - width) / 2;
     int32 centerY = (vidMode->height - height) / 2;
     glfwSetWindowPos(m_Window, centerX, centerY);
-    // glfwSetWindowPosCallback(m_Window, WindowPositionCallback);
 }
 
 Window::~Window()

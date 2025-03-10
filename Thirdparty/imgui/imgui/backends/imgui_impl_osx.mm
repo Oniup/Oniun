@@ -4,16 +4,17 @@
 // - Requires linking with the GameController framework ("-framework GameController").
 
 // Implemented features:
-//  [X] Platform: Mouse cursor shape and visibility. Disable with 'io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange'.
+//  [X] Platform: Clipboard support is part of core Dear ImGui (no specific code in this backend).
 //  [X] Platform: Mouse support. Can discriminate Mouse/Pen.
-//  [X] Platform: Keyboard support. Since 1.87 we are using the io.AddKeyEvent() function. Pass ImGuiKey values to all key functions e.g. ImGui::IsKeyPressed(ImGuiKey_Space). [Legacy kVK_* values will also be supported unless IMGUI_DISABLE_OBSOLETE_KEYIO is set]
-//  [X] Platform: OSX clipboard is supported within core Dear ImGui (no specific code in this backend).
+//  [X] Platform: Keyboard support. Since 1.87 we are using the io.AddKeyEvent() function. Pass ImGuiKey values to all key functions e.g. ImGui::IsKeyPressed(ImGuiKey_Space). [Legacy kVK_* values are obsolete since 1.87 and not supported since 1.91.5]
 //  [X] Platform: Gamepad support. Enabled with 'io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad'.
+//  [X] Platform: Mouse cursor shape and visibility (ImGuiBackendFlags_HasMouseCursors). Disable with 'io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange'.
 //  [X] Platform: IME support.
 //  [x] Platform: Multi-viewport / platform windows.
-// Issues:
-//  [ ] Platform: Multi-viewport: Window size not correctly reported when enabling io.ConfigViewportsNoDecoration
-//  [ ] Platform: Multi-viewport: ParentViewportID not honored, and so io.ConfigViewportsNoDefaultParent has no effect (minor).
+// Missing features or Issues:
+//  [ ] Missing ImGuiMouseCursor_Wait and ImGuiMouseCursor_Progress cursors.
+//  [ ] Multi-viewport: Window size not correctly reported when enabling io.ConfigViewportsNoDecoration
+//  [ ] Multi-viewport: ParentViewportID not honored, and so io.ConfigViewportsNoDefaultParent has no effect (minor).
 
 // You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this.
 // Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build the backends you need.
@@ -33,7 +34,8 @@
 
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
-//  2024-XX-XX: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2025-XX-XX: Added support for multiple windows via the ImGuiPlatformIO interface.
+//  2025-01-20: Removed notification observer when shutting down. (#8331)
 //  2024-08-22: moved some OS/backend related function pointers from ImGuiIO to ImGuiPlatformIO:
 //               - io.GetClipboardTextFn    -> platform_io.Platform_GetClipboardTextFn
 //               - io.SetClipboardTextFn    -> platform_io.Platform_SetClipboardTextFn
@@ -92,7 +94,7 @@ struct ImGui_ImplOSX_Data
     id                          Monitor;
     NSWindow*                   Window;
 
-    ImGui_ImplOSX_Data()        { memset(this, 0, sizeof(*this)); }
+    ImGui_ImplOSX_Data()        { memset((void*)this, 0, sizeof(*this)); }
 };
 
 static ImGui_ImplOSX_Data*      ImGui_ImplOSX_GetBackendData()      { return (ImGui_ImplOSX_Data*)ImGui::GetIO().BackendPlatformUserData; }
@@ -455,12 +457,12 @@ bool ImGui_ImplOSX_Init(NSView* view)
     bd->MouseCursors[ImGuiMouseCursor_Arrow] = [NSCursor arrowCursor];
     bd->MouseCursors[ImGuiMouseCursor_TextInput] = [NSCursor IBeamCursor];
     bd->MouseCursors[ImGuiMouseCursor_ResizeAll] = [NSCursor closedHandCursor];
-    bd->MouseCursors[ImGuiMouseCursor_Hand] = [NSCursor pointingHandCursor];
-    bd->MouseCursors[ImGuiMouseCursor_NotAllowed] = [NSCursor operationNotAllowedCursor];
     bd->MouseCursors[ImGuiMouseCursor_ResizeNS] = [NSCursor respondsToSelector:@selector(_windowResizeNorthSouthCursor)] ? [NSCursor _windowResizeNorthSouthCursor] : [NSCursor resizeUpDownCursor];
     bd->MouseCursors[ImGuiMouseCursor_ResizeEW] = [NSCursor respondsToSelector:@selector(_windowResizeEastWestCursor)] ? [NSCursor _windowResizeEastWestCursor] : [NSCursor resizeLeftRightCursor];
     bd->MouseCursors[ImGuiMouseCursor_ResizeNESW] = [NSCursor respondsToSelector:@selector(_windowResizeNorthEastSouthWestCursor)] ? [NSCursor _windowResizeNorthEastSouthWestCursor] : [NSCursor closedHandCursor];
     bd->MouseCursors[ImGuiMouseCursor_ResizeNWSE] = [NSCursor respondsToSelector:@selector(_windowResizeNorthWestSouthEastCursor)] ? [NSCursor _windowResizeNorthWestSouthEastCursor] : [NSCursor closedHandCursor];
+    bd->MouseCursors[ImGuiMouseCursor_Hand] = [NSCursor pointingHandCursor];
+    bd->MouseCursors[ImGuiMouseCursor_NotAllowed] = [NSCursor operationNotAllowedCursor];
 
     // Note that imgui.cpp also include default OSX clipboard handlers which can be enabled
     // by adding '#define IMGUI_ENABLE_OSX_DEFAULT_CLIPBOARD_FUNCTIONS' in imconfig.h and adding '-framework ApplicationServices' to your linker command-line.
@@ -531,6 +533,7 @@ void ImGui_ImplOSX_Shutdown()
     ImGui_ImplOSX_Data* bd = ImGui_ImplOSX_GetBackendData();
     IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
 
+    [[NSNotificationCenter defaultCenter] removeObserver:bd->Observer];
     bd->Observer = nullptr;
     if (bd->Monitor != nullptr)
     {
