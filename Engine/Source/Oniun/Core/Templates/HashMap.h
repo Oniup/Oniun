@@ -249,6 +249,12 @@ public:
         return End();
     }
 
+    bool Contains(const TKey& key)
+    {
+        uint64 hash = GetHash(key);
+        return m_Data[hash].Filled;
+    }
+
     TValue& Get(const TKey& key)
     {
         uint64 hash = GetHash(key);
@@ -349,7 +355,7 @@ public:
     {
         uint64 hash = GetHash(key);
         Element& element = m_Data[hash];
-        if (element->Filled)
+        if (element.Filled)
         {
             Memory::DestructItem(&element.Data.Key);
             Memory::DestructItem(&element.Data.Value);

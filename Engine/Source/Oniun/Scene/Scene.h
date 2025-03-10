@@ -3,6 +3,8 @@
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Core/Templates/HashMap.h"
+#include "Oniun/Scene/ComponentRegistry.h"
+#include "Oniun/Scene/Query.h"
 #include "Oniun/Serialization/TypeInfo.h"
 
 class Entity;
@@ -10,28 +12,18 @@ class Entity;
 class Scene
 {
 public:
+    using ComponentType = ComponentRegistry::Type;
+
     struct EntityEntry
     {
         uint64 Id;
         EntityEntry* Parent;
         Array<EntityEntry*> Children;
-    };
 
-private:
-    // Memory layout of Registry: [EntityId, ComponentData] ...
-    // ComponentData is invalid if EntityId == INVALID_INDEX
-    struct ComponentRegistry
-    {
-        static constexpr uint64 MaxComponentCount = 5;
-        typedef void (*PfnDestructComponent)(byte* compData);
-
-        uint64 ComponentSize;
-        uint64 ComponentCount;
-        uint64 ComponentIds[MaxComponentCount];
-        PfnDestructComponent ComponentDestructFn;
-        uint64 RegisteredCount;
-        HeapAllocation::Data<byte> Registry;
-        Array<byte*> Freed;
+        FORCE_INLINE bool operator==(uint64 entityId) const
+        {
+            return entityId == Id;
+        }
     };
 
 public:
@@ -44,50 +36,85 @@ public:
         return m_Title;
     }
 
-    template<typename... TComponents>
-    void AddMultiComponentRegistry()
+    Entity Create();
+    bool EntityIsAlive(uint64 entityId);
+
+    template <typename... TComponents>
+    bool AddComponentRegistry()
     {
-        uint64 count = sizeof...(TComponents);
-        uint64 ids[] = {TypeInfo::GetFastId<TComponents>()...};
-        uint64 queryHash = 0;
-
-        ComponentRegistry registry {};
-        registry.ComponentSize = (sizeof(TComponents) + ...);
-        registry.ComponentCount = count;
-
-        for (uint64 i = 0; i < count; ++i)
-        {
-            registry.ComponentIds[i] = ids[i];
-            queryHash += ids[i];
-        }
-
-        registry.ComponentDestructFn = [](byte* compData)
-        {
-            uint64 offset = 0;
-            auto destructItem = [&offset](auto* component)
-            {
-                Memory::DestructItem(component);
-                offset += sizeof(component);
-            };
-            (destructItem((TComponents*)(compData + offset)), ...);
-        };
-
-        m_Registries.Add(queryHash, Memory::Move(registry));
+        ComponentRegistry::CreateInfo info = ComponentRegistry::CreateInfo::Get<TComponents...>();
+        uint64 queryHash = info.GetQueryHash();
+        if (m_Registries.Contains(queryHash))
+            return true;
+        return AddComponentRegistry(info);
     }
 
-    Entity Create();
+    template <typename TComponent, typename... TArgs>
+    void AddComponent(uint64 entityId, TArgs&&... args)
+    {
+        const ComponentType compType = ComponentType::Get<TComponent>();
+        byte* compData = AddComponentToRegistry(entityId, compType);
+        if (compData)
+        {
+            TComponent* component = (TComponent*)compData;
+            Memory::ConstructItemArgs(component, args...);
+        }
+    }
 
-    template<typename... TComponents>
-    void Add(uint64 entityId, TComponents&&...)
+
+    template <typename... TComponents>
+    Array<ComponentRegistry*> GetComponentRegistries()
     {
         constexpr uint64 count = sizeof...(TComponents);
-        static_assert(count > ComponentRegistry::MaxComponentCount, "Too many components in single registry");
+        static_assert(count > 0);
+
+        uint64 ids[] = {TypeInfo::GetFastId<TComponents>()...};
+        return GetComponentRegistries(ids, count);
     }
 
-    void Clear();
+    template <typename... TComponents>
+    ComponentQuery Query()
+    {
+        constexpr uint64 count = sizeof...(TComponents);
+        static_assert(count > 0);
+
+        Array<ComponentRegistry*> registries = GetComponentRegistries<TComponents...>();
+        uint64 ids[] = {TypeInfo::GetFastId<TComponents>()...};
+
+        return ComponentQuery(ids, Memory::Move(registries));
+    }
+
+    template <typename TComponent>
+    TComponent* GetComponent(uint64 entity)
+    {
+        uint64 id = TypeInfo::GetFastId<TComponent>();
+
+        Array<ComponentRegistry*>* compRegistries = m_ComponentsRegistries.TryGet(id);
+        if (compRegistries)
+        {
+            for (ComponentRegistry* registry : *compRegistries)
+            {
+                byte* compData = registry->GetComponent(entity, id);
+                if (compData)
+                    return (TComponent*)compData;
+            }
+        }
+        return nullptr;
+    }
+
+private:
+    bool AddComponentRegistry(const ComponentRegistry::CreateInfo& info);
+
+    Array<ComponentRegistry*> GetComponentRegistries(const uint64* ids, uint64 count);
+    byte* AddComponentToRegistry(uint64 entityId, const ComponentType& compType);
+
+    bool GetPossibleMoveComponents(const ComponentRegistry* registry, uint64 entityId,
+                                   FixedArray<ComponentRegistry*, ComponentRegistry::MaxTypeCount>& result);
+    void MoveComponentsToRegistry(uint64 entityId, ComponentRegistry* from, ComponentRegistry* to);
 
 private:
     String m_Title;
     Array<EntityEntry> m_Entities;
+    HashMap<uint64, Array<ComponentRegistry*>> m_ComponentsRegistries;
     HashMap<uint64, ComponentRegistry> m_Registries;
 };

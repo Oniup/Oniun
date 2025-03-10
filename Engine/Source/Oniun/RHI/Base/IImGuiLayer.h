@@ -23,6 +23,8 @@ public:
     void Render(RendererLayer& renderer);
     void UpdatePlatformWindows();
 
+    void SetFont(const StringView& font, uint64 fontSize = 16);
+
 private:
     Array<IImGuiWindow*> m_Windows;
 };

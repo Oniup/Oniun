@@ -4,32 +4,33 @@
 
 #include "Oniun/Platform/FileSystem.h"
 
-Engine::Engine()
-    : m_Running(true)
+Engine* Engine::m_Instance = nullptr;
+
+Engine::Engine(const AppInfo& appInfo)
+    : m_Info(appInfo), m_Running(true)
 {
+    ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
+
     glfwInit();
+    m_Instance = this;
 }
 
-void Engine::ImplInitialize(const AppInfo& appInfo)
+Engine::~Engine()
 {
-    m_Info = appInfo;
+    for (uint64 i = m_Layers.Count(); i > 0; --i)
+        Memory::Free(m_Layers[i - 1]);
+
+    glfwTerminate();
+    m_Instance = nullptr;
 }
 
-void Engine::ImplRun()
+void Engine::Run()
 {
     while (m_Running)
     {
         for (EngineLayer* layer : m_Layers)
             layer->OnUpdate();
     }
-}
-
-void Engine::ImplTerminate()
-{
-    for (uint64 i = m_Layers.Count(); i > 0; --i)
-        Memory::Free(m_Layers[i - 1]);
-
-    glfwTerminate();
 }
 
 EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)

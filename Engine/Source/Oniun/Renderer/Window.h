@@ -4,6 +4,7 @@
 
 // Forward declare
 struct GLFWwindow;
+struct GLFWmonitor;
 
 enum WindowFlag
 {
@@ -14,6 +15,8 @@ enum WindowFlag
     WindowFlag_ModeFullscreenBit = 1 << 3,
     WindowFlag_ModeWindowedBit = 1 << 4,
 };
+
+typedef void(*PfnWindowDpiChange)(float xScale, float yScale);
 
 class Window
 {
@@ -46,13 +49,15 @@ public:
 
     int32 GetWidth() const;
     int32 GetHeight() const;
-    void GetSize(int32& width, int32& height) const;
+    void GetSize(int32* width, int32* height) const;
 
     int32 GetXPosition() const;
     int32 GetYPosition() const;
-    void GetPosition(int32& x, int32& y) const;
+    void GetPosition(int32* x, int32* y) const;
 
     StringView Title() const;
+
+    GLFWmonitor* GetInternalCurrentMonitor() const;
 
 private:
     GLFWwindow* m_Window;

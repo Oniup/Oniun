@@ -6,9 +6,22 @@
 class Entity
 {
 public:
-    Entity(Scene* scene, uint64 id);
+    FORCE_INLINE Entity()
+        : m_Id(0), m_Scene(nullptr)
+    {
+    }
+
+    FORCE_INLINE Entity(Scene* scene, uint64 id)
+        : m_Id(id), m_Scene(scene)
+    {
+    }
 
 public:
+    FORCE_INLINE operator uint64() const
+    {
+        return m_Id;
+    }
+
     FORCE_INLINE uint64 GetId() const
     {
         return m_Id;
@@ -19,10 +32,15 @@ public:
         return m_Scene;
     }
 
-    bool IsValid()
+    FORCE_INLINE bool IsAlive()
     {
-        // TODO: ...
-        return false;
+        return m_Scene->EntityIsAlive(m_Id);
+    }
+
+    template <typename TComponent>
+    FORCE_INLINE TComponent* GetComponent()
+    {
+        return m_Scene->GetComponent<TComponent>(m_Id);
     }
 
 private:

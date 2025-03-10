@@ -5,6 +5,30 @@
 
 #include <GLFW/glfw3.h>
 
+#include "RendererLayer.h"
+#include "Oniun/Core/Engine.h"
+
+void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)
+{
+    static float lastXScale = 0, lastYScale = 0;
+    float xScale, yScale;
+    glfwGetWindowContentScale(window, &xScale, &yScale);
+    if (xScale != lastXScale || yScale != lastYScale)
+    {
+        LOG(Info, "Scale {}x{}", xScale, yScale);
+
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+
+        int newWidth = static_cast<int>(width * xScale);
+        int newHeight = static_cast<int>(height * yScale);
+        glfwSetWindowSize(window, newWidth, newHeight);
+
+        lastXScale = xScale;
+        lastYScale = yScale;
+    }
+}
+
 Window::Window()
     : m_Window(nullptr), m_Flags(WindowFlag_None)
 {
@@ -48,6 +72,7 @@ Window::Window(const StringView& title, int32 width, int32 height, Flags flags)
     int32 centerX = (vidMode->width - width) / 2;
     int32 centerY = (vidMode->height - height) / 2;
     glfwSetWindowPos(m_Window, centerX, centerY);
+    // glfwSetWindowPosCallback(m_Window, WindowPositionCallback);
 }
 
 Window::~Window()
@@ -90,9 +115,9 @@ int32 Window::GetHeight() const
     return height;
 }
 
-void Window::GetSize(int32& width, int32& height) const
+void Window::GetSize(int32* width, int32* height) const
 {
-    glfwGetFramebufferSize(m_Window, &width, &height);
+    glfwGetFramebufferSize(m_Window, width, height);
 }
 
 int32 Window::GetXPosition() const
@@ -109,12 +134,35 @@ int32 Window::GetYPosition() const
     return y;
 }
 
-void Window::GetPosition(int32& x, int32& y) const
+void Window::GetPosition(int32* x, int32* y) const
 {
-    glfwGetWindowPos(m_Window, &x, &y);
+    glfwGetWindowPos(m_Window, x, y);
 }
 
 StringView Window::Title() const
 {
     return glfwGetWindowTitle(m_Window);
+}
+
+GLFWmonitor* Window::GetInternalCurrentMonitor() const
+{
+    int32 xPos, yPos;
+    GetPosition(&xPos, &yPos);
+
+    int32 count;
+    GLFWmonitor** monitors = glfwGetMonitors(&count);
+    for (int32 i = 0; i < count; ++i)
+    {
+        const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
+        int32 mX, mY;
+        glfwGetMonitorPos(monitors[i], &mX, &mY);
+        if (xPos >= mX && xPos < (mX + mode->width))
+        {
+            if (yPos >= mY && yPos < (mY + mode->height))
+            {
+                return monitors[i];
+            }
+        }
+    }
+    return nullptr;
 }

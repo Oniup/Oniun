@@ -6,12 +6,46 @@
 
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Renderer/RendererLayer.h"
+#include "Oniun/RHI/ImGuiLayer.h"
+
+static constexpr StringView EngineDefaultFont = "../../../Engine/Assets/Fonts/Lato/Lato-Regular.ttf";
+static constexpr uint64 EngineDefaultFontSize = 20;
+
+// void WindowPosCallback(GLFWwindow* window, int xPos, int yPos)
+// {
+//     static GLFWmonitor* lastMonitor = nullptr;
+//     int32 count;
+//     GLFWmonitor** monitors = glfwGetMonitors(&count);
+//
+//     GLFWmonitor* monitor = nullptr;
+//     for (int32 i = 0; i < count; ++i)
+//     {
+//         const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
+//         int32 mX, mY;
+//         glfwGetMonitorPos(monitors[i], &mX, &mY);
+//         if (xPos >= mX && xPos < (mX + mode->width))
+//         {
+//             if (yPos >= mY && yPos < (mY + mode->height))
+//             {
+//                 monitor = monitors[i];
+//                 break;
+//             }
+//         }
+//     }
+//
+//     if (monitor != lastMonitor)
+//     {
+//         ImGuiIO& io = ImGui::GetIO();
+//         io.FontGlobalScale =  1.0f / io.FontDefault->FontSize;
+//         lastMonitor = monitor;
+//     }
+// }
 
 IImGuiLayer::IImGuiLayer()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -21,6 +55,8 @@ IImGuiLayer::IImGuiLayer()
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+
+    ImGui::GetIO().Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
 }
 
 IImGuiLayer::~IImGuiLayer()
@@ -80,4 +116,13 @@ void IImGuiLayer::UpdatePlatformWindows()
     ImGui::UpdatePlatformWindows();
     ImGui::RenderPlatformWindowsDefault();
     glfwMakeContextCurrent(backupCurrentContext);
+}
+
+void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->Clear();
+
+    if (!io.Fonts->AddFontFromFileTTF(*font, fontSize))
+        io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
 }

@@ -6,6 +6,18 @@
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
 
+struct CommandLineArguments
+{
+    int32 Count;
+    char** Args;
+
+    char* operator[](int32 index)
+    {
+        ASSERT(index < Count);
+        return Args[index];
+    }
+};
+
 struct AppInfo
 {
     struct Version
@@ -26,60 +38,47 @@ struct AppInfo
     };
 
     String Name;
+    CommandLineArguments CommandLineArguments;
     Version AppBuild;
     Version EngineBuild;
 };
 
-class Engine : public Singleton<Engine>
+class Engine
 {
-    friend Singleton;
-
-protected:
-    Engine();
+public:
+    Engine(const AppInfo& appInfo);
+    ~Engine();
 
 public:
-    FORCE_INLINE static void Initialize(const AppInfo& appInfo)
-    {
-        Instance()->ImplInitialize(appInfo);
-    }
-
-    FORCE_INLINE static void Terminate()
-    {
-        Instance()->ImplTerminate();
-    }
-
-    FORCE_INLINE static void Run()
-    {
-        Instance()->ImplRun();
-    }
-
     FORCE_INLINE static void Quit()
     {
-        Instance()->m_Running = false;
+        m_Instance->m_Running = false;
     }
 
     FORCE_INLINE static const AppInfo& GetAppInfo()
     {
-        return Instance()->m_Info;
+        return m_Instance->m_Info;
     }
+
+    void Run();
 
     template <typename TLayer, typename... TArgs>
     FORCE_INLINE static TLayer* RegisterLayer(TArgs&&... args)
     {
-        return static_cast<TLayer*>(Instance()->ImplRegisterLayer(Memory::Allocate<TLayer>(args...)));
+        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::Allocate<TLayer>(args...)));
     }
 
     template <typename TLayer>
     FORCE_INLINE static TLayer* RegisterLayer(TLayer* layer)
     {
-        return static_cast<TLayer*>(Instance()->ImplRegisterLayer(layer));
+        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(layer));
     }
 
     template <typename TLayer>
     FORCE_INLINE static TLayer* GetLayer()
     {
         uint64 id = TypeInfo::GetFastId<TLayer>();
-        EngineLayer* layer = Instance()->ImplGetLayer(id);
+        EngineLayer* layer = m_Instance->ImplGetLayer(id);
 
         if (layer)
             return static_cast<TLayer*>(layer);
@@ -89,14 +88,12 @@ public:
     }
 
 private:
-    void ImplInitialize(const AppInfo& appInfo);
-    void ImplRun();
-    void ImplTerminate();
-
     EngineLayer* ImplRegisterLayer(EngineLayer* layer);
     EngineLayer* ImplGetLayer(uint64 fastId);
 
 private:
+    static Engine* m_Instance;
+
     Array<EngineLayer*> m_Layers;
     AppInfo m_Info;
     bool m_Running;

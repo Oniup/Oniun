@@ -91,13 +91,13 @@ struct HeapAllocation
                 Allocate(newCapacity);
         }
 
-        FORCE_INLINE void Move(Data&& data)
+        FORCE_INLINE void Move(Data&& allocator)
         {
-            m_Data = data.m_Data;
-            m_Capacity = data.m_Capacity;
+            m_Data = allocator.m_Data;
+            m_Capacity = allocator.m_Capacity;
 
-            data.m_Data = nullptr;
-            data.m_Capacity = 0;
+            allocator.m_Data = nullptr;
+            allocator.m_Capacity = 0;
         }
 
         FORCE_INLINE void Free()
@@ -108,10 +108,10 @@ struct HeapAllocation
             m_Capacity = 0;
         }
 
-        FORCE_INLINE void Swap(Data& data)
+        FORCE_INLINE void Swap(Data& allocator)
         {
-            Memory::Swap(m_Data, data.m_Data);
-            Memory::Swap(m_Capacity, data.m_Capacity);
+            Memory::Swap(m_Data, allocator.m_Data);
+            Memory::Swap(m_Capacity, allocator.m_Capacity);
         }
 
     private:
@@ -136,6 +136,8 @@ struct FixedAllocation
 
         FORCE_INLINE constexpr Data(Data&& allocator)
         {
+            for (uint64 i = 0; i < Capacity(); ++i)
+                m_Data[i] = Memory::Move(allocator.m_Data[i]);
         }
 
         FORCE_INLINE constexpr ~Data()
@@ -180,15 +182,17 @@ struct FixedAllocation
             ASSERT(newCapacity <= TCapacity);
         }
 
-        FORCE_INLINE constexpr void Move(Data&& data)
+        FORCE_INLINE constexpr void Move(Data&& allocator)
         {
+            for (uint64 i = 0; i < Capacity(); ++i)
+                m_Data[i] = Memory::Move(allocator.m_Data[i]);
         }
 
         FORCE_INLINE constexpr void Free()
         {
         }
 
-        FORCE_INLINE constexpr void Swap(Data& data)
+        FORCE_INLINE constexpr void Swap(Data& allocator)
         {
             ASSERT(false && "Swapping fixed allocation is not supported");
         }

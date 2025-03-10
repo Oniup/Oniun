@@ -4,6 +4,8 @@
 #include "Oniun/Core/Time/DateTime.h"
 #include "Oniun/Platform/Platform.h"
 
+Logger* Logger::m_Instance = nullptr;
+
 StringView ToString(LogType type)
 {
     switch (type)
@@ -27,27 +29,29 @@ StringView ToString(LogType type)
 
 Logger::Logger()
 {
+    m_Instance = this;
 }
 
 Logger::~Logger()
 {
     for (ILogOutput* output : m_Outputs)
         Memory::Free(output);
+    m_Instance = nullptr;
 }
 
 void Logger::AddOutput(ILogOutput* entry)
 {
-    Instance()->m_Outputs.Add(entry);
+    m_Instance->m_Outputs.Add(entry);
 }
 
 void Logger::RemoveOutput(const StringView& name)
 {
-    Array<ILogOutput*>& outputs = Instance()->m_Outputs;
-    for (uint64 i = 0; i < outputs.Count(); ++i)
+    Array<ILogOutput*> output = m_Instance->m_Outputs;
+    for (uint64 i = 0; i < output.Count(); ++i)
     {
-         if (outputs[i]->GetName() == name)
+         if (output[i]->GetName() == name)
          {
-             outputs.RemoveAt(i);
+             output.RemoveAt(i);
              return;
          }
     }

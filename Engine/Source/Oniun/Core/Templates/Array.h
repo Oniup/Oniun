@@ -40,6 +40,13 @@ public:
         Memory::ConstructItems(m_Data.Ptr(), m_Count);
     }
 
+    constexpr Array(const T* data, uint64 count)
+        : m_Count(count)
+    {
+        m_Data.Allocate(count);
+        Memory::ConstructItems(m_Data.Ptr(), data, m_Count);
+    }
+
     constexpr Array(const Array& other)
         : m_Count(other.m_Count)
     {
@@ -50,7 +57,6 @@ public:
     constexpr Array(Array&& other)
         : m_Count(other.m_Count)
     {
-        static_assert(std::is_same_v<TAllocationType, HeapAllocation>);
         m_Data.Move(Memory::Move(other.m_Data));
         other.m_Count = 0;
     }
@@ -90,7 +96,7 @@ public:
         return *this;
     }
 
-    FORCE_INLINE constexpr std::enable_if<std::is_same_v<TAllocationType, HeapAllocation>, Array&> operator=(
+    FORCE_INLINE constexpr Array& operator=(
         Array&& array)
     {
         Free();

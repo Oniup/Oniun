@@ -578,16 +578,20 @@ bool String::EndsWith(const StringView& text) const
 }
 
 uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char* replace, uint64 replaceLength,
-    bool findFirst, StringSearch opt, uint64 offset)
+                            bool findFirst, StringSearch opt, uint64 offset)
 {
     if (m_Length == 0 || searchLength == 0 || searchLength > m_Length)
         return INVALID_INDEX;
 
     uint64 index;
     if (opt == StringSearch::CaseSensitive)
-        index = findFirst ? StringUtils::Find(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLast(m_Data.Ptr(), m_Length, search, searchLength, offset);
+        index = findFirst
+                    ? StringUtils::Find(m_Data.Ptr(), m_Length, search, searchLength, offset)
+                    : StringUtils::FindLast(m_Data.Ptr(), m_Length, search, searchLength, offset);
     else
-        index = findFirst ? StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset) : StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset);
+        index = findFirst
+                    ? StringUtils::FindIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset)
+                    : StringUtils::FindLastIgnoreCase(m_Data.Ptr(), m_Length, search, searchLength, offset);
 
     if (index != INVALID_INDEX)
     {
@@ -597,7 +601,8 @@ uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char*
         {
             uint64 oldLength = m_Length;
             Resize(m_Length - searchLength + replaceLength);
-            Crt::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength, (oldLength - index - searchLength));
+            Crt::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength,
+                      (oldLength - index - searchLength));
             Crt::Copy(m_Data.Ptr() + index, replace, replaceLength);
             m_Data[m_Length] = '\0';
         }
@@ -609,7 +614,8 @@ void String::Replace(const StringView& find, const StringView& replace, StringSe
 {
     uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
     while (index != INVALID_INDEX)
-        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt, index + find.Length());
+        index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt,
+                             index + find.Length());
 }
 
 void String::ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt)

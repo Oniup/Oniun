@@ -45,7 +45,7 @@ private:
     String m_Name;
 };
 
-class Logger : public Singleton<Logger>
+class Logger
 {
 public:
     Logger();
@@ -55,7 +55,7 @@ public:
     static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
                       const StringView& format)
     {
-        Instance()->WriteImpl(type, file, function, line, format);
+        m_Instance->WriteImpl(type, file, function, line, format);
     }
 
     template <typename... TArgs>
@@ -63,7 +63,7 @@ public:
                       const StringView& format, const TArgs&... args)
     {
         String usrMsg = Format(format, args...);
-        Instance()->WriteImpl(type, file, function, line, usrMsg);
+        m_Instance->WriteImpl(type, file, function, line, usrMsg);
     }
 
     static void AddOutput(ILogOutput* entry);
@@ -74,6 +74,7 @@ private:
                    const StringView& userMessage);
 
 private:
+    static Logger* m_Instance;
     Array<ILogOutput*> m_Outputs;
 };
 

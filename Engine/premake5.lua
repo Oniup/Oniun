@@ -35,6 +35,7 @@ project "Oniun"
 
 	defines {
 		"GLFW_INCLUDE_NONE",
+		"GLFW_SCALE_TO_MONITOR",
 
 		VersionMajor,
 		VersionMinor,

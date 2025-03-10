@@ -43,7 +43,7 @@ struct Hash<StringView>
 template <typename T>
 struct Hash<Slice<T>>
 {
-    FORCE_INLINE constexpr uint64 Get(const Slice<T>& slice)
+    FORCE_INLINE constexpr uint64 Get(const Slice<T>& slice) const
     {
         return Hash<T>{}.Get(slice.Get(), slice.Length());
     }

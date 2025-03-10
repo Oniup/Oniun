@@ -220,9 +220,11 @@ public:
     bool EndsWith(const StringView& text) const;
 
 
-    uint64 ReplaceChars(const char* search, uint64 searchLength, const char* replace, uint64 replaceLength, bool findFirst, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0);
+    uint64 ReplaceChars(const char* search, uint64 searchLength, const char* replace, uint64 replaceLength,
+                        bool findFirst, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0);
     void Replace(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
-    void ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+    void ReplaceFirst(const StringView& find, const StringView& replace,
+                      StringSearch opt = StringSearch::CaseSensitive);
     void ReplaceLast(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
 
 private:
