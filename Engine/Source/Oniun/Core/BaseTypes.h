@@ -39,6 +39,9 @@ class HashMap;
 template <typename TKey, typename TValue>
 struct Pair;
 
+template <typename>
+class Function;
+
 class DateTime;
 
 class File;

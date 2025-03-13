@@ -12,7 +12,7 @@ Scene* SceneLayer::GetLoadedScene(const StringView& name) const
 {
     for (Scene& scene : m_Loaded)
     {
-        if (scene.GetTitle() == name)
+        if (scene.GetName() == name)
             return &scene;
     }
     return nullptr;
