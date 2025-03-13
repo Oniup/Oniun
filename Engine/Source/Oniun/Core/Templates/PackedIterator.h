@@ -29,6 +29,21 @@ public:
     }
 
 public:
+    FORCE_INLINE constexpr PackedIterator& operator=(const PackedIterator& iter)
+    {
+        m_Ptr = iter.m_Ptr;
+        return *this;
+    }
+
+    FORCE_INLINE constexpr PackedIterator& operator=(PackedIterator&& iter)
+    {
+        m_Ptr = iter.m_Ptr;
+
+        iter.m_Ptr = nullptr;
+        return *this;
+    }
+
+
     FORCE_INLINE constexpr T& operator*()
     {
         return *m_Ptr;
@@ -49,28 +64,14 @@ public:
         return m_Ptr;
     }
 
-    FORCE_INLINE constexpr bool operator==(const PackedIterator& iter)
+    FORCE_INLINE constexpr bool operator==(const PackedIterator& iter) const
     {
         return m_Ptr == iter.m_Ptr;
     }
 
-    FORCE_INLINE constexpr bool operator!=(const PackedIterator& iter)
+    FORCE_INLINE constexpr bool operator!=(const PackedIterator& iter) const
     {
         return m_Ptr != iter.m_Ptr;
-    }
-
-    FORCE_INLINE constexpr PackedIterator& operator=(const PackedIterator& iter)
-    {
-        m_Ptr = iter.m_Ptr;
-        return *this;
-    }
-
-    FORCE_INLINE constexpr PackedIterator& operator=(PackedIterator&& iter)
-    {
-        m_Ptr = iter.m_Ptr;
-
-        iter.m_Ptr = nullptr;
-        return *this;
     }
 
     FORCE_INLINE constexpr int64 operator-(const PackedIterator& iter) const

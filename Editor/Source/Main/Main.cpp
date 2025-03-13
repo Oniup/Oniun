@@ -9,6 +9,7 @@
 #include "Oniun/Renderer/RendererLayer.h"
 #include "Oniun/Scene/Entity.h"
 #include "Oniun/Scene/Scene.h"
+#include "Oniun/Scene/SceneLayer.h"
 
 struct TransformComponent
 {
@@ -31,13 +32,32 @@ struct MeshComponent
     Array<uint32> Indices;
 };
 
+struct RigidbodyComponent
+{
+    Vector3 Velocity;
+};
+
+struct BoxColliderComponent
+{
+    struct Face
+    {
+        Vector3 BottomLeft;
+        Vector3 BottomRight;
+        Vector3 TopLeft;
+        Vector3 TopRight;
+    };
+
+    Face LeftFace;
+    Face RightFace;
+};
+
 int EntryPoint(const CommandLineArguments& args)
 {
     Logger logger;
 #if !ONU_DIST
-    Logger::AddOutput(Memory::Allocate<TerminalLogOutput>());
+    Logger::AddOutput(Memory::New<TerminalLogOutput>());
 #endif
-    Logger::AddOutput(Memory::Allocate<FileLogOutput>("OutputFile.txt"));
+    Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
 
     Engine engine(AppInfo{
         .Name = "Oniun Engine",
@@ -50,41 +70,45 @@ int EntryPoint(const CommandLineArguments& args)
     Engine::RegisterLayer<RendererLayer>(Format("{} ({})", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
 
     ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
-    imGui->Add(Memory::Allocate<DockingSpace>());
-    imGui->Add(Memory::Allocate<Console>());
-    imGui->Add(Memory::Allocate<Hierarchy>());
+    imGui->Add(Memory::New<DockingSpace>());
+    imGui->Add(Memory::New<Console>());
+    imGui->Add(Memory::New<Hierarchy>());
+
+    Engine::RegisterLayer<SceneLayer>();
 
     {
         Scene scene;
-        // Create a ComponentRegistry that supports the 2 components packed into a single array
         scene.AddComponentRegistry<TransformComponent, MeshComponent>();
+        scene.AddComponentRegistry<TransformComponent, MeshComponent, RigidbodyComponent, BoxColliderComponent>();
+
         Entity entity;
-
-        for (uint64 i = 0; i < 500; ++i)
+        uint64 called = 0;
+        for (uint64 i = 0; i < 5000; ++i)
         {
-            // Create an entity and add it the array of entities
             Entity ent = scene.Create();
-
-            // Create transform component, because there isn't any ComponentRegistry for just transform, it would
-            // create one and add it
-            scene.AddComponent<TransformComponent>(ent);
-            // The previous is transform component, it needs to move the transform component out the component registry
-            // it currently exists and move it the multi component registry created when the scene was created
-            scene.AddComponent<MeshComponent>(ent);
-
-            // Setting the values of the components
-            TransformComponent* transform = scene.GetComponent<TransformComponent>(ent);
-            MeshComponent* mesh = scene.GetComponent<MeshComponent>(ent);
-            transform->Position = Vector3(1.0f, 2.0f, 3.0f);
-            mesh->Vertices.Resize(512); // would read from a file and set the vertices and indices
-            mesh->Indices.Resize(512);
-
-            if (i == 255)
+            if (i == 69)
                 entity = ent;
+            if (entity.IsAlive())
+            {
+                TransformComponent* transform = entity.GetComponent<TransformComponent>();
+                ++called;
+                transform->Position.X += 1.0f;
+                if (i % 100 == 0)
+                    LOG(Info, "Position at {}: {}", called, transform->Position);
+            }
+
+            ent.AddComponent<TransformComponent>();
+            ent.AddComponent<MeshComponent>();
+            ent.AddComponent<RigidbodyComponent>();
+            ent.AddComponent<BoxColliderComponent>();
+
+            MeshComponent* mesh = ent.GetComponent<MeshComponent>();
+            mesh->Vertices.Resize(255);
+            mesh->Indices.Resize(255);
         }
 
         TransformComponent* transform = entity.GetComponent<TransformComponent>();
-        LOG(Info, "Transform Position: {}", transform->Position);
+        LOG(Info, "Called: {}, Transform position: {}", called, transform->Position);
     }
 
     engine.Run();

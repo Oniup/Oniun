@@ -65,7 +65,7 @@ public:
     template <typename TLayer, typename... TArgs>
     FORCE_INLINE static TLayer* RegisterLayer(TArgs&&... args)
     {
-        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::Allocate<TLayer>(args...)));
+        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::New<TLayer>(args...)));
     }
 
     template <typename TLayer>

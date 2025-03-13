@@ -19,6 +19,17 @@ Entity Scene::Create()
     return Entity(this, m_Entities.Back().Id);
 }
 
+void Scene::Destroy(uint64 entityId)
+{
+    uint64 index = m_Entities.Find(entityId);
+    if (index == INVALID_INDEX)
+        return;
+
+    for (auto&[compId, registry] : m_Registries)
+        registry.Remove(entityId);
+    m_Entities.RemoveAt(index);
+}
+
 bool Scene::EntityIsAlive(uint64 entityId)
 {
     uint64 index = m_Entities.Find(entityId);
@@ -64,29 +75,27 @@ byte* Scene::AddComponentToRegistry(uint64 entityId, const ComponentType& compTy
         // Iterate over all component types in registry and check if they exist in other registries, if all do, then move
         // to current registry and add compType and return its byte data
         Array<ComponentRegistry*>& registries = m_ComponentsRegistries.Get(compType.Id);
-        if (registries.Count() > 1)
+        for (ComponentRegistry* registry : registries)
         {
-            for (ComponentRegistry* registry : registries)
-            {
-                FixedArray<ComponentRegistry*, ComponentRegistry::MaxTypeCount> compsToMove;
-                if (!GetPossibleMoveComponents(registry, entityId, compsToMove))
-                    continue;
+            FixedArray<ComponentRegistry*, ComponentRegistry::MaxTypeCount> compsToMove;
+            if (!GetPossibleMoveComponents(registry, entityId, compsToMove))
+                continue;
 
-                for (ComponentRegistry* moveFromRegistry : compsToMove)
-                    MoveComponentsToRegistry(entityId, moveFromRegistry, registry);
+            for (ComponentRegistry* moveFromRegistry : compsToMove)
+                MoveComponentsToRegistry(entityId, moveFromRegistry, registry);
 
-                return registry->AllocateComponents(entityId, compType.Id);
-            }
+            return registry->AllocateComponents(entityId, compType.Id);
         }
     }
 
     if (!m_Registries.Contains(compType.Id))
     {
-        ComponentRegistry::CreateInfo info;
-        info.Count = 1,
-        info.Ids[0] = compType.Id;
-        info.Sizes[0] = compType.Size;
-        info.DestructFns[0] = compType.DestructFn;
+        ComponentRegistry::CreateInfo info{
+            .Count = 1,
+            .Ids = {compType.Id},
+            .Sizes = {compType.Size},
+            .DestructFns = {compType.DestructFn},
+        };
         if (!AddComponentRegistry(info))
             return nullptr;
     }
@@ -97,21 +106,28 @@ byte* Scene::AddComponentToRegistry(uint64 entityId, const ComponentType& compTy
 bool Scene::GetPossibleMoveComponents(const ComponentRegistry* registry, uint64 entityId,
                                       FixedArray<ComponentRegistry*, ComponentRegistry::MaxTypeCount>& result)
 {
+    // Get all component types required for filling the selected registry
     const auto& types = registry->GetComponentTypes();
     if (types.Count() == 1)
         return false;
+    // Iterate over all types and get their registries
     for (const ComponentType& type : types)
     {
+        // Iterate over all registries to check if it exists and add to possible move array
         Array<ComponentRegistry*>& moveCompRegistries = m_ComponentsRegistries.Get(type.Id);
         for (ComponentRegistry* moveCompRegistry : moveCompRegistries)
         {
             if (registry == moveCompRegistry)
                 continue;
 
-            if (moveCompRegistry->GetComponent(entityId, type.Id))
+            if (result.Count() == types.Count() - 1)
+                break;
+
+            byte* compData = moveCompRegistry->GetComponent(entityId, type.Id);
+            if (compData)
             {
                 // Don't rip components out if there is another component type that registry doesn't support
-                if (!registry->SupportsAllComponents(moveCompRegistry->GetComponentTypes()))
+                if (!registry->SupportsComponents(moveCompRegistry->GetComponentTypes()))
                     return false;
 
                 result.Add(moveCompRegistry);
@@ -119,9 +135,7 @@ bool Scene::GetPossibleMoveComponents(const ComponentRegistry* registry, uint64 
             }
         }
     }
-    if (result.Count() != types.Count())
-        return false;
-    return true;
+    return result.Count() == types.Count() - 1;
 }
 
 void Scene::MoveComponentsToRegistry(uint64 entityId, ComponentRegistry* from, ComponentRegistry* to)
@@ -132,8 +146,9 @@ void Scene::MoveComponentsToRegistry(uint64 entityId, ComponentRegistry* from, C
 
     for (const ComponentType& compType : from->GetComponentTypes())
     {
-        byte* toData = to->GetComponent(entityId, compType.Id);
+        byte* toData = to->AllocateComponents(entityId, compType.Id);
         Crt::Copy(toData, fromData, compType.Size);
+        fromData = fromData + compType.Size;
     }
     from->RemoveWithoutDestructor(entityId);
 }

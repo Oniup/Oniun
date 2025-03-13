@@ -1,8 +1,11 @@
 #include "Oniun/Scene/SceneLayer.h"
 
-SceneLayer::SceneLayer()
+uint64 SceneLayer::m_ComponentRegistryChunksPerBlockCount = 0;
+
+SceneLayer::SceneLayer(uint64 componentChunksPerBlockCount)
     : m_Active(nullptr)
 {
+    m_ComponentRegistryChunksPerBlockCount = componentChunksPerBlockCount;
 }
 
 Scene* SceneLayer::GetLoadedScene(const StringView& name) const

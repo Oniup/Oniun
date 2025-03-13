@@ -32,6 +32,9 @@ struct HeapAllocation
                 Free();
         }
 
+        Data(const Data& allocator) = delete;
+        Data& operator=(const Data& allocator) = delete;
+
     public:
         FORCE_INLINE T& operator[](uint64 index)
         {

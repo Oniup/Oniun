@@ -67,7 +67,7 @@ bool IImGuiLayer::Add(IImGuiWindow* window)
             m_Windows.Add(window);
             return true;
         }
-        Memory::Free(window);
+        Memory::Delete(window);
     }
     return false;
 }
@@ -81,13 +81,14 @@ void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
     if (font.IsEmpty() || fontSize == 0)
         setDefaults = true;
 
-    if (!setDefaults || !io.Fonts->AddFontFromFileTTF(*font, fontSize))
-        setDefaults = true;
+    if (!setDefaults)
+    {
+        if (!io.Fonts->AddFontFromFileTTF(*font, fontSize))
+            setDefaults = true;
+    }
 
     if (setDefaults)
         io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
-
-    io.Fonts->Build();
 }
 
 void IImGuiLayer::OnStart()

@@ -18,7 +18,7 @@ public:
     }
 
     FORCE_INLINE constexpr StringView(const char* str, uint64 length = INVALID_INDEX)
-        : m_Length(length == INVALID_INDEX ? StringUtils::Length(str) : length), m_Data(str)
+        : m_Length(str == nullptr ? 0 : (length == INVALID_INDEX ? StringUtils::Length(str) : length)), m_Data(str)
     {
     }
 

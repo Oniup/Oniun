@@ -31,7 +31,7 @@ void ConsoleLogOutput::Write(LogType type, const StringView& formattedMessage, c
 Console::Console()
     : IImGuiWindow("Console", DefaultFlags | ImGuiWindowFlags_MenuBar)
 {
-    Logger::AddOutput(Memory::Allocate<ConsoleLogOutput>(this));
+    Logger::AddOutput(Memory::New<ConsoleLogOutput>(this));
 
     for (uint64 i = 0; i < (uint64)LogType::Count; ++i)
         m_IncludeFilter[i] = true;

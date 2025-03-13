@@ -37,6 +37,7 @@ public:
     }
 
     Entity Create();
+    void Destroy(uint64 entityId);
     bool EntityIsAlive(uint64 entityId);
 
     template <typename... TComponents>

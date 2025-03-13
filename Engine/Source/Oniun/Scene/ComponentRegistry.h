@@ -2,6 +2,7 @@
 
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Core/Templates/HashMap.h"
+#include "Oniun/Core/Templates/LinkList.h"
 #include "Oniun/Serialization/TypeInfo.h"
 
 /// Registry for storing components packed in an array
@@ -18,6 +19,8 @@ public:
     typedef void (*PfnDestructComponent)(byte* compData);
 
 public:
+    using BlockData = HeapAllocation::Data<byte>;
+
     struct Type
     {
         uint64 Id;
@@ -106,15 +109,13 @@ public:
 
 private:
     byte* GetComponentFromAllocBlock(uint64 compId, byte* fullCompData);
-    void Resize(uint64 newSize);
 
 private:
-    uint64 m_LastEntity;
     /// Key: Entity ID, Value: Position
-    HashMap<uint64, uint64> m_EntitiesCompIndex;
+    HashMap<uint64, byte*> m_EntitiesCompIndex;
     FixedArray<Type, MaxTypeCount> m_ComponentTypes;
     uint64 m_Offset;
     uint64 m_ComponentBlockSize;
-    HeapAllocation::Data<byte> m_Data;
-    Array<uint64> m_Freed;
+    LinkList<BlockData> m_Data;
+    Array<byte*> m_Freed;
 };

@@ -18,7 +18,7 @@ Engine::Engine(const AppInfo& appInfo)
 Engine::~Engine()
 {
     for (uint64 i = m_Layers.Count(); i > 0; --i)
-        Memory::Free(m_Layers[i - 1]);
+        Memory::Delete(m_Layers[i - 1]);
 
     glfwTerminate();
     m_Instance = nullptr;

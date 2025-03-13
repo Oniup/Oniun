@@ -35,7 +35,7 @@ Logger::Logger()
 Logger::~Logger()
 {
     for (ILogOutput* output : m_Outputs)
-        Memory::Free(output);
+        Memory::Delete(output);
     m_Instance = nullptr;
 }
 

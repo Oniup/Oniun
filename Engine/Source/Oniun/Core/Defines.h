@@ -104,6 +104,7 @@ namespace Assert_Internal
 #endif
 
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
+#define DEFAULT_COMPONENT_REGISTRY_CHUNK_PER_BLOCK_COUNT 256
 #define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])
 
 #if !ONU_DIST

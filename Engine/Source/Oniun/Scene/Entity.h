@@ -34,7 +34,13 @@ public:
 
     FORCE_INLINE bool IsAlive()
     {
-        return m_Scene->EntityIsAlive(m_Id);
+        return m_Scene && m_Scene->EntityIsAlive(m_Id);
+    }
+
+    template <typename TComponent, typename... TArgs>
+    FORCE_INLINE void AddComponent(TArgs&&... args)
+    {
+        m_Scene->AddComponent<TComponent>(m_Id, Memory::Forward<TArgs>(args)...);
     }
 
     template <typename TComponent>

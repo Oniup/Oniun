@@ -15,6 +15,19 @@ namespace Memory
         return static_cast<std::remove_reference_t<T>&&>(item);
     }
 
+    template <typename T>
+    constexpr T&& Forward(std::remove_reference_t<T>& arg)
+    {
+        return static_cast<T&&>(arg);
+    }
+
+    template <typename T>
+    constexpr std::remove_reference_t<T>&& Forward(std::remove_reference_t<T>&& arg)
+    {
+        static_assert(!std::is_lvalue_reference_v<T>, "bad forward call");
+        return static_cast<T&&>(arg);
+    }
+
     template<typename T>
     constexpr void Swap(T& val0, T& val1)
     {
@@ -45,7 +58,7 @@ namespace Memory
     template<typename T, typename... TArgs>
     FORCE_INLINE constexpr void ConstructItemArgs(T* dest, TArgs&&... args)
     {
-        new(dest) T(Memory::Move(args)...);
+        new(dest) T(Forward<TArgs>(args)...);
     }
 
     template<typename T, typename TU>
@@ -157,15 +170,15 @@ namespace Memory
     }
 
     template<typename T, typename... TArgs>
-    FORCE_INLINE constexpr T* Allocate(TArgs&&... args)
+    FORCE_INLINE constexpr T* New(TArgs&&... args)
     {
         T* ptr = static_cast<T*>(Crt::Allocate(sizeof(T)));
-        new(ptr) T(args...);
+        new(ptr) T(Forward<TArgs>(args)...);
         return ptr;
     }
 
     template<typename T>
-    FORCE_INLINE constexpr void Free(T* ptr)
+    FORCE_INLINE constexpr void Delete(T* ptr)
     {
         DestructItem(ptr);
         Crt::Free(ptr);

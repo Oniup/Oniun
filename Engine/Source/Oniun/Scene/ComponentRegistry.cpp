@@ -1,6 +1,7 @@
 #include "Oniun/Scene/ComponentRegistry.h"
 
 #include "Oniun/Core/Logger.h"
+#include "Oniun/Scene/SceneLayer.h"
 
 uint64 ComponentRegistry::CreateInfo::GetQueryHash() const
 {
@@ -11,32 +12,29 @@ uint64 ComponentRegistry::CreateInfo::GetQueryHash() const
 }
 
 ComponentRegistry::ComponentRegistry()
-    : m_LastEntity(INVALID_INDEX), m_Offset(0), m_ComponentBlockSize(sizeof(uint64))
+    : m_Offset(0), m_ComponentBlockSize(sizeof(uint64))
 {
 }
 
 ComponentRegistry::ComponentRegistry(ComponentRegistry&& registry)
-    : m_LastEntity(registry.m_LastEntity), m_ComponentTypes(Memory::Move(registry.m_ComponentTypes)), m_Offset(0),
-      m_ComponentBlockSize(0), m_Data(Memory::Move(registry.m_Data)), m_Freed(Memory::Move(registry.m_Freed))
+    : m_ComponentTypes(Memory::Move(registry.m_ComponentTypes)), m_Offset(0), m_ComponentBlockSize(0),
+      m_Data(Memory::Move(registry.m_Data)), m_Freed(Memory::Move(registry.m_Freed))
 {
 }
 
 ComponentRegistry::~ComponentRegistry()
 {
-    if (m_Data.Ptr())
+    for (auto&[entityId, compDataPtr] : m_EntitiesCompIndex)
     {
-        for (const auto&[entityId, offset] : m_EntitiesCompIndex)
+        byte* compData = compDataPtr + sizeof(uint64);
+        for (const Type& type : m_ComponentTypes)
         {
-            byte* compData = m_Data.Ptr() + offset + sizeof(uint64);
-            for (const Type& type : m_ComponentTypes)
-            {
-                type.DestructFn(compData);
-                compData = compData + type.Size;
-            }
+            type.DestructFn(compData);
+            compData = compData + type.Size;
         }
-        m_Data.Free();
-        m_Offset = 0;
     }
+    m_Data.Free();
+    m_Offset = 0;
 }
 
 bool ComponentRegistry::RegisterComponentTypes(const CreateInfo& createInfo)
@@ -63,24 +61,27 @@ byte* ComponentRegistry::AllocateComponents(uint64 entityId, uint64 compId)
     byte* compData;
     if (m_Freed.Count() > 0)
     {
-        uint64 offset = m_Freed.Pop();
-        compData = m_Data.Ptr() + offset;
-        m_EntitiesCompIndex.Add(entityId, offset);
+        compData = m_Freed.Pop();
+        m_EntitiesCompIndex.Add(entityId, compData);
         *(uint64*)(compData) = entityId;
     }
     else if (m_EntitiesCompIndex.Contains(entityId))
     {
-        compData = m_Data.Ptr() + m_EntitiesCompIndex.Get(entityId);
+        compData = m_EntitiesCompIndex.Get(entityId);
     }
     else
     {
-        uint64 newSize = m_Offset + m_ComponentBlockSize;
-        if (m_Data.Capacity() < newSize)
-            Resize(newSize);
+        if (m_Offset < m_ComponentBlockSize * SceneLayer::GetComponentRegistryChunksPerBlockCount())
+        {
+            m_Data.AddLast(Memory::Move(BlockData()));
+            m_Data.Last().Allocate(m_ComponentBlockSize * SceneLayer::GetComponentRegistryChunksPerBlockCount());
+            m_Offset = 0;
+        }
 
-        compData = m_Data.Ptr() + m_Offset;
-        m_EntitiesCompIndex.Add(entityId, m_Offset);
-        m_Offset = newSize;
+        uint64 newOffset = m_Offset + m_ComponentBlockSize;
+        compData = m_Data.Last().Ptr() + m_Offset;
+        m_EntitiesCompIndex.Add(entityId, compData);
+        m_Offset = newOffset;
         *(uint64*)(compData) = entityId;
     }
     return GetComponentFromAllocBlock(compId, compData);
@@ -88,47 +89,12 @@ byte* ComponentRegistry::AllocateComponents(uint64 entityId, uint64 compId)
 
 bool ComponentRegistry::SupportsComponents(const uint64* compIds, uint64 count) const
 {
-    if (count != m_ComponentTypes.Count())
-        return false;
-
-    for (uint64 i = 0; i < count; ++i)
-    {
-        for (uint64 j = 0; j < count; ++j)
-        {
-            if (compIds[i] != m_ComponentTypes[i].Id)
-                return false;
-        }
-    }
-    return true;
-}
-
-bool ComponentRegistry::SupportsComponents(const FixedArray<Type, MaxTypeCount>& types) const
-{
-    if (types.Count() != m_ComponentTypes.Count())
-        return false;
-
-    for (uint64 i = 0; i < types.Count(); ++i)
-    {
-        for (uint64 j = 0; j < types.Count(); ++j)
-        {
-            if (types[i].Id != m_ComponentTypes[i].Id)
-                return false;
-        }
-    }
-    return true;
-}
-
-bool ComponentRegistry::SupportsAllComponents(const uint64* compIds, uint64 count) const
-{
-    if (count != m_ComponentTypes.Count())
-        return false;
-
     uint64 found = 0;
     for (uint64 i = 0; i < count; ++i)
     {
-        for (uint64 j = 0; j < count; ++j)
+        for (uint64 j = 0; j < m_ComponentTypes.Count(); ++j)
         {
-            if (compIds[i] != m_ComponentTypes[i].Id)
+            if (compIds[i] == m_ComponentTypes[j].Id)
             {
                 ++found;
                 break;
@@ -138,17 +104,14 @@ bool ComponentRegistry::SupportsAllComponents(const uint64* compIds, uint64 coun
     return found == count;
 }
 
-bool ComponentRegistry::SupportsAllComponents(const FixedArray<Type, MaxTypeCount>& types) const
+bool ComponentRegistry::SupportsComponents(const FixedArray<Type, MaxTypeCount>& types) const
 {
-    if (types.Count() != m_ComponentTypes.Count())
-        return false;
-
     uint64 found = 0;
     for (uint64 i = 0; i < types.Count(); ++i)
     {
-        for (uint64 j = 0; j < types.Count(); ++j)
+        for (uint64 j = 0; j < m_ComponentTypes.Count(); ++j)
         {
-            if (types[i].Id == m_ComponentTypes[i].Id)
+            if (types[i].Id == m_ComponentTypes[j].Id)
             {
                 ++found;
                 break;
@@ -158,30 +121,43 @@ bool ComponentRegistry::SupportsAllComponents(const FixedArray<Type, MaxTypeCoun
     return found == types.Count();
 }
 
+bool ComponentRegistry::SupportsAllComponents(const uint64* compIds, uint64 count) const
+{
+    if (count != m_ComponentTypes.Count())
+        return false;
+    return SupportsComponents(compIds, count);
+}
+
+bool ComponentRegistry::SupportsAllComponents(const FixedArray<Type, MaxTypeCount>& types) const
+{
+    if (types.Count() != m_ComponentTypes.Count())
+        return false;
+    return SupportsComponents(types);
+}
+
 byte* ComponentRegistry::GetComponents(uint64 entityId)
 {
-    uint64* offset = m_EntitiesCompIndex.TryGet(entityId);
-    if (offset)
-        return m_Data.Ptr() + *offset + sizeof(uint64);
+    byte** compEntry = m_EntitiesCompIndex.TryGet(entityId);
+    if (compEntry)
+        return *compEntry + sizeof(uint64);
     return nullptr;
 }
 
 byte* ComponentRegistry::GetComponent(uint64 entityId, uint64 compId)
 {
-    uint64* offset = m_EntitiesCompIndex.TryGet(entityId);
-    if (offset)
-        return GetComponentFromAllocBlock(compId, m_Data.Ptr() + *offset);
+    byte** compEntry = m_EntitiesCompIndex.TryGet(entityId);
+    if (compEntry)
+        return GetComponentFromAllocBlock(compId, *compEntry);
     return nullptr;
 }
 
 void ComponentRegistry::Remove(uint64 entityId)
 {
-    uint64* offset = m_EntitiesCompIndex.TryGet(entityId);
-    if (offset)
+    byte** compEntry = m_EntitiesCompIndex.TryGet(entityId);
+    if (compEntry)
     {
-        byte* compData = m_Data.Ptr();
+        byte* compData = *compEntry;
         *(uint64*)compData = INVALID_INDEX;
-        m_EntitiesCompIndex.Remove(entityId);
 
         compData = compData + sizeof(uint64);
         for (const Type& type : GetComponentTypes())
@@ -189,16 +165,21 @@ void ComponentRegistry::Remove(uint64 entityId)
             type.DestructFn(compData);
             compData = compData + type.Size;
         }
+
+        m_Freed.Add(*compEntry);
+        m_EntitiesCompIndex.Remove(entityId);
     }
 }
 
 void ComponentRegistry::RemoveWithoutDestructor(uint64 entityId)
 {
-    uint64* offset = m_EntitiesCompIndex.TryGet(entityId);
-    if (offset)
+    byte** compEntry = m_EntitiesCompIndex.TryGet(entityId);
+    if (compEntry)
     {
-        byte* compData = m_Data.Ptr();
+        byte* compData = *compEntry;
         *(uint64*)compData = INVALID_INDEX;
+
+        m_Freed.Add(*compEntry);
         m_EntitiesCompIndex.Remove(entityId);
     }
 }
@@ -213,11 +194,4 @@ byte* ComponentRegistry::GetComponentFromAllocBlock(uint64 compId, byte* fullCom
         compData = compData + type.Size;
     }
     return compData;
-}
-
-void ComponentRegistry::Resize(uint64 newSize)
-{
-    m_Data.Relocate(Memory::CalcCapacityGrow(newSize, m_Data.Capacity()), m_Offset, newSize);
-    for (uint64 offset = m_Offset; offset < m_Data.Capacity(); offset += m_ComponentBlockSize)
-        *(uint64*)m_Data.Ptr() = INVALID_INDEX;
 }

@@ -360,12 +360,20 @@ public:
             Memory::DestructItem(&element.Data.Key);
             Memory::DestructItem(&element.Data.Value);
 
-            element.Previous->Next = element.Next;
-            element.Next->Previous = element.Previous;
+            if (element.Previous)
+                element.Previous->Next = element.Next;
+            if (element.Next)
+                element.Next->Previous = element.Previous;
             element.Next = nullptr;
             element.Previous = nullptr;
             element.Filled = false;
             m_Count--;
+
+            if (m_Count == 0)
+            {
+                m_Head = nullptr;
+                m_Tail = nullptr;
+            }
         }
     }
 
