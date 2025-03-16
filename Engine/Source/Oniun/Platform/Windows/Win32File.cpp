@@ -49,6 +49,18 @@ File& File::operator=(File&& file)
     return *this;
 }
 
+void File::Open(const StringView& path, FileAccess access, FileMode mode)
+{
+    Close();
+    HANDLE handle = CreateFileA(*path, (DWORD)access, 0, nullptr, (DWORD)mode, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        LOG(Error, *Platform::GetLastErrorMessage());
+        return;
+    }
+    m_Handle = handle;
+}
+
 bool File::Read(void* buffer, uint32 bytesToRead, uint32* bytesRead)
 {
     DWORD temp;

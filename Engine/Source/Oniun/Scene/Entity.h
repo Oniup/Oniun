@@ -31,24 +31,24 @@ public:
     {
         return m_Scene;
     }
-//
-//     FORCE_INLINE bool IsAlive()
-//     {
-//         return m_Scene && m_Scene->EntityIsAlive(m_Id);
-//     }
-//
-//     template <typename TComponent, typename... TArgs>
-//     FORCE_INLINE void AddComponent(TArgs&&... args)
-//     {
-//         m_Scene->AddComponent<TComponent>(m_Id, Memory::Forward<TArgs>(args)...);
-//     }
-//
-//     template <typename TComponent>
-//     FORCE_INLINE TComponent* GetComponent()
-//     {
-//         return m_Scene->GetComponent<TComponent>(m_Id);
-//     }
-//
+
+     FORCE_INLINE bool IsAlive()
+     {
+         return m_Scene && m_Scene->IsEntityAlive(m_Id);
+     }
+
+     template <typename TComponent, typename... TArgs>
+     FORCE_INLINE void AddComponent(TArgs&&... args)
+     {
+         m_Scene->AddComponent<TComponent>(m_Id, Memory::Forward<TArgs>(args)...);
+     }
+
+     template <typename TComponent>
+     FORCE_INLINE TComponent* GetComponent()
+     {
+         return m_Scene->GetComponent<TComponent>(m_Id);
+     }
+
 private:
     uint64 m_Id;
     Scene* m_Scene;

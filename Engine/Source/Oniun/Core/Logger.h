@@ -68,6 +68,7 @@ public:
 
     static void AddOutput(ILogOutput* entry);
     static void RemoveOutput(const StringView& name);
+    static ILogOutput* GetOutput(const StringView& name);
 
 private:
     void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
@@ -99,9 +100,17 @@ public:
     ~FileLogOutput() override;
 
 public:
+    FORCE_INLINE const String& GetPath() const
+    {
+        return m_Path;
+    }
+
     void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
                int32 line, const StringView& userMessage, const DateTime& time) override;
+
+    void SetPath(const StringView& path);
 private:
+    String m_Path;
     File m_Output;
 };
 

@@ -8,6 +8,7 @@ class Console : public IImGuiWindow
 {
 private:
     bool m_Colored = true;
+    bool m_AutoScroll = true;
     bool m_IncludeFilter[(uint64)LogType::Count];
 
 public:

@@ -39,6 +39,8 @@ public:
     }
 
 public:
+    virtual void Open(const StringView& path, FileAccess access, FileMode mode = FileMode::OpenAlways) = 0;
+
     virtual bool Read(void* buffer, uint32 bytesToRead, uint32* bytesRead = nullptr) = 0;
     virtual bool Write(const void* buffer, uint32 bytesToWrite, uint32* bytesWritten = nullptr) = 0;
 

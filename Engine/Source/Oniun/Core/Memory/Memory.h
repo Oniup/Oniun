@@ -1,7 +1,6 @@
 #pragma once
 
 #include <new>
-#include <type_traits>
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Compiler.h"
@@ -10,40 +9,47 @@
 namespace Memory
 {
     template<typename T>
-    constexpr std::remove_reference_t<T>&& Move(T&& item)
+    FORCE_INLINE constexpr std::remove_reference_t<T>&& Move(T&& item)
     {
         return static_cast<std::remove_reference_t<T>&&>(item);
     }
 
     template <typename T>
-    constexpr T&& Forward(std::remove_reference_t<T>& arg)
+    FORCE_INLINE constexpr T&& Forward(std::remove_reference_t<T>& arg)
     {
         return static_cast<T&&>(arg);
     }
 
     template <typename T>
-    constexpr std::remove_reference_t<T>&& Forward(std::remove_reference_t<T>&& arg)
+    FORCE_INLINE constexpr std::remove_reference_t<T>&& Forward(std::remove_reference_t<T>&& arg)
     {
         static_assert(!std::is_lvalue_reference_v<T>, "bad forward call");
         return static_cast<T&&>(arg);
     }
 
     template<typename T>
-    constexpr void Swap(T& val0, T& val1)
+    FORCE_INLINE constexpr void Swap(T& val0, T& val1)
     {
         T temp = Move(val0);
         val0 = Move(val1);
         val1 = Move(temp);
     }
 
-    constexpr uint64 CalcCapacityGrow(uint64 count, uint64 capacity)
+    FORCE_INLINE constexpr uint64 CalcCapacityGrow(uint64 count, uint64 capacity)
     {
-        while (count >= capacity)
+        if (capacity < count)
+            capacity = count;
+        if (capacity < 8)
+            capacity = 8;
+        else
         {
-            if (capacity < 8)
-                capacity = 8;
-            else
-                capacity = capacity * 2;
+            capacity--;
+            capacity |= capacity >> 1;
+            capacity |= capacity >> 2;
+            capacity |= capacity >> 4;
+            capacity |= capacity >> 8;
+            capacity |= capacity >> 16;
+            capacity = capacity + 1 * 2;
         }
         return capacity;
     }
@@ -56,19 +62,9 @@ namespace Memory
     }
 
     template<typename T, typename... TArgs>
-    FORCE_INLINE constexpr void ConstructItemArgs(T* dest, TArgs&&... args)
+    FORCE_INLINE constexpr void ConstructItem(T* dest, TArgs&&... args)
     {
         new(dest) T(Forward<TArgs>(args)...);
-    }
-
-    template<typename T, typename TU>
-    FORCE_INLINE constexpr void ConstructItem(T* dest, const TU& src)
-    {
-        static_assert(std::is_constructible_v<T, TU>, "The two types are not constructible");
-        if constexpr (!std::is_trivially_constructible_v<T>)
-            new(dest) T(src);
-        else
-            Crt::Copy(dest, &src, sizeof(TU));
     }
 
     template<typename T>

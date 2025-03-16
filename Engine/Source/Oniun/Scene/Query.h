@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Oniun/Scene/ComponentRegistry.h"
+#include "Oniun/Scene/ComponentPool.h"
 #include "Oniun/Serialization/TypeInfo.h"
 
 // class ComponentQuery

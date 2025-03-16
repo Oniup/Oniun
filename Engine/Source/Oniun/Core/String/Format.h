@@ -36,10 +36,11 @@ String ToString(const Array<T, TAllocationType>& array, bool sameLine = true)
         if (first)
         {
             first = false;
-            result.Append(StringView(sameLine ? " " : "\n")) + ToString(val);
+            result.Append(StringView(sameLine ? " " : "\n"));
         }
         else
-            result.Append(StringView(sameLine ? ", " : "\n")) + ToString(val);
+            result.Append(StringView(sameLine ? ", " : "\n"));
+        result.Append(ToString(val));
     }
     result.Append(sameLine ? " ]" : "\n]");
     return result;

@@ -50,16 +50,26 @@ void Console::AddLog(Output&& log)
 void Console::Draw()
 {
     DrawMenuBar();
-    DrawOutputLogs();
+    float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+    if (ImGui::BeginChild("ScrollingRegion"), ImVec2(0, -footerHeightToReserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar)
+    {
+        DrawOutputLogs();
+
+        if (m_AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+            ImGui::SetScrollHereY(1.0);
+        ImGui::EndChild();
+    }
 }
 
 void Console::DrawOutputLogs()
 {
+    // Get lighter background color to be 1.5 times lighter than the base background
     const ImGuiStyle& style = ImGui::GetStyle();
     ImVec4 lighterBg = style.Colors[ImGuiCol_WindowBg];
     constexpr float lighterMulti = 1.5f;
     lighterBg = ImVec4(lighterBg.x * lighterMulti, lighterBg.y * lighterMulti, lighterBg.z * lighterMulti, lighterBg.w);
 
+    // Set color
     uint64 i = 0;
     for (const Output& log : m_Logs)
     {
@@ -86,6 +96,7 @@ void Console::DrawOutputLogs()
             }
         }
 
+        // Set background of log child to be lighter in odd in the array
         bool enableLighterBg = i % 2 == 1;
         if (enableLighterBg)
             ImGui::PushStyleColor(ImGuiCol_ChildBg, lighterBg);
@@ -93,20 +104,31 @@ void Console::DrawOutputLogs()
         constexpr uint64 bufferMaxCount = 256;
         char childName[bufferMaxCount];
         std::snprintf(childName, bufferMaxCount, "LogMessage%llu", i);
-
         ImGui::BeginChild(childName, ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY);
         {
-            ImGui::Text("[%s %d:%d:%d %d/%d/%d] %s:%d %s", *ToString(log.Type), log.Time.GetHour(),
-                        log.Time.GetMinutes(), log.Time.GetSeconds(), log.Time.GetMonth(), log.Time.GetMonthDay(),
-                        log.Time.GetYear(), *log.Function, log.Line, *log.File);
-            ImGui::Text("%s", *log.UserMessage);
+            // Display log
+            ImGui::TextWrapped("[%s %d:%d:%d %d/%d/%d] %s:%d %s", *ToString(log.Type), log.Time.GetHour(),
+                               log.Time.GetMinutes(), log.Time.GetSeconds(), log.Time.GetMonth(),
+                               log.Time.GetMonthDay(),
+                               log.Time.GetYear(), *log.Function, log.Line, *log.File);
+            ImGui::TextWrapped("%s", *log.UserMessage);
+
+            // Remove style
+            if (m_Colored && log.Type != LogType::Info)
+                ImGui::PopStyleColor();
+            if (enableLighterBg)
+                ImGui::PopStyleColor();
+
+            // Open context menu by right-clicking
+            if (ImGui::BeginPopupContextWindow())
+            {
+                if (ImGui::MenuItem("Copy"))
+                    ImGui::SetClipboardText(*Format("[{} {}]: {}:{}: {}\n{}", ToString(log.Type), log.Time,
+                                                    log.Function, log.Line, log.File, log.UserMessage));
+                ImGui::EndPopup();
+            }
         }
         ImGui::EndChild();
-
-        if (m_Colored && log.Type != LogType::Info)
-            ImGui::PopStyleColor();
-        if (enableLighterBg)
-            ImGui::PopStyleColor();
 
         ++i;
     }
@@ -116,26 +138,25 @@ void Console::DrawMenuBar()
 {
     if (ImGui::BeginMenuBar())
     {
-        if (ImGui::MenuItem("Clear"))
-            m_Logs.Clear();
-        ImGui::MenuItem("Colored", nullptr, &m_Colored);
-
-        if (ImGui::BeginMenu("Print Temp"))
+        if (ImGui::BeginMenu("Console"))
         {
-            if (ImGui::MenuItem("Info"))
-                LOG(Info, "This is a info log");
-            if (ImGui::MenuItem("Warning"))
-                LOG(Warning, "Should pay attention to this warning");
-            if (ImGui::MenuItem("Error"))
-                LOG(Error, "Major issue occured, must fix ASAP!!!!");
+            if (ImGui::MenuItem("Clear"))
+                m_Logs.Clear();
+            if (ImGui::BeginMenu("Filter"))
+            {
+                for (uint64 i = 0; i < (uint64)LogType::Count; ++i)
+                    ImGui::Checkbox(*ToString((LogType)i), &m_IncludeFilter[i]);
+                ImGui::EndMenu();
+            }
+            ImGui::MenuItem("Auto-scroll", nullptr, &m_AutoScroll);
             ImGui::EndMenu();
         }
 
-        ImGui::Separator();
-
-        for (uint64 i = 0; i < (uint64)LogType::Count; ++i)
-            ImGui::MenuItem(*ToString((LogType)i), nullptr, &m_IncludeFilter[i]);
-
+        if (ImGui::BeginMenu("Settings"))
+        {
+            ImGui::MenuItem("Colored", nullptr, &m_Colored);
+            ImGui::EndMenu();
+        }
         ImGui::EndMenuBar();
     }
 }

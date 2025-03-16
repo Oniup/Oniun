@@ -83,7 +83,7 @@ void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
 
     if (!setDefaults)
     {
-        if (!io.Fonts->AddFontFromFileTTF(*font, fontSize))
+        if (!io.Fonts->AddFontFromFileTTF(*font, (float)fontSize))
             setDefaults = true;
     }
 

@@ -2,6 +2,7 @@
 
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Time/DateTime.h"
+#include "Oniun/Platform/FileSystem.h"
 #include "Oniun/Platform/Platform.h"
 
 Logger* Logger::m_Instance = nullptr;
@@ -57,6 +58,16 @@ void Logger::RemoveOutput(const StringView& name)
     }
 }
 
+ILogOutput* Logger::GetOutput(const StringView& name)
+{
+    for (ILogOutput* output : m_Instance->m_Outputs)
+    {
+        if (output->GetName() == name)
+            return output;
+    }
+    return nullptr;
+}
+
 void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
                        const StringView& userMessage)
 {
@@ -100,8 +111,12 @@ void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, 
 FileLogOutput::FileLogOutput(const StringView& outputPath)
     : ILogOutput("Log File Output"), m_Output(outputPath, FileAccess::Write)
 {
-    uint32 size = m_Output.GetSize();
-    m_Output.SetPosition(size);
+    if (m_Output.IsOpen())
+    {
+        uint32 size = m_Output.GetSize();
+        m_Output.SetPosition(size);
+        m_Path = outputPath;
+    }
 }
 
 FileLogOutput::~FileLogOutput()
@@ -114,4 +129,14 @@ void FileLogOutput::Write(LogType type, const StringView& formattedMessage, cons
 {
     m_Output.Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
     m_Output.Flush();
+}
+
+void FileLogOutput::SetPath(const StringView& path)
+{
+    File newOutput(path, FileAccess::Write);
+    if (newOutput.IsOpen())
+    {
+        m_Path = path;
+        m_Output = Memory::Move(newOutput);
+    }
 }

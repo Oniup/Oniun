@@ -5,156 +5,236 @@
 #include "Oniun/Core/Memory/Allocation.h"
 #include "Oniun/Core/Templates/Pair.h"
 
-template<typename TKey, typename TValue, typename THash, typename TAllocationType>
+template <typename TKey, typename TValue, typename THash, typename TAllocationType>
 class HashMap
 {
 public:
-    struct Element
+    struct Bucket
     {
-        bool Filled;
-        Element* Next;
-        Element* Previous;
+        bool Empty;
         Pair<TKey, TValue> Data;
+
+        FORCE_INLINE void Free()
+        {
+            Memory::DestructItem(&Data.Key);
+            Memory::DestructItem(&Data.Value);
+            Empty = true;
+        }
+
+        FORCE_INLINE void Destroy()
+        {
+            if (!Empty)
+                Free();
+        }
+
+        FORCE_INLINE void Set(const TKey& key)
+        {
+            Memory::ConstructItem(&Data.Key, key);
+            Memory::ConstructItem(&Data.Value);
+            Empty = false;
+        }
+
+        FORCE_INLINE void Set(TKey&& key)
+        {
+            Memory::ConstructItem(&Data.Key, Memory::Move(key));
+            Memory::ConstructItem(&Data.Value);
+            Empty = false;
+        }
+
+        FORCE_INLINE void Set(const TKey& key, const TValue& value)
+        {
+            Memory::ConstructItem(&Data.Key, key);
+            Memory::ConstructItem(&Data.Value, value);
+            Empty = false;
+        }
+
+        FORCE_INLINE void Set(const TKey& key, TValue&& value)
+        {
+            Memory::ConstructItem(&Data.Key, key);
+            Memory::ConstructItem(&Data.Value, Memory::Move(value));
+            Empty = false;
+        }
+
+        FORCE_INLINE void Set(TKey&& key, TValue&& value)
+        {
+            Memory::ConstructItem(&Data.Key, Memory::Move(key));
+            Memory::ConstructItem(&Data.Value, Memory::Move(value));
+            Empty = false;
+        }
     };
 
     class Iterator
     {
-    public:
-        FORCE_INLINE Iterator()
-            : m_Ptr(nullptr)
-        {
-        }
-
-        FORCE_INLINE Iterator(Element* ptr)
-            : m_Ptr(ptr)
-        {
-        }
-
-        FORCE_INLINE Iterator(const Iterator& iter)
-            : m_Ptr(iter.m_Ptr)
-        {
-        }
-
-        FORCE_INLINE Iterator(Iterator&& iter)
-            : m_Ptr(iter.m_Ptr)
-        {
-            iter.m_Ptr = nullptr;
-        }
+        friend HashMap;
 
     public:
-        FORCE_INLINE Iterator& operator=(const Iterator& iter)
+        Iterator(HashMap* map, uint64 index)
+            : m_Map(map), m_Index(index)
         {
-            m_Ptr = iter.m_Ptr;
+        }
+
+        Iterator(const HashMap* map, uint64 index)
+            : m_Map(const_cast<HashMap*>(map)), m_Index(index)
+        {
+        }
+
+        Iterator()
+            : m_Map(nullptr), m_Index(INVALID_INDEX)
+        {
+        }
+
+        Iterator(const Iterator& i)
+            : m_Map(i.m_Map), m_Index(i.m_Index)
+        {
+        }
+
+        Iterator(Iterator&& i)
+            : m_Map(i.m_Map), m_Index(i.m_Index)
+        {
+        }
+
+    public:
+        FORCE_INLINE Pair<TKey, TValue>& operator*() const
+        {
+            return m_Map->m_Data[m_Index].Data;
+        }
+
+        FORCE_INLINE Pair<TKey, TValue>* operator->() const
+        {
+            return &m_Map->m_Data[m_Index].Data;
+        }
+
+        Iterator& operator=(const Iterator& iter)
+        {
+            m_Map = iter.m_Map;
+            m_Index = iter.m_Index;
             return *this;
         }
 
-        FORCE_INLINE Iterator& operator=(Iterator& iter)
+        Iterator& operator=(Iterator&& iter)
         {
-            m_Ptr = iter.m_Ptr;
-            iter.m_Ptr = nullptr;
+            m_Map = iter.m_Map;
+            m_Index = iter.m_Index;
             return *this;
         }
 
-        FORCE_INLINE Pair<TKey, TValue>& operator*()
+        Iterator& operator++()
         {
-            return m_Ptr->Data;
+            if (m_Index < m_Map->Capacity())
+            {
+                do
+                {
+                    ++m_Index;
+                }
+                while (m_Map->m_Data[m_Index].Empty && m_Index < m_Map->Capacity());
+            }
+            return *this;
         }
 
-        FORCE_INLINE const Pair<TKey, TValue>& operator*() const
+        Iterator operator++(int) const
         {
-            return m_Ptr->Data;
+            Iterator iter(*this);
+            ++iter;
+            return iter;
         }
 
-        FORCE_INLINE Pair<TKey, TValue>* operator->()
+        Iterator& operator--()
         {
-            return &m_Ptr->Data;
+            do
+            {
+                m_Index--;
+            }
+            while (m_Map->m_Data[m_Index].Empty && m_Index < m_Map->Capacity());
+            return *this;
         }
 
-        FORCE_INLINE const Pair<TKey, TValue>* operator->() const
+        Iterator operator--(int) const
         {
-            return &m_Ptr->Data;
+            Iterator i(*this);
+            --i;
+            return i;
         }
 
         FORCE_INLINE bool operator==(const Iterator& iter) const
         {
-            return m_Ptr == iter.m_Ptr;
+            return m_Index == iter.m_Index && m_Map == iter.m_Map;
         }
 
         FORCE_INLINE bool operator!=(const Iterator& iter) const
         {
-            return m_Ptr != iter.m_Ptr;
+            return m_Index != iter.m_Index || m_Map != iter.m_Map;
         }
 
-        FORCE_INLINE Iterator operator+(uint64 offset) const
+        FORCE_INLINE uint64 Index() const
         {
-            Iterator iter(*this);
-            for (uint64 i = 0; i < offset, m_Ptr; ++i)
-                iter.m_Ptr = iter.m_Ptr->Next;
-            return iter;
-        }
-
-        FORCE_INLINE Iterator operator-(uint64 offset) const
-        {
-            Iterator iter(*this);
-            for (uint64 i = 0; i < offset, m_Ptr; ++i)
-                iter.m_Ptr = iter.m_Ptr->Previous;
-            return iter;
-        }
-
-        FORCE_INLINE Iterator& operator++()
-        {
-            m_Ptr = m_Ptr->Next;
-            return *this;
-        }
-
-        FORCE_INLINE Iterator& operator--()
-        {
-            m_Ptr = m_Ptr->Previous;
-            return *this;
-        }
-
-    public:
-        FORCE_INLINE Element* Ptr()
-        {
-            return m_Ptr;
-        }
-
-        FORCE_INLINE const Element* Ptr() const
-        {
-            return m_Ptr;
+            return m_Index;
         }
 
     private:
-        Element* m_Ptr;
+        HashMap* m_Map;
+        uint64 m_Index;
     };
 
-public:
+    using Allocator = typename TAllocationType::template Data<Bucket>;
+    using HashType = THash;
     using KeyType = TKey;
     using ValueType = TValue;
-    using Allocator = typename TAllocationType::template Data<Element>;
 
 public:
     HashMap()
-        : HashMap(DEFAULT_HASH_MAP_CAPACITY_COUNT)
+        : m_Count(0)
     {
+        m_Data.Allocate(DEFAULT_HASH_MAP_CAPACITY_COUNT);
+        for (uint64 i = 0; i < DEFAULT_HASH_MAP_CAPACITY_COUNT; ++i)
+            m_Data[i].Empty = true;
     }
 
     HashMap(uint64 capacity)
-        : m_Count(0), m_Head(nullptr), m_Tail(nullptr)
+        : m_Count(0)
     {
-        Reserve(capacity);
+        if (capacity > 0)
+        {
+            m_Data.Allocate(capacity);
+            for (uint64 i = 0; i < capacity; ++i)
+                m_Data[i].Empty = true;
+        }
+    }
+
+    HashMap(const HashMap& map)
+        : m_Count(map.m_Count)
+    {
+        CopyBuffer(map);
+    }
+
+    HashMap(HashMap&& map)
+        : m_Count(map.m_Count), m_Data(Memory::Move(map.m_Data))
+    {
+        map.m_Count = 0;
     }
 
     ~HashMap()
     {
-        for (auto& [key, value] : *this)
-        {
-            Memory::DestructItem(&key);
-            Memory::DestructItem(&value);
-        }
+        Clear();
     }
 
 public:
+    HashMap& operator=(const HashMap& map)
+    {
+        Free();
+        CopyBuffer(map);
+        m_Count = map.m_Count;
+        return *this;
+    }
+
+    HashMap& operator=(HashMap&& map)
+    {
+        Free();
+        m_Data.Move(Memory::Move(map.m_Data));
+        m_Count = map.m_Count;
+        map.m_Count = 0;
+        return *this;
+    }
+
     FORCE_INLINE bool operator==(const HashMap& map) const
     {
         return Compare(map);
@@ -167,17 +247,18 @@ public:
 
     FORCE_INLINE TValue& operator[](const TKey& key)
     {
-        TValue* val = TryGet(key);
-        if (val)
-            return *val;
-        return Add(key);
+        uint64 pos = GetPosition(key);
+        if (m_Data[pos].Empty)
+            m_Data[pos].Set(key);
+        return m_Data[pos].Data.Value;
     }
 
     FORCE_INLINE const TValue& operator[](const TKey& key) const
     {
-        return Get(key);
+        return At(key);
     }
 
+public:
     FORCE_INLINE uint64 Count() const
     {
         return m_Count;
@@ -188,45 +269,45 @@ public:
         return m_Data.Capacity();
     }
 
-    FORCE_INLINE Element* Data()
+    FORCE_INLINE Bucket* Data()
     {
         return m_Data.Ptr();
     }
 
-    FORCE_INLINE const Element* Data() const
+    FORCE_INLINE const Bucket* Data() const
     {
         return m_Data.Ptr();
+    }
+
+    FORCE_INLINE bool IsEmpty() const
+    {
+        return m_Count == 0;
     }
 
     FORCE_INLINE Iterator Begin()
     {
-        return Iterator(m_Head);
+        Iterator iter(this, 0);
+        if (m_Data[0].Empty)
+            ++iter;
+        return iter;
     }
 
     FORCE_INLINE Iterator Begin() const
     {
-        return Iterator(const_cast<Element*>(m_Head));
+        Iterator iter(const_cast<HashMap*>(this), 0);
+        if (m_Data[0].Empty)
+            ++iter;
+        return iter;
     }
 
     FORCE_INLINE Iterator End()
     {
-        return Iterator(nullptr);
+        return Iterator(this, Capacity());
     }
 
     FORCE_INLINE Iterator End() const
     {
-        return Iterator(const_cast<Element*>(nullptr));
-    }
-
-
-    FORCE_INLINE Iterator Last()
-    {
-        return Iterator(m_Tail);
-    }
-
-    FORCE_INLINE Iterator Last() const
-    {
-        return Iterator(const_cast<Element*>(m_Tail));
+        return Iterator(const_cast<HashMap*>(this), Capacity());
     }
 
     FORCE_INLINE Iterator begin()
@@ -249,246 +330,222 @@ public:
         return End();
     }
 
-    bool Contains(const TKey& key)
-    {
-        uint64 hash = GetHash(key);
-        return m_Data[hash].Filled;
-    }
-
-    TValue& Get(const TKey& key)
-    {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        ASSERT(element.Filled);
-        return element.Data.Value;
-    }
-
-    const TValue& Get(const TKey& key) const
-    {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        ASSERT(element.Filled);
-        return element.Data.Value;
-    }
-
-    TValue* TryGet(const TKey& key)
-    {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        if (element.Filled)
-            return &element.Data.Value;
-        return nullptr;
-    }
-
-    const TValue* TryGet(const TKey& key) const
-    {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        if (element.Filled)
-            return &element.Data.Value;
-        return nullptr;
-    }
-
     bool Compare(const HashMap& map) const
     {
         if (m_Count != map.m_Count)
             return false;
         for (auto&[key, value] : *this)
         {
-            uint64 hash = map.GetHash(key);
-            Element* compare = map.m_Data[hash];
-            if (key != compare->Data.Key || value != compare->Data.Value)
-                return false;
+            if (map.Contains(key))
+            {
+                if (map.At(key) == value)
+                    continue;
+            }
+            return false;
         }
         return true;
     }
 
-    TValue& Add(const TKey& key)
+    bool Contains(const TKey& key)
     {
-        uint64 hash = GetHash(key);
-        while (m_Data[hash].Filled)
-            Reserve(Capacity() * 2);
-
-        Element& current = m_Data[hash];
-        Memory::ConstructItem(&current.Data.Key, key);
-        Memory::ConstructItem(&current.Data.Value);
-        current.Filled = true;
-
-        m_Count++;
-        SetPosition(&current);
-        return current.Data.Value;
+        uint64 pos = GetPosition(key);
+        return !m_Data[pos].Empty;
     }
 
-    TValue& Add(const TKey& key, const TValue& val)
+    TValue& At(const TKey& key)
     {
-        uint64 hash = GetHash(key);
-        while (m_Data[hash].Filled)
-            Reserve(Capacity() * 2);
-
-        Element& current = m_Data[hash];
-        Memory::ConstructItem(&current.Data.Key, key);
-        Memory::ConstructItem(&current.Data.Value, val);
-        current.Filled = true;
-
-        m_Count++;
-        SetPosition(&current);
-        return current.Data.Value;
+        uint64 pos = GetPosition(key);
+        ASSERT(!m_Data[pos].Empty);
+        return m_Data[pos].Data.Value;
     }
 
-    TValue& Add(const TKey& key, TValue&& val)
+    const TValue& At(const TKey& key) const
     {
-        uint64 hash = GetHash(key);
-        while (m_Data[hash].Filled)
-            Reserve(Capacity() * 2);
+        uint64 pos = GetPosition(key);
+        ASSERT(!m_Data[pos].Empty);
+        return m_Data[pos].Data.Value;
+    }
 
-        Element& current = m_Data[hash];
-        Memory::ConstructItem(&current.Data.Key, key);
-        Memory::ConstructItemArgs(&current.Data.Value, Memory::Move(val));
-        current.Filled = true;
+    TValue* Try(const TKey& key)
+    {
+        uint64 pos = GetPosition(key);
+        if (m_Data[pos].Empty)
+            return nullptr;
+        return &m_Data[pos].Data.Value;
+    }
 
-        m_Count++;
-        SetPosition(&current);
-        return current.Data.Value;
+    const TValue* Try(const TKey& key) const
+    {
+        uint64 pos = GetPosition(key);
+        if (m_Data[pos].Empty)
+            return nullptr;
+        return &m_Data[pos].Data.Value;
+    }
+
+    void Add(const TKey& key)
+    {
+        uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
+        m_Data[insertPos].Set(key);
+        ++m_Count;
+    }
+
+    void Add(TKey&& key)
+    {
+        uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
+        m_Data[insertPos].Set(Memory::Move(key));
+        ++m_Count;
+    }
+
+    void Add(const TKey& key, const TValue& value)
+    {
+        uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
+        m_Data[insertPos].Set(key, value);
+        ++m_Count;
+    }
+
+    void Add(const TKey& key, TValue&& value)
+    {
+        uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
+        m_Data[insertPos].Set(key, Memory::Move(value));
+        ++m_Count;
+    }
+
+    void Add(TKey&& key, TValue&& value)
+    {
+        uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
+        m_Data[insertPos].Set(Memory::Move(key), Memory::Move(value));
+        ++m_Count;
     }
 
     void Remove(const TKey& key)
     {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        if (element.Filled)
-        {
-            Memory::DestructItem(&element.Data.Key);
-            Memory::DestructItem(&element.Data.Value);
-
-            if (element.Previous)
-                element.Previous->Next = element.Next;
-            if (element.Next)
-                element.Next->Previous = element.Previous;
-            element.Next = nullptr;
-            element.Previous = nullptr;
-            element.Filled = false;
-            m_Count--;
-
-            if (m_Count == 0)
-            {
-                m_Head = nullptr;
-                m_Tail = nullptr;
-            }
-        }
-    }
-
-    TValue PopAt(const TKey& key)
-    {
-        uint64 hash = GetHash(key);
-        Element& element = m_Data[hash];
-        ASSERT(element.Filled)
-
-        TValue val(Memory::Move(element.Data.Value));
-        Memory::DestructItem(&element.Data.Key);
-
-        element.Previous->Next = element.Next;
-        element.Next->Previous = element.Previous;
-        element.Next = nullptr;
-        element.Previous = nullptr;
-        element.Filled = false;
-
-        m_Count--;
-        return val;
+        uint64 pos = GetPosition(key);
+        if (m_Data[pos].Empty)
+            return;
+        m_Data[pos].Free();
     }
 
     void Clear()
     {
-        Element* element = m_Head;
-        while (element)
+        if (m_Count > 0)
         {
-            Memory::DestructItem(&element->Data.Key);
-            Memory::DestructItem(&element->Data.Value);
-            element->Filled = false;
-
-            Element* previous = element;
-            element = element->Next;
-            previous->Previous = nullptr;
-            previous->Next = nullptr;
+            for (uint64 i = 0; i < Capacity(); ++i)
+                m_Data[i].Destroy();
+            m_Count = 0;
         }
-        m_Count = 0;
+    }
+
+    void Free()
+    {
+        if (m_Count > 0)
+        {
+            for (uint64 i = 0; i < Capacity(); ++i)
+                m_Data[i].Destroy();
+            m_Count = 0;
+            m_Data.Free();
+        }
     }
 
     void Copy(const HashMap& map)
     {
-        Clear();
-        if (Capacity() < map.Capacity())
-            Reserve(map.Capacity());
-        for (const auto&[key, value] : map)
-            Add(key, value);
+        Free();
+        CopyBuffer();
+        m_Count = map.m_Count;
     }
 
-    void Reserve(uint64 newCapacity)
+    void Resize(uint64 capacity, bool preserveContents = true)
     {
-        if (newCapacity <= Capacity())
+        if (capacity <= Capacity())
             return;
 
-        Allocator newData;
-        newData.Allocate(newCapacity);
-        for (uint64 i = 0; i < newCapacity; ++i)
-            newData[i].Filled = false;
+        Allocator oldData(Memory::Move(m_Data));
+        m_Data.Allocate(capacity);
+        for (uint64 i = 0; i < capacity; ++i)
+            m_Data[i].Empty = true;
 
-        if (m_Data.Ptr() && m_Count > 0)
+        if (preserveContents)
         {
-            bool first = true;
-            Element* previous = nullptr;
-            Element* element = m_Head;
-            while (element != nullptr)
+            for (uint64 i = 0; i < oldData.Capacity(); ++i)
             {
-                uint64 hash = THash{}.Get(element->Data.Key) % newCapacity;
-                Element* current = &newData[hash];
-                if (first)
+                if (!oldData[i].Empty)
                 {
-                    m_Head = current;
-                    first = false;
+                    Bucket& from = oldData[i];
+                    uint64 pos = GetPosition(from.Data.Key);
+                    Bucket& to = m_Data[pos];
+                    to.Set(Memory::Move(from.Data.Key), Memory::Move(from.Data.Value));
                 }
-                Memory::ConstructItemArgs(&current->Data.Key, Memory::Move(element->Data.Key));
-                Memory::ConstructItemArgs(&current->Data.Value, Memory::Move(element->Data.Value));
-                current->Filled = true;
-
-                newData[hash].Previous = previous;
-                if (previous)
-                    previous->Next = current;
-                previous = current;
-
-                element = element->Next;
             }
-            m_Tail = previous;
-            m_Tail->Next = nullptr;
-            m_Data.Free();
         }
-        m_Data.Move(Memory::Move(newData));
+        else if (m_Count > 0)
+        {
+            for (uint64 i = 0; i < oldData.Capacity(); ++i)
+                oldData[i].Destroy();
+        }
     }
 
 private:
-    FORCE_INLINE uint64 GetHash(const TKey& key) const
+    FORCE_INLINE uint64 GetPosition(const TKey& key) const
     {
-        return Hash<TKey>{}.Get(key) % Capacity();
+        uint64 hash = THash().Get(key);
+        if ((Capacity() & (Capacity() - 1)) == 0)
+            return hash & (Capacity() - 1);
+        return hash % Capacity();
     }
 
-    FORCE_INLINE void SetPosition(Element* element)
+    FORCE_INLINE uint64 GetPosition(const TKey& key, uint64 capacity) const
     {
-        if (!m_Head)
+        uint64 hash = THash().Get(key);
+        if ((capacity & (capacity - 1)) == 0)
         {
-            m_Head = element;
-            m_Tail = element;
-            element->Next = nullptr;
-            element->Previous = nullptr;
-            return;
+            uint64 index = hash & (capacity - 1);
+            return index;
         }
-        element->Previous = m_Tail;
-        element->Next = nullptr;
-        m_Tail->Next = element;
-        m_Tail = element;
+        uint64 index = hash % capacity;
+        return index;
+    }
+
+    FORCE_INLINE uint64 GrowIfNeeded(const TKey& keyToBeAdded, uint64 count, uint64 pos = INVALID_INDEX)
+    {
+        uint64 newCapacity = Capacity() != 0 ? Capacity() : 1;
+        // If count goes above 75% of the capacity
+        if (count * 4 > newCapacity * 3)
+            Resize(newCapacity * 2);
+
+        if (pos == INVALID_INDEX)
+            pos = GetPosition(keyToBeAdded);
+        if (!m_Data[pos].Empty)
+        {
+            ASSERT(m_Data[pos].Data.Key != keyToBeAdded);
+        }
+
+        // Keep Resizing and rehashing until there is no collision
+        while (!m_Data[pos].Empty)
+        {
+            newCapacity = newCapacity * 2;
+            pos = GetPosition(keyToBeAdded, newCapacity);
+            if (newCapacity != Capacity())
+                Resize(newCapacity);
+        }
+        return pos;
+    }
+
+    FORCE_INLINE void CopyBuffer(const HashMap& map)
+    {
+        m_Data.Allocate(map.Capacity());
+        for (uint64 i = 0; i < map.Capacity(); ++i)
+        {
+            if (map.m_Data[i].Empty)
+                m_Data[i].Empty = true;
+            else
+            {
+                Bucket& to = m_Data[i];
+                const Bucket& from = map.m_Data[i];
+                to.Set(from.Data.Key, from.Data.Value);
+            }
+        }
     }
 
 private:
     uint64 m_Count;
-    Element* m_Head;
-    Element* m_Tail;
     Allocator m_Data;
 };

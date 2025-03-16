@@ -17,6 +17,8 @@ public:
     File& operator=(File&& file);
 
 public:
+    void Open(const StringView& path, FileAccess access, FileMode mode = FileMode::OpenAlways) override;
+
     bool Read(void* buffer, uint32 bytesToRead, uint32* bytesRead = nullptr) override;
     bool Write(const void* buffer, uint32 bytesToWrite, uint32* bytesWritten = nullptr) override;
 

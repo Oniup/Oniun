@@ -257,7 +257,7 @@ public:
         {
             if (m_Data.Ptr())
                 Memory::DestructItems(m_Data.Ptr(), m_Count);
-            m_Data.Free();
+            m_Data.Destroy();
         }
         m_Count = 0;
     }

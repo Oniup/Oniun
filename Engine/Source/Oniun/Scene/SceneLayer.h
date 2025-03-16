@@ -21,7 +21,7 @@ public:
         return m_Active;
     }
 
-    FORCE_INLINE static uint64 GetComponentRegistryChunksPerBlockCount()
+    FORCE_INLINE static uint64 GetComponentPoolChunksPerBlockCount()
     {
         return m_ComponentRegistryChunksPerBlockCount;
     }
