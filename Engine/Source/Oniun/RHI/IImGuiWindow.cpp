@@ -1,3 +1,4 @@
+#include "Oniun.pch.h"
 #include "Oniun/RHI/IImGuiWindow.h"
 
 IImGuiWindow::IImGuiWindow(const StringView& title, ImGuiWindowFlags flags, bool open)

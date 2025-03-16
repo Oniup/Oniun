@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Oniun/Core/BaseTypes.h"
+#include "Oniun.pch.h"
+
 #include "Oniun/Core/Math/Vector4.h"
 
 struct Matrix

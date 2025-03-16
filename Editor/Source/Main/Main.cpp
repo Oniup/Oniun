@@ -1,5 +1,3 @@
-#include <chrono>
-
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"

@@ -1,8 +1,7 @@
+#include "Oniun.pch.h"
 #include "Oniun/Core/Engine.h"
 
 #include <GLFW/glfw3.h>
-
-#include "Oniun/Platform/FileSystem.h"
 
 Engine* Engine::m_Instance = nullptr;
 

@@ -1,8 +1,7 @@
+#include "Oniun.pch.h"
 #include "Oniun/Core/Logger.h"
 
-#include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Time/DateTime.h"
-#include "Oniun/Platform/FileSystem.h"
 #include "Oniun/Platform/Platform.h"
 
 Logger* Logger::m_Instance = nullptr;

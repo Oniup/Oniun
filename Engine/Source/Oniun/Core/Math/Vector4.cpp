@@ -1,3 +1,4 @@
+#include "Oniun.pch.h"
 #include "Oniun/Core/Math/Vector4.h"
 
 #include "Oniun/Core/Logger.h"

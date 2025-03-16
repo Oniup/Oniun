@@ -1,5 +1,4 @@
-#pragma once
-
+#include "Oniun.pch.h"
 #include "Oniun/Core/String/StringView.h"
 #include "Oniun/Core/String/String.h"
 

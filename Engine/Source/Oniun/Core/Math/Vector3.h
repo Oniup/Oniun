@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/Math/Math.h"
+#include "Oniun.pch.h"
 
 struct Vector3
 {

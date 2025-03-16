@@ -1,3 +1,4 @@
+#include "Oniun.pch.h"
 #include "Oniun/Core/String/String.h"
 
 #include "Oniun/Core/String/StringUtils.h"

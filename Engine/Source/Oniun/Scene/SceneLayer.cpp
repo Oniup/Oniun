@@ -1,3 +1,4 @@
+#include "Oniun.pch.h"
 #include "Oniun/Scene/SceneLayer.h"
 
 uint64 SceneLayer::m_ComponentRegistryChunksPerBlockCount = 0;

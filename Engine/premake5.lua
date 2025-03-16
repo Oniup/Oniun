@@ -9,9 +9,11 @@ project "Oniun"
     objdir(ObjectTargetDirectory)
     systemversion "latest"
 
+    pchheader "Oniun.pch.h"
+    pchsource "Source/Oniun.pch.cpp"
+
     files {
         "Source/**.h",
-        "Source/**.hpp",
         "Source/**.cpp",
     }
 
