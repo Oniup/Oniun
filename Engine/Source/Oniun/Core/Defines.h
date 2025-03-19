@@ -104,15 +104,24 @@ namespace Assert_Internal
 #endif
 
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
-#define DEFAULT_COMPONENT_REGISTRY_CHUNK_PER_BLOCK_COUNT 256
+#define DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT 256
 #define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])
 
-#if !ONU_DIST
-#define ASSERT(_Expression)\
-{\
-    if (!(_Expression))\
-        Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__);\
+/// Assert exists program if _Expression is false
+///
+/// @param _Expression If true, then continue program, otherwise exists out with exit code -1
+#define ASSERT(_Expression) \
+{ \
+    if (!(_Expression)) \
+        Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__); \
 }
+
+#if !ONU_DIST
+/// Debug Assert exists program if _Expression is false
+/// @warning Does not get called if build is set to Dist
+///
+/// @param _Expression If true, then continue program, otherwise exists out with exit code -1
+#define DEBUG_ASSERT(_Expression) ASSERT(_Expression)
 #else
-#define ASSERT(_Expression)
+#define DEBUG_ASSERT(_Expression)
 #endif

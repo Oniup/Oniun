@@ -54,9 +54,12 @@ namespace Crt
         return 0;
     }
 
+    uint64 Format(char* dest, uint64 destMaxLength, const char* format, va_list args);
+    uint64 Format(char* dest, uint64 destMaxLength, const char* format, ...);
+
     FORCE_INLINE void* Allocate(uint64 size)
     {
-        return std::malloc((size_t)size);
+        return std::malloc(size);
     }
 
     FORCE_INLINE void Free(void* ptr)
@@ -68,7 +71,7 @@ namespace Crt
     ///        Source from: https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
     /// @param src  Packed data to be C style cast to uint8 bytes array inorder to calculate the hash value
     /// @param size Size of the packed data
-    /// @return     Unique uint64 hash value
+    /// @return Unique uint64 hash value
     FORCE_INLINE constexpr uint64 FnvHash(const void* src, uint64 size)
     {
         constexpr uint64 prime = 0x00000100000001b3;

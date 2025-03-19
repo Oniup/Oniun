@@ -397,7 +397,7 @@ public:
 
     void RemoveAt(uint64 index)
     {
-        ASSERT(index < m_Count);
+        DEBUG_ASSERT(index < m_Count);
         Node* node = m_First;
         for (uint64 i = 0; i < index; ++i)
             node = node->Next;
@@ -429,7 +429,7 @@ public:
 
     T PopAt(uint64 index)
     {
-        ASSERT(index < m_Count);
+        DEBUG_ASSERT(index < m_Count);
         Node* node = m_First;
         for (uint64 i = 0; i < index; ++i)
             node = node->Next;

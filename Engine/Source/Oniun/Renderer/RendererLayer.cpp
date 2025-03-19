@@ -22,7 +22,7 @@ RendererLayer::~RendererLayer()
 
 void RendererLayer::SetImGuiWindowLayer(ImGuiLayer* layer)
 {
-    ASSERT(!m_ImGuiLayer && "Cannot have two ImGui contexts");
+    DEBUG_ASSERT(!m_ImGuiLayer && "Cannot have two ImGui contexts");
     m_ImGuiLayer = layer;
 }
 

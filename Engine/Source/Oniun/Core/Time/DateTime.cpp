@@ -29,7 +29,7 @@ DateTime::DateTime(int32 seconds, int32 minutes, int32 hour, int32 month, int32 
     timeInfo.tm_mday = monthDay;
     timeInfo.tm_year = year;
     m_Time = mktime(&timeInfo);
-    ASSERT(m_Time != -1)
+    DEBUG_ASSERT(m_Time != -1)
 }
 
 int64 DateTime::GetTime() const
@@ -85,7 +85,7 @@ int32 DateTime::GetYearDay() const
 
 String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bool militaryTime)
 {
-    ASSERT((includeTime && includeDate) || (includeTime || includeDate))
+    DEBUG_ASSERT((includeTime && includeDate) || (includeTime || includeDate))
 
     time_t time = dateTime.GetTime();
     tm* tm = localtime(&time);

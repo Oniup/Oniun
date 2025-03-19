@@ -1,68 +1,96 @@
 #pragma once
 
+#include "Oniun/Core/Hash.h"
 #include "Oniun/Core/String/String.h"
-#include "Oniun/Core/Templates/Array.h"
-#include "Oniun/Core/Templates/HashMap.h"
-#include "Oniun/Scene/ComponentPool.h"
 
 class Entity;
 
 class Scene
 {
 public:
-    using ComponentType = ComponentPool::Type;
+    static constexpr uint64 MaxEntityNameSize = 30;
+    static constexpr uint64 MaxEntityFullNameSize = MaxEntityNameSize + 32;
 
-public:
-    Scene(const StringView& name = "Empty Scene");
-
-public:
-    FORCE_INLINE const String& GetName() const
+private:
+    struct EntityName
     {
-        return m_Name;
+        using NameBuffer = FixedArray<char, MaxEntityNameSize>;
+
+        NameBuffer Name;
+        uint64 OffsetCounter;
+
+        FORCE_INLINE bool operator==(const EntityName& name) const
+        {
+            return Name == name.Name && OffsetCounter == name.OffsetCounter;
+        }
+
+        FORCE_INLINE bool operator!=(const EntityName& name) const
+        {
+            return Name != name.Name && OffsetCounter != name.OffsetCounter;
+        }
+
+        FORCE_INLINE bool operator==(const StringView& name) const
+        {
+            return Name.Data() == name.Data();
+        }
+
+        FORCE_INLINE bool operator!=(const StringView& name) const
+        {
+            return Name.Data() != name.Data();
+        }
+    };
+
+
+    struct EntityEntry
+    {
+        EntityName* Parent;
+        EntityName* FirstChild;
+        EntityName* Next;
+    };
+
+    friend Entity;
+    friend Hash<EntityName>;
+
+public:
+    Scene(const StringView& title = "Empty Scene");
+
+public:
+    FORCE_INLINE const String& GetTitle() const
+    {
+        return m_Title;
     }
 
-    Entity Create();
-    void Destroy(uint64 entity);
-    bool IsEntityAlive(uint64 entity) const;
+    FORCE_INLINE HashMap<EntityName, EntityEntry>& GetEntityEntries()
+    {
+        return m_Entities;
+    }
+
+    Entity Add(const StringView& name = "Entity");
+    Entity Find(const EntityName& name);
+    Array<Entity> Find(const StringView& name);
+    void Remove(const Entity& entity);
+    bool IsAlive(const Entity& entity);
 
     template <typename TComponent, typename... TArgs>
-    void AddComponent(uint64 entity, TArgs&&... args)
-    {
-        ComponentType type = ComponentType::Get<TComponent>();
-        byte* data = AllocateComponent(entity, type);
-        if (data)
-        {
-            TComponent* component = (TComponent*)data;
-            Memory::ConstructItem(component, Memory::Forward<TArgs>(args)...);
-        }
-    }
-
-    template <typename TComponent>
-    TComponent* GetComponent(uint64 entity)
-    {
-        byte* data = GetComponentData(entity, ComponentType::Get<TComponent>());
-        return (TComponent*)data;
-    }
-
-    template <typename... TComponents>
-    void AddComponentRegistry()
-    {
-        ComponentType::List types = {ComponentType::Get<TComponents>()...};
-        AddComponentRegistry(types);
-    }
+    TComponent* AddComponent(EntityEntry entity, TArgs&&... args);
 
 private:
-    byte* AllocateComponent(uint64 entity, const ComponentType& type);
-    void AddComponentRegistry(const ComponentType::List& types);
-    void AddComponentRegistry(const ComponentType& type);
-    void AddComponentRegistry(uint64 queryHash, const ComponentType::List& types);
-    void AddComponentRegistry(uint64 queryHash, const ComponentType& type);
+    String m_Title;
 
-    byte* GetComponentData(uint64 entity, const ComponentType& type);
+    HashMap<EntityName, EntityEntry> m_Entities;
+};
 
-private:
-    String m_Name;
-    Array<uint64> m_Entities;
-    HashMap<uint64, Array<ComponentPool*>> m_ComponentsPools;
-    HashMap<uint64, ComponentPool> m_Registries;
+template <typename TComponent, typename ... TArgs>
+TComponent* Scene::AddComponent(EntityEntry entity, TArgs&&... args)
+{
+    return nullptr;
+}
+
+template <>
+struct Hash<Scene::EntityName>
+{
+    FORCE_INLINE constexpr uint64 Get(const Scene::EntityName& src) const
+    {
+        return Crt::FnvHash(src.Name.Data(), src.Name.Count()) + src.OffsetCounter;
+    }
 };

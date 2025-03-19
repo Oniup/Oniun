@@ -19,7 +19,7 @@ project "GLAD"
 		systemversion "latest"
 		staticruntime "On"
 
-	filter "system:window"
+	filter "system:windows"
 		systemversion "latest"
 		staticruntime "On"
 

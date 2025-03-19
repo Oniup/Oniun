@@ -35,7 +35,7 @@ public:
     constexpr Array(uint64 count, uint64 capacity)
         : m_Count(count)
     {
-        ASSERT(count < capacity);
+        DEBUG_ASSERT(count < capacity);
         m_Data.Allocate(capacity);
         Memory::ConstructItems(m_Data.Ptr(), m_Count);
     }
@@ -88,6 +88,23 @@ public:
     }
 
 public:
+    constexpr bool operator==(const Array& array) const
+    {
+        if (m_Count != array.m_Count)
+            return false;
+        for (uint64 i = 0; i < m_Count; ++i)
+        {
+            if (m_Data[i] != array.m_Data[i])
+                return false;
+        }
+        return true;
+    }
+
+    FORCE_INLINE constexpr bool operator!=(const Array& array) const
+    {
+        return !(*this == array);
+    }
+
     FORCE_INLINE constexpr Array& operator=(const Array& array)
     {
         Clear();
@@ -305,18 +322,18 @@ public:
     constexpr void Add(const T& value)
     {
         if (Resize(m_Count + 1))
-            Memory::ConstructItem(&Back(), value);
+            Memory::ConstructItem(&m_Data[m_Count - 1], value);
     }
 
     constexpr void Add(T&& value)
     {
         if (Resize(m_Count + 1))
-            Memory::ConstructItem(&Back(), value);
+            Memory::ConstructItem(&m_Data[m_Count - 1], value);
     }
 
     constexpr void Insert(const T& value, uint64 index)
     {
-        ASSERT(index <= m_Count);
+        DEBUG_ASSERT(index <= m_Count);
         if (Resize(m_Count + 1))
         {
             Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
@@ -326,7 +343,7 @@ public:
 
     constexpr void Insert(T&& value, uint64 index)
     {
-        ASSERT(index <= m_Count);
+        DEBUG_ASSERT(index <= m_Count);
         if (Resize(m_Count + 1))
         {
             Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
@@ -348,7 +365,7 @@ public:
 
     constexpr void RemoveAt(uint64 index)
     {
-        ASSERT(index <= m_Count);
+        DEBUG_ASSERT(index <= m_Count);
         Memory::DestructItem(&m_Data[index]);
         Crt::Move(m_Data.Ptr() + index, m_Data.Ptr() + index + 1, sizeof(T) * (m_Count - index - 1));
         Resize(m_Count - 1);
@@ -356,22 +373,22 @@ public:
 
     constexpr void RemoveAt(Iterator iterator)
     {
-        ASSERT(iterator < end());
+        DEBUG_ASSERT(iterator < end());
         RemoveAt(end() - iterator);
     }
 
     constexpr void RemoveLast()
     {
-        ASSERT(m_Count > 0);
+        DEBUG_ASSERT(m_Count > 0);
         Memory::DestructItem(&Back());
         Resize(m_Count - 1);
     }
 
     constexpr T Pop()
     {
-        ASSERT(m_Count > 0);
-        T item = Memory::Move(Back());
-        RemoveLast();
+        DEBUG_ASSERT(m_Count > 0);
+        T item(Memory::Move(Back()));
+        Resize(m_Count - 1);
         return item;
     }
 
@@ -425,6 +442,6 @@ constexpr Slice<T> ToSlice(const Array<T, TAllocationType>& array)
 template <typename T, typename TAllocationType>
 constexpr Slice<T> ToSlice(const Array<T, TAllocationType>& array, uint64 index, uint64 count)
 {
-    ASSERT(index + count <= array.Count());
+    DEBUG_ASSERT(index + count <= array.Count());
     return Slice(array.Data() + index, count);
 }

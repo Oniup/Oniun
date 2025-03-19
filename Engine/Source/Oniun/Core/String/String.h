@@ -86,13 +86,13 @@ public:
 
     FORCE_INLINE char& operator[](uint64 index)
     {
-        ASSERT(index < m_Length);
+        DEBUG_ASSERT(index < m_Length);
         return m_Data[index];
     }
 
     FORCE_INLINE char operator[](uint64 index) const
     {
-        ASSERT(index < m_Length);
+        DEBUG_ASSERT(index < m_Length);
         return m_Data[index];
     }
 

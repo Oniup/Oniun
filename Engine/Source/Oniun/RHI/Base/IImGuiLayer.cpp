@@ -9,7 +9,8 @@
 #include "Oniun/Renderer/RendererLayer.h"
 #include "Oniun/RHI/ImGuiLayer.h"
 
-static constexpr StringView EngineDefaultFont = "../../../Engine/Assets/Fonts/Lato/Lato-Regular.ttf";
+static constexpr StringView EngineDefaultFont = "../../../Engine/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
+static constexpr StringView EngineMonoFont = "../../../Engine/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
 static constexpr uint64 EngineDefaultFontSize = 20;
 
 void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)
@@ -49,7 +50,11 @@ IImGuiLayer::IImGuiLayer()
     style.WindowRounding = 0.0f;
     style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
-    SetFont(nullptr, 0);
+    ImFontConfig config;
+    config.GlyphRanges = GetGlyphRangesRequired();
+    m_DefaultFont = io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize, &config);
+    m_MonoFont = io.Fonts->AddFontFromFileTTF(*EngineMonoFont, EngineDefaultFontSize - 2, &config);
+
     glfwSetWindowPosCallback(Engine::GetLayer<RendererLayer>()->GetWindow()->GetInternalWindow(), WindowPositionCallback);
 }
 
@@ -57,6 +62,16 @@ IImGuiLayer::~IImGuiLayer()
 {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+}
+
+const ImWchar* IImGuiLayer::GetGlyphRangesRequired()
+{
+    static constexpr ImWchar Range[] = {
+        0x0020, 0x00FF, // Basic Latin + Latin Supplement
+        0x2190, 0x21FF, // Arrows
+        0,
+    };
+    return &Range[0];
 }
 
 bool IImGuiLayer::Add(IImGuiWindow* window)
@@ -71,25 +86,6 @@ bool IImGuiLayer::Add(IImGuiWindow* window)
         Memory::Delete(window);
     }
     return false;
-}
-
-void IImGuiLayer::SetFont(const StringView& font, uint64 fontSize)
-{
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->Clear();
-
-    bool setDefaults = false;
-    if (font.IsEmpty() || fontSize == 0)
-        setDefaults = true;
-
-    if (!setDefaults)
-    {
-        if (!io.Fonts->AddFontFromFileTTF(*font, (float)fontSize))
-            setDefaults = true;
-    }
-
-    if (setDefaults)
-        io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize);
 }
 
 void IImGuiLayer::OnStart()

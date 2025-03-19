@@ -65,10 +65,10 @@ struct HeapAllocation
     public:
         FORCE_INLINE void Allocate(uint64 capacity)
         {
-            ASSERT(!m_Data);
+            DEBUG_ASSERT(!m_Data);
             m_Data = static_cast<T*>(Crt::Allocate(capacity * sizeof(T)));
             m_Capacity = capacity;
-            ASSERT(m_Data && "Out of memory");
+            DEBUG_ASSERT(m_Data && "Out of memory");
         }
 
         FORCE_INLINE void Relocate(uint64 newCapacity, uint64 oldCount, uint64 newCount)
@@ -77,7 +77,7 @@ struct HeapAllocation
             {
                 T* newData = newCapacity != 0 ? static_cast<T*>(Crt::Allocate(newCapacity * sizeof(T))) : nullptr;
                 if (newCapacity != 0)
-                    ASSERT(m_Data);
+                    DEBUG_ASSERT(m_Data);
 
                 if (oldCount)
                 {
@@ -105,7 +105,7 @@ struct HeapAllocation
 
         FORCE_INLINE void Free()
         {
-            ASSERT(m_Data);
+            DEBUG_ASSERT(m_Data);
             Crt::Free(m_Data);
             m_Data = nullptr;
             m_Capacity = 0;
@@ -177,12 +177,12 @@ struct FixedAllocation
     public:
         FORCE_INLINE constexpr void Allocate(uint64 capacity)
         {
-            ASSERT(capacity <= TCapacity);
+            DEBUG_ASSERT(capacity <= TCapacity);
         }
 
         FORCE_INLINE constexpr void Relocate(uint64 newCapacity, uint64 oldCount, uint64 newCount)
         {
-            ASSERT(newCapacity <= TCapacity);
+            DEBUG_ASSERT(newCapacity <= TCapacity);
         }
 
         FORCE_INLINE constexpr void Move(Data&& allocator)
@@ -197,7 +197,7 @@ struct FixedAllocation
 
         FORCE_INLINE constexpr void Swap(Data& allocator)
         {
-            ASSERT(false && "Swapping fixed allocation is not supported");
+            DEBUG_ASSERT(false && "Swapping fixed allocation is not supported");
         }
 
     private:

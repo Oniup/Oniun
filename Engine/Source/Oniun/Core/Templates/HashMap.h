@@ -366,6 +366,20 @@ public:
         return m_Data[pos].Data.Value;
     }
 
+    Pair<TKey, TValue>& GetPair(const TKey& key)
+    {
+        uint64 pos = GetPosition(key);
+        ASSERT(!m_Data[pos].Empty);
+        return m_Data[pos].Data;
+    }
+
+    const Pair<TKey, TValue>& GetPair(const TKey& key) const
+    {
+        uint64 pos = GetPosition(key);
+        ASSERT(!m_Data[pos].Empty);
+        return m_Data[pos].Data;
+    }
+
     TValue* Try(const TKey& key)
     {
         uint64 pos = GetPosition(key);
@@ -382,47 +396,67 @@ public:
         return &m_Data[pos].Data.Value;
     }
 
-    void Add(const TKey& key)
+    Pair<TKey, TValue>* TryGetPair(const TKey& key)
+    {
+        uint64 pos = GetPosition(key);
+        if (m_Data[pos].Empty)
+            return nullptr;
+        return &m_Data[pos].Data;
+    }
+
+    const Pair<TKey, TValue>* TryGetPair(const TKey& key) const
+    {
+        uint64 pos = GetPosition(key);
+        if (!m_Data[pos].Empty)
+            return nullptr;
+        return &m_Data[pos].Data;
+    }
+
+    Pair<TKey, TValue>& Add(const TKey& key)
     {
         uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
         m_Data[insertPos].Set(key);
         ++m_Count;
+        return m_Data[insertPos].Data;
     }
 
-    void Add(TKey&& key)
+    Pair<TKey, TValue>& Add(TKey&& key)
     {
         uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
         m_Data[insertPos].Set(Memory::Move(key));
         ++m_Count;
+        return m_Data[insertPos].Data;
     }
 
-    void Add(const TKey& key, const TValue& value)
+    Pair<TKey, TValue>& Add(const TKey& key, const TValue& value)
     {
         uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
         m_Data[insertPos].Set(key, value);
         ++m_Count;
+        return m_Data[insertPos].Data;
     }
 
-    void Add(const TKey& key, TValue&& value)
+    Pair<TKey, TValue>& Add(const TKey& key, TValue&& value)
     {
         uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
         m_Data[insertPos].Set(key, Memory::Move(value));
         ++m_Count;
+        return m_Data[insertPos].Data;
     }
 
-    void Add(TKey&& key, TValue&& value)
+    Pair<TKey, TValue>& Add(TKey&& key, TValue&& value)
     {
         uint64 insertPos = GrowIfNeeded(key, m_Count + 1);
         m_Data[insertPos].Set(Memory::Move(key), Memory::Move(value));
         ++m_Count;
+        return m_Data[insertPos].Data;
     }
 
     void Remove(const TKey& key)
     {
         uint64 pos = GetPosition(key);
-        if (m_Data[pos].Empty)
-            return;
-        m_Data[pos].Free();
+        if (!m_Data[pos].Empty && m_Data[pos].Data.Key == key)
+            m_Data[pos].Free();
     }
 
     void Clear()
@@ -513,14 +547,11 @@ private:
 
         if (pos == INVALID_INDEX)
             pos = GetPosition(keyToBeAdded);
-        if (!m_Data[pos].Empty)
-        {
-            ASSERT(m_Data[pos].Data.Key != keyToBeAdded);
-        }
 
         // Keep Resizing and rehashing until there is no collision
         while (!m_Data[pos].Empty)
         {
+            ASSERT(m_Data[pos].Data.Key != keyToBeAdded);
             newCapacity = newCapacity * 2;
             pos = GetPosition(keyToBeAdded, newCapacity);
             if (newCapacity != Capacity())

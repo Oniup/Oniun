@@ -1,102 +1,58 @@
 #include "Oniun.pch.h"
 #include "Oniun/Scene/Scene.h"
 
-#include "Oniun/Core/Logger.h"
-#include "Oniun/Core/Math/Math.h"
 #include "Oniun/Scene/Entity.h"
 
-Scene::Scene(const StringView& name)
-    : m_Name(name)
+Scene::Scene(const StringView& title)
+    : m_Title(title)
 {
 }
 
-Entity Scene::Create()
+Entity Scene::Add(const StringView& name)
 {
-    uint64 id = Math::RandomUInt64();
-    m_Entities.Add(id);
-    return Entity(this, id);
+    EntityName key = {};
+    key.Name.Resize(name.Length() + 1);
+    Crt::Copy(key.Name.Data(), name.Data(), name.Length());
+    key.Name.Data()[key.Name.Count() - 1] = '\0';
+
+    while (m_Entities.Contains(key))
+        ++key.OffsetCounter;
+    auto&[entName, entEntry] = m_Entities.Add(key, EntityEntry{nullptr, nullptr, nullptr});
+    return Entity(&entName, &entEntry, this);
 }
 
-void Scene::Destroy(uint64 entity)
+Entity Scene::Find(const EntityName& name)
 {
-    uint64 index = m_Entities.Find(entity);
-    if (index == INVALID_INDEX)
-        return;
-    m_Entities.RemoveAt(index);
-    for (auto&[id, pool] : m_Registries)
+    Pair<EntityName, EntityEntry>* entity = m_Entities.TryGetPair(name);
+    if (entity)
+        return Entity(&entity->Key, &entity->Value, this);
+    return Entity();
+}
+
+Array<Entity> Scene::Find(const StringView& name)
+{
+    EntityName key = {};
+    key.Name.Resize(name.Length() + 1);
+    Crt::Copy(key.Name.Data(), name.Data(), name.Length());
+    key.Name.Data()[key.Name.Count() - 1] = '\0';
+
+    Array<Entity> entities;
+    Pair<EntityName, EntityEntry>* entity = m_Entities.TryGetPair(key);
+    while (entity)
     {
-        // Remove component based on entity id
+        entities.Add(Entity(&entity->Key, &entity->Value, this));
+        ++key.OffsetCounter;
+        entity = m_Entities.TryGetPair(key);
     }
+    return entities;
 }
 
-bool Scene::IsEntityAlive(uint64 entity) const
+void Scene::Remove(const Entity& entity)
 {
-    uint64 index = m_Entities.Find(entity);
-    return index != INVALID_INDEX;
+    m_Entities.Remove(*entity.m_Name);
 }
 
-byte* Scene::AllocateComponent(uint64 entity, const ComponentType& type)
+bool Scene::IsAlive(const Entity& entity)
 {
-    if (!m_ComponentsPools.Contains(type.Id))
-        AddComponentRegistry(type);
-
-    if (!m_Registries.Contains(type.Id))
-        AddComponentRegistry(type.Id, type);
-    return m_Registries.At(type.Id).Allocate(entity);
+    return m_Entities.Contains(*entity.m_Name);
 }
-
-void Scene::AddComponentRegistry(const ComponentType::List& types)
-{
-    uint64 hash;
-    if (types.Count() > 1)
-        hash = Hash<ComponentType::List>{}.Get(types);
-    else
-        hash = types[0].Id;
-    if (!m_Registries.Contains(hash))
-    {
-        AddComponentRegistry(hash, types);
-    }
-    else
-        LOG(Warning,
-            "Duplicate component registries added, please check all the times you use AddComponentRegistry() and remove"
-            " redundant duplicates");
-}
-
-void Scene::AddComponentRegistry(const ComponentType& type)
-{
-    ComponentType::List asList = {type};
-    AddComponentRegistry(asList);
-}
-
-void Scene::AddComponentRegistry(uint64 queryHash, const ComponentType::List& types)
-{
-    m_Registries.Add(queryHash, ComponentPool(types));
-    ComponentPool& pool = m_Registries.At(queryHash);
-    for (const ComponentType& type : types)
-    {
-        if (!m_ComponentsPools.Contains(type.Id))
-            m_ComponentsPools.Add(type.Id, {});
-        m_ComponentsPools.At(type.Id).Add(&pool);
-    }
-}
-
-void Scene::AddComponentRegistry(uint64 queryHash, const ComponentType& type)
-{
-    ComponentType::List asList = {type};
-    AddComponentRegistry(queryHash, asList);
-}
-
-byte* Scene::GetComponentData(uint64 entity, const ComponentType& type)
-{
-    if (!m_ComponentsPools.Contains(type.Id))
-        return nullptr;
-    Array<ComponentPool*>& compPools = m_ComponentsPools.At(type.Id);
-    for (ComponentPool* pool : compPools)
-    {
-        byte* data = pool->Get(entity, type);
-        if (data)
-            return data;
-    }
-    return nullptr;
-}
-

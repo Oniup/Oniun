@@ -8,7 +8,7 @@ Engine* Engine::m_Instance = nullptr;
 Engine::Engine(const AppInfo& appInfo)
     : m_Info(appInfo), m_Running(true)
 {
-    ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
+    DEBUG_ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
 
     glfwInit();
     m_Instance = this;

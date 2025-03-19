@@ -7,7 +7,7 @@ project "ImGui"
 	includedirs {
 		"imgui/imgui",
 		"glfw/include",
-		"glad/include"
+		"glad/include",
 	}
 
 	files {

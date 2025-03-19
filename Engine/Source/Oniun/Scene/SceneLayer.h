@@ -8,7 +8,7 @@ class SceneLayer : public EngineLayer
     API_ENGINE_LAYER()
 
 public:
-    SceneLayer(uint64 componentChunksPerBlockCount = DEFAULT_COMPONENT_REGISTRY_CHUNK_PER_BLOCK_COUNT);
+    SceneLayer(uint64 componentChunksPerBlockCount = DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT);
 
 public:
     FORCE_INLINE Scene* GetActiveScene()
@@ -23,15 +23,15 @@ public:
 
     FORCE_INLINE static uint64 GetComponentPoolChunksPerBlockCount()
     {
-        return m_ComponentRegistryChunksPerBlockCount;
+        return m_ChunksPerBlockCount;
     }
 
-    Scene* GetLoadedScene(const StringView& name) const;
+    Scene* GetLoadedScene(const StringView& title) const;
 
     void OnUpdate() override;
 
 private:
-    static uint64 m_ComponentRegistryChunksPerBlockCount;
+    static uint64 m_ChunksPerBlockCount;
     Array<Scene> m_Loaded;
     Scene* m_Active;
 };

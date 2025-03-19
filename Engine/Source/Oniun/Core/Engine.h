@@ -13,7 +13,7 @@ struct CommandLineArguments
 
     char* operator[](int32 index)
     {
-        ASSERT(index < Count);
+        DEBUG_ASSERT(index < Count);
         return Args[index];
     }
 };

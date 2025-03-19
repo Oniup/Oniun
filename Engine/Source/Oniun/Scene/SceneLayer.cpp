@@ -1,19 +1,19 @@
 #include "Oniun.pch.h"
 #include "Oniun/Scene/SceneLayer.h"
 
-uint64 SceneLayer::m_ComponentRegistryChunksPerBlockCount = 0;
+uint64 SceneLayer::m_ChunksPerBlockCount = 0;
 
 SceneLayer::SceneLayer(uint64 componentChunksPerBlockCount)
     : m_Active(nullptr)
 {
-    m_ComponentRegistryChunksPerBlockCount = componentChunksPerBlockCount;
+    m_ChunksPerBlockCount = componentChunksPerBlockCount;
 }
 
-Scene* SceneLayer::GetLoadedScene(const StringView& name) const
+Scene* SceneLayer::GetLoadedScene(const StringView& title) const
 {
     for (Scene& scene : m_Loaded)
     {
-        if (scene.GetName() == name)
+        if (scene.GetTitle() == title)
             return &scene;
     }
     return nullptr;

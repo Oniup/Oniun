@@ -396,7 +396,8 @@ void String::Free()
 
 void String::Resize(uint64 newLength)
 {
-    Reserve(Memory::CalcCapacityGrow(newLength, m_Data.Capacity()));
+    if (newLength >= Capacity())
+        Reserve(Memory::CalcCapacityGrow(newLength, m_Data.Capacity()));
     m_Length = newLength;
 }
 
@@ -499,7 +500,7 @@ void String::Concat(char left, char ch)
 
 void String::Insert(uint64 index, const StringView& str)
 {
-    ASSERT(index < m_Length);
+    DEBUG_ASSERT(index < m_Length);
     uint64 oldLength = m_Length;
     Resize(m_Length + str.Length());
     Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
@@ -508,7 +509,7 @@ void String::Insert(uint64 index, const StringView& str)
 
 void String::Remove(uint64 index, uint64 length)
 {
-    ASSERT(index + length < m_Length);
+    DEBUG_ASSERT(index + length < m_Length);
     Crt::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, (m_Length - index + length));
     Resize(m_Length - length);
     m_Data[m_Length] = 0;
@@ -526,7 +527,7 @@ bool String::Compare(const StringView& str) const
 
 String String::Substring(uint64 startIndex, uint64 length) const
 {
-    ASSERT(startIndex + length < m_Length);
+    DEBUG_ASSERT(startIndex + length < m_Length);
     String substr(length);
     Slice slice(ToSlice(*this, startIndex, length));
     substr.Set(slice);

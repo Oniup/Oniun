@@ -27,7 +27,7 @@ void DockingSpace::Draw()
     }
 
     if (printMessage)
-        LOG(Info, "This is a test. {} nice", 69);
+        LOG(Warning, "This is a test");
 }
 
 bool DockingSpace::Begin()

@@ -13,10 +13,20 @@ public:
     ~IImGuiLayer() override;
 
 public:
-    bool Add(IImGuiWindow* window);
-    void SetFont(const StringView& font, uint64 fontSize = 16);
+    static const ImWchar* GetGlyphRangesRequired();
 
+    bool Add(IImGuiWindow* window);
     void OnStart() override;
+
+    FORCE_INLINE ImFont* GetDefaultFont() const
+    {
+        return m_DefaultFont;
+    }
+
+    FORCE_INLINE ImFont* GetMonoFont() const
+    {
+        return m_MonoFont;
+    }
 
     virtual void NewFrame();
     virtual void RenderPlatformDrawData() = 0;
@@ -25,5 +35,7 @@ public:
     void UpdatePlatformWindows();
 
 private:
+    ImFont* m_DefaultFont;
+    ImFont* m_MonoFont;
     Array<IImGuiWindow*> m_Windows;
 };

@@ -360,7 +360,7 @@ String FileSystem::PickDirectoryDialog(const StringView& openPath, const StringV
 void FileSystem::OpenFileExplorer(const StringView& openPath)
 {
     RendererLayer* renderer = Engine::GetLayer<RendererLayer>();
-    ASSERT(renderer);
+    DEBUG_ASSERT(renderer);
     HWND handle = glfwGetWin32Window(renderer->GetWindow()->GetInternalWindow());
     ShellExecuteA(handle, "explore", *openPath, nullptr, nullptr, SW_SHOWNORMAL);
 }

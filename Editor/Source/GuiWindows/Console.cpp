@@ -3,7 +3,9 @@
 #include <cstdio>
 #include <ctime>
 
+#include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Math/Color.h"
+#include "Oniun/RHI/ImGuiLayer.h"
 
 // TODO: Remove the constants and serialize them into a preferences file
 static constexpr Color32 ErrorColor("#e7452d");
@@ -50,6 +52,7 @@ void Console::AddLog(Output&& log)
 void Console::Draw()
 {
     DrawMenuBar();
+    ImGui::PushFont(Engine::GetLayer<ImGuiLayer>()->GetMonoFont());
     float footerHeightToReserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
     if (ImGui::BeginChild("ScrollingRegion"), ImVec2(0, -footerHeightToReserve), ImGuiChildFlags_NavFlattened, ImGuiWindowFlags_HorizontalScrollbar)
     {
@@ -59,6 +62,7 @@ void Console::Draw()
             ImGui::SetScrollHereY(1.0);
         ImGui::EndChild();
     }
+    ImGui::PopFont();
 }
 
 void Console::DrawOutputLogs()

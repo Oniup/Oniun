@@ -1,9 +1,9 @@
 #pragma once
 
-// Primitive types
-
 #include "Oniun/Core/Compiler.h"
 #include "Oniun/Core/Defines.h"
+
+// Primitive types
 
 using uint8 = unsigned char;
 using uint16 = unsigned short;

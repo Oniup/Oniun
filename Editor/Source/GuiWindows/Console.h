@@ -6,11 +6,6 @@
 
 class Console : public IImGuiWindow
 {
-private:
-    bool m_Colored = true;
-    bool m_AutoScroll = true;
-    bool m_IncludeFilter[(uint64)LogType::Count];
-
 public:
     struct Output
     {
@@ -22,9 +17,6 @@ public:
         DateTime Time;
     };
 
-private:
-    Array<Output> m_Logs;
-
 public:
     Console();
     ~Console() override;
@@ -35,16 +27,22 @@ public:
 
     void DrawOutputLogs();
     void DrawMenuBar();
+
+private:
+    bool m_Colored = true;
+    bool m_AutoScroll = true;
+    bool m_IncludeFilter[(uint64)LogType::Count];
+    Array<Output> m_Logs;
 };
 
 class ConsoleLogOutput : public ILogOutput
 {
-private:
-    Console* m_Console;
-
 public:
     ConsoleLogOutput(Console* console);
 
     void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
                int32 line, const StringView& userMessage, const DateTime& time) override;
+
+private:
+    Console* m_Console;
 };

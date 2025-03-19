@@ -79,7 +79,7 @@ public:
 
     FORCE_INLINE constexpr const char& operator[](uint64 index) const
     {
-        ASSERT(index <= m_Length);
+        DEBUG_ASSERT(index <= m_Length);
         return m_Data[index];
     }
 
@@ -111,7 +111,7 @@ public:
 public:
     FORCE_INLINE constexpr bool IsEmpty() const
     {
-        return m_Data == nullptr;
+        return m_Length == 0;
     }
 
     FORCE_INLINE constexpr uint64 Length() const

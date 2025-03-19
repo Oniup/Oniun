@@ -42,15 +42,7 @@ namespace Memory
         if (capacity < 8)
             capacity = 8;
         else
-        {
-            capacity--;
-            capacity |= capacity >> 1;
-            capacity |= capacity >> 2;
-            capacity |= capacity >> 4;
-            capacity |= capacity >> 8;
-            capacity |= capacity >> 16;
-            capacity = capacity + 1 * 2;
-        }
+            capacity = capacity * 2;
         return capacity;
     }
 

@@ -7,7 +7,7 @@
 ## flecs
 
 * Upstream: https://github.com/SanderMertens/flecs
-* Version: v4.0.4
+* Version: v4.0.5
 * License: MIT
 
 ##### Files Extracted
@@ -59,6 +59,8 @@
 
 #### Files Extracted
 
-* stb_easy_font.h, stb_image.h, stb_image_resize2.h,
-* stb_image_write.h, stb_leakcheck.h, stb_perlin.h, stb_rect_pack.h
-* stb_textedit.h, stb_truetype.h
+* stb_image.h
+* stb_image_resize2.h
+* stb_image_write.h
+* stb_perlin.h
+* stb_sprintf.h
