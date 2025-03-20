@@ -15,9 +15,6 @@ public:
 public:
     static const ImWchar* GetGlyphRangesRequired();
 
-    bool Add(IImGuiWindow* window);
-    void OnStart() override;
-
     FORCE_INLINE ImFont* GetDefaultFont() const
     {
         return m_DefaultFont;
@@ -27,6 +24,14 @@ public:
     {
         return m_MonoFont;
     }
+
+    FORCE_INLINE Array<IImGuiWindow*>& GetWindows()
+    {
+        return m_Windows;
+    }
+
+    bool Register(IImGuiWindow* window);
+    void OnStart() override;
 
     virtual void NewFrame();
     virtual void RenderPlatformDrawData() = 0;

@@ -10,7 +10,7 @@ public:
     static constexpr ImGuiWindowFlags DefaultFlags = ImGuiWindowFlags_NoCollapse;
 
 public:
-    IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = DefaultFlags, bool open = true);
+    IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = DefaultFlags, bool destroyOnClose = false, bool open = true);
 
     virtual ~IImGuiWindow()
     {
@@ -32,6 +32,11 @@ public:
         return m_Open;
     }
 
+    FORCE_INLINE bool DestroyOnClose()
+    {
+        return m_DestroyOnClose;
+    }
+
     FORCE_INLINE void SetTitle(const StringView& title)
     {
         m_Title = title;
@@ -49,12 +54,13 @@ public:
 
     virtual void Draw() = 0;
 
-    virtual bool Begin();
+    virtual void Begin();
     virtual void End();
 
 protected:
     String m_Title;
     ImGuiWindowFlags m_Flags;
+    bool m_DestroyOnClose;
     bool m_Open;
 
 };

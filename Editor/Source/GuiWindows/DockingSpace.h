@@ -4,11 +4,9 @@
 
 class DockingSpace : public IImGuiWindow
 {
-    bool m_OptPadding;
-
 public:
     DockingSpace();
 
     void Draw() override;
-    bool Begin() override;
+    void Begin() override;
 };

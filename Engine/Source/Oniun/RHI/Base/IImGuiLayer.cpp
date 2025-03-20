@@ -74,7 +74,7 @@ const ImWchar* IImGuiLayer::GetGlyphRangesRequired()
     return &Range[0];
 }
 
-bool IImGuiLayer::Add(IImGuiWindow* window)
+bool IImGuiLayer::Register(IImGuiWindow* window)
 {
     if (window)
     {
@@ -106,11 +106,14 @@ void IImGuiLayer::Render(RendererLayer& renderer)
 
     for (IImGuiWindow* window : m_Windows)
     {
-        if (window->Begin())
+        if (window->IsOpened())
         {
+            window->Begin();
             window->Draw();
             window->End();
         }
+        if (window->DestroyOnClose() && !window->IsOpened())
+            m_Windows.Remove(window);
     }
 
     ImGuiIO& io = ImGui::GetIO();

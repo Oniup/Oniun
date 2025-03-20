@@ -76,62 +76,27 @@ int EntryPoint(const CommandLineArguments& args)
     Engine::RegisterLayer<RendererLayer>(Format("{} ({})", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
 
     ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
-    imGui->Add(Memory::New<DockingSpace>());
-    imGui->Add(Memory::New<Console>());
-    imGui->Add(Memory::New<Hierarchy>());
+    imGui->Register(Memory::New<DockingSpace>());
+    imGui->Register(Memory::New<Console>());
+    imGui->Register(Memory::New<Hierarchy>());
 
     Engine::RegisterLayer<SceneLayer>();
     {
         Scene scene;
+        Entity player;
+        for (uint64 i = 0; i < 1000; ++i)
         {
-            Entity slimeBase = scene.Add("Slime");
-            Entity body = slimeBase.AddChild("Body");
-            body.AddChild("Left Eye");
-            body.AddChild("Right Eye");
-
-            Entity treasure = slimeBase.AddChild("Treasure");
-            treasure.AddChild("Weapon");
-            Entity coinPouch = treasure.AddChild("Coin Pouch");
-            coinPouch.AddChild("Coin");
-            coinPouch.AddChild("Coin");
-            coinPouch.AddChild("Coin");
-            coinPouch.AddChild("Coin");
-        }
-        {
-            Entity playerBase = scene.Add("Player");
-            playerBase.AddChild("Head");
-            Entity torso = playerBase.AddChild("Torso");
-            torso.AddChild("Left Arm").AddChild("Hand");
-            torso.AddChild("Right Arm").AddChild("Hand");
-
-            Entity hips = torso.AddChild("Hips");
-            hips.AddChild("Left Leg").AddChild("Foot");
-            hips.AddChild("Right Leg").AddChild("Foot");
-        }
-        {
-            auto addTree = [](Entity& parent)
+            Entity entity;
+            if (i == 132)
             {
-                Entity tree = parent.AddChild("Tree");
-                tree.AddChild("Trunk").AddChild("Leaves");
-            };
-
-            Entity environment = scene.Add("Environment");
-            environment.AddChild("Floor");
-            addTree(environment);
-            addTree(environment);
-            addTree(environment);
-            addTree(environment);
-        }
-
-        FixedArray<StringView, 3> targets({"Player", "Environment", "Slime"});
-        for (auto&[name, entry] : scene.GetEntityEntries())
-        {
-            Entity entity(&name, &entry, &scene);
-            for (const StringView& targetName : targets)
-            {
-                if (entity.GetName() == targetName)
-                    LOG(Info, "{}", entity);
+                entity = scene.Add("Player");
+                player = entity;
+                player.AddChild("Weapon");
             }
+            else
+                entity = scene.Add();
+
+            entity.Add<TransformComponent>(Vector3(i), Vector3(1.0f), Vector3(0.0f));
         }
     }
 

@@ -1,13 +1,15 @@
 #include "GuiWindows/DockingSpace.h"
+
+#include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
+#include "Oniun/RHI/ImGuiLayer.h"
 
 DockingSpace::DockingSpace()
     : IImGuiWindow("Docking Space",
                        ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                        ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-                       ImGuiWindowFlags_NoBackground),
-      m_OptPadding(false)
+                       ImGuiWindowFlags_NoBackground)
 {
 }
 
@@ -19,8 +21,21 @@ void DockingSpace::Draw()
     {
         if (ImGui::BeginMenu("Options"))
         {
-            ImGui::MenuItem("Extra Padding", nullptr, &m_OptPadding);
-            ImGui::MenuItem("Print Message", nullptr, &printMessage);
+            ImGui::MenuItem("Print test message", nullptr, &printMessage);
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Window"))
+        {
+            Array<IImGuiWindow*>& windows = Engine::GetLayer<ImGuiLayer>()->GetWindows();
+            for (IImGuiWindow* window : windows)
+            {
+                if (window == this || window->DestroyOnClose())
+                    continue;
+
+                bool open = window->IsOpened();
+                ImGui::MenuItem(*window->GetTitle(), nullptr, &open);
+                window->SetIsOpened(open);
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -30,7 +45,7 @@ void DockingSpace::Draw()
         LOG(Warning, "This is a test");
 }
 
-bool DockingSpace::Begin()
+void DockingSpace::Begin()
 {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -41,7 +56,7 @@ bool DockingSpace::Begin()
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-    bool opened = ImGui::Begin(*m_Title, &m_Open, m_Flags);
+    ImGui::Begin(*m_Title, &m_Open, m_Flags);
     ImGui::PopStyleVar(3);
 
     if (m_Open)
@@ -53,5 +68,4 @@ bool DockingSpace::Begin()
             ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
         }
     }
-    return opened;
 }

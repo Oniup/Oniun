@@ -1,14 +1,14 @@
 #include "Oniun.pch.h"
 #include "Oniun/RHI/IImGuiWindow.h"
 
-IImGuiWindow::IImGuiWindow(const StringView& title, ImGuiWindowFlags flags, bool open)
-    : m_Title(title), m_Flags(flags), m_Open(open)
+IImGuiWindow::IImGuiWindow(const StringView& title, ImGuiWindowFlags flags, bool destroyOnClose, bool open)
+    : m_Title(title), m_Flags(flags), m_DestroyOnClose(destroyOnClose), m_Open(open)
 {
 }
 
-bool IImGuiWindow::Begin()
+void IImGuiWindow::Begin()
 {
-    return ImGui::Begin(*m_Title, &m_Open, m_Flags);
+    ImGui::Begin(*m_Title, &m_Open, m_Flags);
 }
 
 void IImGuiWindow::End()
