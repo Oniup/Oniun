@@ -18,6 +18,12 @@ namespace Oniun
         Entity(UUID id, Scene* scene);
 
     public:
+        FORCE_INLINE operator UUID() const
+        {
+            return m_Id;
+        }
+
+    public:
         StringView GetName() const;
         String GetFullName() const;
         uint64 GetNameId() const;
@@ -26,10 +32,13 @@ namespace Oniun
         Entity GetFirstChild() const;
         Entity GetNextSibling() const;
 
+    public:
         bool HasChildren() const;
         bool HasSiblings() const;
-
         bool IsAlive() const;
+
+        void Rename(const StringView& name);
+        void Destroy();
 
         Entity AddChild(const StringView& name = "Child Entity");
 

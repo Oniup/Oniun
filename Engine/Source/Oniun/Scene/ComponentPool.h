@@ -50,6 +50,8 @@ namespace Oniun
         byte* Get(UUID entity);
         void Remove(UUID entity);
 
+        void Clear();
+
     private:
         uint64 m_AllocationCount;
         ComponentType m_Type;

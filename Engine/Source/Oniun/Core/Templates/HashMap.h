@@ -458,11 +458,15 @@ namespace Oniun
             return bucket.Data;
         }
 
-        void Remove(const TKey& key)
+        bool Remove(const TKey& key)
         {
             Bucket* bucket = GetBucket(key);
             if (bucket)
+            {
                 bucket->Free();
+                return true;
+            }
+            return false;
         }
 
         void Clear()
@@ -547,7 +551,6 @@ namespace Oniun
                     i = KeyToIndex(key);
                 }
                 Bucket& bucket = m_Data[i];
-                ASSERT(bucket.Data.Key != key);
                 if (bucket.Empty)
                 {
                     ++m_Count;

@@ -22,8 +22,7 @@ namespace Oniun
 
     ComponentPool::~ComponentPool()
     {
-        for (auto&[entity, byteData] : m_EntityToComp)
-            m_Type.DestructFn(byteData);
+        Clear();
     }
 
     byte* ComponentPool::Allocate(UUID entity)
@@ -49,6 +48,7 @@ namespace Oniun
             m_Offset += m_Type.Size;
         }
         m_EntityToComp.Add(entity, byteData);
+        ++m_AllocationCount;
         return byteData;
     }
 
@@ -67,17 +67,29 @@ namespace Oniun
 
         byte* byteData = m_EntityToComp.At(entity);
         m_Type.DestructFn(byteData);
-        m_EntityToComp.Remove(entity);
-
-        if (m_Offset > 0)
+        if (m_EntityToComp.Remove(entity))
         {
-            // Check if the last slot added
-            byte* current = m_Data.Last().Ptr() + m_Offset;
-            current = current - m_Type.Size;
-            if (current == byteData)
-                m_Offset -= m_Type.Size;
-            return;
+            --m_AllocationCount;
+            if (m_Offset > 0)
+            {
+                // Check if the last slot added
+                byte* current = m_Data.Last().Ptr() + m_Offset;
+                current = current - m_Type.Size;
+                if (current == byteData)
+                    m_Offset -= m_Type.Size;
+                return;
+            }
+            m_FreedLocations.Add(byteData);
         }
-        m_FreedLocations.Add(byteData);
+    }
+
+    void ComponentPool::Clear()
+    {
+        if (m_AllocationCount > 0)
+        {
+            for (auto&[entity, byteData] : m_EntityToComp)
+                m_Type.DestructFn(byteData);
+            m_AllocationCount = 0;
+        }
     }
 }

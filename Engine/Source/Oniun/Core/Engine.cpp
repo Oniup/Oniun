@@ -53,6 +53,6 @@ namespace Oniun
 
     String ToString(const AppInfo::Version& version)
     {
-        return Format("{}, {}, {}", version.Major, version.Minor, version.Patch);
+        return Format("{}.{}.{}", version.Major, version.Minor, version.Patch);
     }
 }

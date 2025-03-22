@@ -57,9 +57,16 @@ namespace Oniun
         return Entity::Invalid;
     }
 
+    void Scene::RenameEntity(Entity& entity)
+    {
+        // TODO: ...
+    }
+
     void Scene::Remove(const Entity& entity)
     {
         m_Entities.Remove(entity.m_Id);
+        for (auto&[compId, pool] : m_Pools)
+            pool.Remove(entity);
     }
 
     bool Scene::IsAlive(const Entity& entity)

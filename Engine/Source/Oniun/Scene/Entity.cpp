@@ -67,21 +67,32 @@ namespace Oniun
 
     bool Entity::HasChildren() const
     {
-        if (!IsAlive())
-            return false;
+        DEBUG_ASSERT(IsAlive());
         return GetEntry()->FirstChild != NO_POS;
     }
 
     bool Entity::HasSiblings() const
     {
-        if (!IsAlive())
-            return false;
+        DEBUG_ASSERT(IsAlive());
         return GetEntry()->Next != NO_POS;
     }
 
     bool Entity::IsAlive() const
     {
         return m_Id != NO_POS && m_Scene->IsAlive(*this);
+    }
+
+    void Entity::Rename(const StringView& name)
+    {
+        DEBUG_ASSERT(IsAlive());
+        m_Scene->RenameEntity(*this);
+    }
+
+    void Entity::Destroy()
+    {
+        m_Scene->Remove(*this);
+        m_Id = NO_POS;
+        m_Scene = nullptr;
     }
 
     Entity Entity::AddChild(const StringView& name)

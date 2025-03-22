@@ -69,6 +69,7 @@ namespace Oniun
         Entity Add(const StringView& name = "Entity");
         Entity Find(const EntityEntry& name);
         Entity Find(UUID entityId);
+        void RenameEntity(Entity& entity);
         void Remove(const Entity& entity);
         bool IsAlive(const Entity& entity);
 
@@ -94,7 +95,7 @@ namespace Oniun
     {
         constexpr ComponentType type = ComponentType::Get<TComponent>();
         byte* byteData = AddComponent(entity, type);
-        if (!byteData)
+        if (byteData)
         {
             TComponent* component = reinterpret_cast<TComponent*>(byteData);
             Memory::ConstructItem(component, Memory::Forward<TArgs>(args)...);

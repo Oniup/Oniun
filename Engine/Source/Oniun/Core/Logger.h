@@ -118,4 +118,4 @@ namespace Oniun
 }
 
 #define LOG(_Type, _Format, ...) \
-    Oniun::Logger::Write(LogType::_Type, __FILE__, __FUNCTION__, __LINE__, _Format, __VA_ARGS__)
+    Oniun::Logger::Write(Oniun::LogType::_Type, __FILE__, __FUNCTION__, __LINE__, _Format, __VA_ARGS__)
