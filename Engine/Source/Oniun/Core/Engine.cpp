@@ -3,53 +3,56 @@
 
 #include <GLFW/glfw3.h>
 
-Engine* Engine::m_Instance = nullptr;
-
-Engine::Engine(const AppInfo& appInfo)
-    : m_Info(appInfo), m_Running(true)
+namespace Oniun
 {
-    DEBUG_ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
+    Engine* Engine::m_Instance = nullptr;
 
-    glfwInit();
-    m_Instance = this;
-}
+    Engine::Engine(const AppInfo& appInfo)
+        : m_Info(appInfo), m_Running(true)
+    {
+        DEBUG_ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
 
-Engine::~Engine()
-{
-    for (uint64 i = m_Layers.Count(); i > 0; --i)
-        Memory::Delete(m_Layers[i - 1]);
+        glfwInit();
+        m_Instance = this;
+    }
 
-    glfwTerminate();
-    m_Instance = nullptr;
-}
+    Engine::~Engine()
+    {
+        for (uint64 i = m_Layers.Count(); i > 0; --i)
+            Memory::Delete(m_Layers[i - 1]);
 
-void Engine::Run()
-{
-    while (m_Running)
+        glfwTerminate();
+        m_Instance = nullptr;
+    }
+
+    void Engine::Run()
+    {
+        while (m_Running)
+        {
+            for (EngineLayer* layer : m_Layers)
+                layer->OnUpdate();
+        }
+    }
+
+    EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)
+    {
+        m_Layers.Add(layer);
+        m_Layers.Last()->OnStart();
+        return m_Layers.Last();
+    }
+
+    EngineLayer* Engine::ImplGetLayer(uint64 fastId)
     {
         for (EngineLayer* layer : m_Layers)
-            layer->OnUpdate();
+        {
+            if (layer->GetFastId() == fastId)
+                return layer;
+        }
+        return nullptr;
     }
-}
 
-EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)
-{
-    m_Layers.Add(layer);
-    m_Layers.Last()->OnStart();
-    return m_Layers.Last();
-}
-
-EngineLayer* Engine::ImplGetLayer(uint64 fastId)
-{
-    for (EngineLayer* layer : m_Layers)
+    String ToString(const AppInfo::Version& version)
     {
-        if (layer->GetFastId() == fastId)
-            return layer;
+        return Format("{}, {}, {}", version.Major, version.Minor, version.Patch);
     }
-    return nullptr;
-}
-
-String ToString(const AppInfo::Version& version)
-{
-    return Format("{}, {}, {}", version.Major, version.Minor, version.Patch);
 }

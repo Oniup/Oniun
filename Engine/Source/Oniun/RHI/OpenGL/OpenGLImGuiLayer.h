@@ -2,16 +2,19 @@
 
 #include "Oniun/RHI/Base/IImGuiLayer.h"
 
-class RendererLayer;
-
-class ImGuiLayer : public IImGuiLayer
+namespace Oniun
 {
-    API_ENGINE_LAYER()
+    class RendererLayer;
 
-public:
-    ImGuiLayer();
-    ~ImGuiLayer() override;
+    class ImGuiLayer : public IImGuiLayer
+    {
+        API_ENGINE_LAYER()
 
-    void NewFrame() override;
-    void RenderPlatformDrawData() override;
-};
+    public:
+        ImGuiLayer();
+        ~ImGuiLayer() override;
+
+        void NewFrame() override;
+        void RenderPlatformDrawData() override;
+    };
+}

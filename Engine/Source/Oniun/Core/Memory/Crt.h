@@ -5,7 +5,7 @@
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Compiler.h"
 
-namespace Crt
+namespace Oniun::Crt
 {
     FORCE_INLINE constexpr void Copy(void* dest, const void* src, uint64 size)
     {

@@ -3,35 +3,38 @@
 #include "Oniun/Core/EngineLayer.h"
 #include "Oniun/Scene/Scene.h"
 
-class SceneLayer : public EngineLayer
+namespace Oniun
 {
-    API_ENGINE_LAYER()
-
-public:
-    SceneLayer(uint64 componentChunksPerBlockCount = DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT);
-
-public:
-    FORCE_INLINE Scene* GetActiveScene()
+    class SceneLayer : public EngineLayer
     {
-        return m_Active;
-    }
+        API_ENGINE_LAYER()
 
-    FORCE_INLINE const Scene* GetActiveScene() const
-    {
-        return m_Active;
-    }
+    public:
+        SceneLayer(uint64 componentChunksPerBlockCount = DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT);
 
-    FORCE_INLINE static uint64 GetComponentPoolChunksPerBlockCount()
-    {
-        return m_ChunksPerBlockCount;
-    }
+    public:
+        FORCE_INLINE Scene* GetActiveScene()
+        {
+            return m_Active;
+        }
 
-    Scene* GetLoadedScene(const StringView& title) const;
+        FORCE_INLINE const Scene* GetActiveScene() const
+        {
+            return m_Active;
+        }
 
-    void OnUpdate() override;
+        FORCE_INLINE static uint64 GetComponentPoolChunksPerBlockCount()
+        {
+            return m_ChunksPerBlockCount;
+        }
 
-private:
-    static uint64 m_ChunksPerBlockCount;
-    Array<Scene> m_Loaded;
-    Scene* m_Active;
-};
+        Scene* GetLoadedScene(const StringView& title) const;
+
+        void OnUpdate() override;
+
+    private:
+        static uint64 m_ChunksPerBlockCount;
+        Array<Scene> m_Loaded;
+        Scene* m_Active;
+    };
+}

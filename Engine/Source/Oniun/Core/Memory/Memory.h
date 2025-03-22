@@ -6,7 +6,7 @@
 #include "Oniun/Core/Compiler.h"
 #include "Oniun/Core/Memory/Crt.h"
 
-namespace Memory
+namespace Oniun::Memory
 {
     template<typename T>
     FORCE_INLINE constexpr std::remove_reference_t<T>&& Move(T&& item)

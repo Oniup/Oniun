@@ -6,98 +6,101 @@
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
 
-struct CommandLineArguments
+namespace Oniun
 {
-    int32 Count;
-    char** Args;
-
-    char* operator[](int32 index)
+    struct CommandLineArguments
     {
-        DEBUG_ASSERT(index < Count);
-        return Args[index];
-    }
-};
+        int32 Count;
+        char** Args;
 
-struct AppInfo
-{
-    struct Version
-    {
-        uint64 Major;
-        uint64 Minor;
-        uint64 Patch;
-
-        Version()
-            : Major(0), Minor(0), Patch(0)
+        char* operator[](int32 index)
         {
-        }
-
-        Version(uint64 major, uint64 minor, uint64 patch)
-            : Major(major), Minor(minor), Patch(patch)
-        {
+            DEBUG_ASSERT(index < Count);
+            return Args[index];
         }
     };
 
-    String Name;
-    CommandLineArguments CommandLineArguments;
-    Version AppBuild;
-    Version EngineBuild;
-};
-
-class Engine
-{
-public:
-    Engine(const AppInfo& appInfo);
-    ~Engine();
-
-public:
-    FORCE_INLINE static void Quit()
+    struct AppInfo
     {
-        m_Instance->m_Running = false;
-    }
+        struct Version
+        {
+            uint64 Major;
+            uint64 Minor;
+            uint64 Patch;
 
-    FORCE_INLINE static const AppInfo& GetAppInfo()
+            Version()
+                : Major(0), Minor(0), Patch(0)
+            {
+            }
+
+            Version(uint64 major, uint64 minor, uint64 patch)
+                : Major(major), Minor(minor), Patch(patch)
+            {
+            }
+        };
+
+        String Name;
+        CommandLineArguments CommandLineArguments;
+        Version AppBuild;
+        Version EngineBuild;
+    };
+
+    class Engine
     {
-        return m_Instance->m_Info;
-    }
+    public:
+        Engine(const AppInfo& appInfo);
+        ~Engine();
 
-    void Run();
+    public:
+        FORCE_INLINE static void Quit()
+        {
+            m_Instance->m_Running = false;
+        }
 
-    template <typename TLayer, typename... TArgs>
-    FORCE_INLINE static TLayer* RegisterLayer(TArgs&&... args)
-    {
-        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::New<TLayer>(args...)));
-    }
+        FORCE_INLINE static const AppInfo& GetAppInfo()
+        {
+            return m_Instance->m_Info;
+        }
 
-    template <typename TLayer>
-    FORCE_INLINE static TLayer* RegisterLayer(TLayer* layer)
-    {
-        return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(layer));
-    }
+        void Run();
 
-    template <typename TLayer>
-    FORCE_INLINE static TLayer* GetLayer()
-    {
-        uint64 id = TypeInfo::GetFastId<TLayer>();
-        EngineLayer* layer = m_Instance->ImplGetLayer(id);
+        template <typename TLayer, typename... TArgs>
+        FORCE_INLINE static TLayer* RegisterLayer(TArgs&&... args)
+        {
+            return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::New<TLayer>(args...)));
+        }
 
-        if (layer)
-            return static_cast<TLayer*>(layer);
+        template <typename TLayer>
+        FORCE_INLINE static TLayer* RegisterLayer(TLayer* layer)
+        {
+            return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(layer));
+        }
 
-        LOG(Warning, "Failed to find engine layer '{}' with fast id: {}", TypeInfo::GetInfo<TLayer>().Name, id);
-        return nullptr;
-    }
+        template <typename TLayer>
+        FORCE_INLINE static TLayer* GetLayer()
+        {
+            uint64 id = TypeInfo::GetFastId<TLayer>();
+            EngineLayer* layer = m_Instance->ImplGetLayer(id);
 
-private:
-    EngineLayer* ImplRegisterLayer(EngineLayer* layer);
-    EngineLayer* ImplGetLayer(uint64 fastId);
+            if (layer)
+                return static_cast<TLayer*>(layer);
 
-private:
-    static Engine* m_Instance;
+            LOG(Warning, "Failed to find engine layer '{}' with fast id: {}", TypeInfo::GetInfo<TLayer>().Name, id);
+            return nullptr;
+        }
 
-    Array<EngineLayer*> m_Layers;
-    AppInfo m_Info;
-    bool m_Running;
+    private:
+        EngineLayer* ImplRegisterLayer(EngineLayer* layer);
+        EngineLayer* ImplGetLayer(uint64 fastId);
 
-};
+    private:
+        static Engine* m_Instance;
 
-String ToString(const AppInfo::Version& version);
+        Array<EngineLayer*> m_Layers;
+        AppInfo m_Info;
+        bool m_Running;
+
+    };
+
+    String ToString(const AppInfo::Version& version);
+}

@@ -4,138 +4,141 @@
 #include "Oniun/Core/Time/DateTime.h"
 #include "Oniun/Platform/Platform.h"
 
-Logger* Logger::m_Instance = nullptr;
-
-StringView ToString(LogType type)
+namespace Oniun
 {
-    switch (type)
+    Logger* Logger::m_Instance = nullptr;
+
+    StringView ToString(LogType type)
     {
-    case LogType::Verbose:
-        return "Verbose";
-    case LogType::Trace:
-        return "Trace";
-    case LogType::Info:
-        return "Info";
-    case LogType::Warning:
-        return "Warning";
-    case LogType::Error:
-        return "Error";
-    case LogType::Fatal:
-        return "Fatal";
-    default:
-        return "Invalid";
+        switch (type)
+        {
+        case LogType::Verbose:
+            return "Verbose";
+        case LogType::Trace:
+            return "Trace";
+        case LogType::Info:
+            return "Info";
+        case LogType::Warning:
+            return "Warning";
+        case LogType::Error:
+            return "Error";
+        case LogType::Fatal:
+            return "Fatal";
+        default:
+            return "Invalid";
+        }
     }
-}
 
-Logger::Logger()
-{
-    m_Instance = this;
-}
-
-Logger::~Logger()
-{
-    for (ILogOutput* output : m_Outputs)
-        Memory::Delete(output);
-    m_Instance = nullptr;
-}
-
-void Logger::AddOutput(ILogOutput* entry)
-{
-    m_Instance->m_Outputs.Add(entry);
-}
-
-void Logger::RemoveOutput(const StringView& name)
-{
-    Array<ILogOutput*> output = m_Instance->m_Outputs;
-    for (uint64 i = 0; i < output.Count(); ++i)
+    Logger::Logger()
     {
-         if (output[i]->GetName() == name)
-         {
-             output.RemoveAt(i);
-             return;
-         }
+        m_Instance = this;
     }
-}
 
-ILogOutput* Logger::GetOutput(const StringView& name)
-{
-    for (ILogOutput* output : m_Instance->m_Outputs)
+    Logger::~Logger()
     {
-        if (output->GetName() == name)
-            return output;
+        for (ILogOutput* output : m_Outputs)
+            Memory::Delete(output);
+        m_Instance = nullptr;
     }
-    return nullptr;
-}
 
-void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                       const StringView& userMessage)
-{
-    String path(file);
-    uint64 index = file.Find("Oniun");
-    if (index != NO_POS)
-        path.Set(ToSlice(file.Begin() + index, file.End()));
-    path.CorrectPathSlashes();
+    void Logger::AddOutput(ILogOutput* entry)
+    {
+        m_Instance->m_Outputs.Add(entry);
+    }
 
-    DateTime time(DateTime::Now());
-    String formattedMessage = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMessage);
+    void Logger::RemoveOutput(const StringView& name)
+    {
+        Array<ILogOutput*> output = m_Instance->m_Outputs;
+        for (uint64 i = 0; i < output.Count(); ++i)
+        {
+            if (output[i]->GetName() == name)
+            {
+                output.RemoveAt(i);
+                return;
+            }
+        }
+    }
 
-    for (ILogOutput* output : m_Outputs)
-        output->Write(type, formattedMessage, path, function, line, userMessage, time);
+    ILogOutput* Logger::GetOutput(const StringView& name)
+    {
+        for (ILogOutput* output : m_Instance->m_Outputs)
+        {
+            if (output->GetName() == name)
+                return output;
+        }
+        return nullptr;
+    }
 
-    if (type == LogType::Fatal)
-        std::exit(-1);
-}
+    void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
+                           const StringView& userMessage)
+    {
+        String path(file);
+        uint64 index = file.Find("Oniun");
+        if (index != NO_POS)
+            path.Set(ToSlice(file.Begin() + index, file.End()));
+        path.CorrectPathSlashes();
 
-TerminalLogOutput::TerminalLogOutput()
-    : ILogOutput("Terminal Output"), m_StdStream(Platform::GetStdOutStream()),
-      m_ErrorStream(Platform::GetStdOutStream())
-{
-}
+        DateTime time(DateTime::Now());
+        String formattedMessage = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMessage);
 
-TerminalLogOutput::~TerminalLogOutput()
-{
-}
+        for (ILogOutput* output : m_Outputs)
+            output->Write(type, formattedMessage, path, function, line, userMessage, time);
 
-void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
-                              const StringView& function, int32 line, const StringView& userMessage,
-                              const DateTime& time)
-{
-    File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
-    stream->Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
+        if (type == LogType::Fatal)
+            std::exit(-1);
+    }
+
+    TerminalLogOutput::TerminalLogOutput()
+        : ILogOutput("Terminal Output"), m_StdStream(Platform::GetStdOutStream()),
+          m_ErrorStream(Platform::GetStdOutStream())
+    {
+    }
+
+    TerminalLogOutput::~TerminalLogOutput()
+    {
+    }
+
+    void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
+                                  const StringView& function, int32 line, const StringView& userMessage,
+                                  const DateTime& time)
+    {
+        File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
+        stream->Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
 #if !defined(ONU_PLATFORM_WINDOWS)
         stream->Flush();
 #endif
-}
-
-FileLogOutput::FileLogOutput(const StringView& outputPath)
-    : ILogOutput("Log File Output"), m_Output(outputPath, FileAccess::Write)
-{
-    if (m_Output.IsOpen())
-    {
-        uint32 size = m_Output.GetSize();
-        m_Output.SetPosition(size);
-        m_Path = outputPath;
     }
-}
 
-FileLogOutput::~FileLogOutput()
-{
-}
-
-void FileLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
-                          const StringView& function, int32 line, const StringView& userMessage,
-                          const DateTime& time)
-{
-    m_Output.Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
-    m_Output.Flush();
-}
-
-void FileLogOutput::SetPath(const StringView& path)
-{
-    File newOutput(path, FileAccess::Write);
-    if (newOutput.IsOpen())
+    FileLogOutput::FileLogOutput(const StringView& outputPath)
+        : ILogOutput("Log File Output"), m_Output(outputPath, FileAccess::Write)
     {
-        m_Path = path;
-        m_Output = Memory::Move(newOutput);
+        if (m_Output.IsOpen())
+        {
+            uint32 size = m_Output.GetSize();
+            m_Output.SetPosition(size);
+            m_Path = outputPath;
+        }
+    }
+
+    FileLogOutput::~FileLogOutput()
+    {
+    }
+
+    void FileLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
+                              const StringView& function, int32 line, const StringView& userMessage,
+                              const DateTime& time)
+    {
+        m_Output.Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
+        m_Output.Flush();
+    }
+
+    void FileLogOutput::SetPath(const StringView& path)
+    {
+        File newOutput(path, FileAccess::Write);
+        if (newOutput.IsOpen())
+        {
+            m_Path = path;
+            m_Output = Memory::Move(newOutput);
+        }
     }
 }

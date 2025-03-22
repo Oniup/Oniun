@@ -10,26 +10,29 @@
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Platform/File.h"
 
-String Platform::GetLastErrorMessage()
+namespace Oniun
 {
-    uint32 errorCode = GetLastError();
-    constexpr uint32 maxLength = 512;
-    char buffer[maxLength];
-    DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
-                                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
-    if (msgSize > 0)
-        return Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
-    return Format("Windows Error:{} => Unknown", errorCode);
-}
+    String Platform::GetLastErrorMessage()
+    {
+        uint32 errorCode = GetLastError();
+        constexpr uint32 maxLength = 512;
+        char buffer[maxLength];
+        DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
+                                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
+        if (msgSize > 0)
+            return Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
+        return Format("Windows Error:{} => Unknown", errorCode);
+    }
 
-File Platform::GetStdOutStream()
-{
-    return File(GetStdHandle(STD_OUTPUT_HANDLE), false);
-}
+    File Platform::GetStdOutStream()
+    {
+        return File(GetStdHandle(STD_OUTPUT_HANDLE), false);
+    }
 
-File Platform::GetStdErrorStream()
-{
-    return File(GetStdHandle(STD_ERROR_HANDLE), false);
+    File Platform::GetStdErrorStream()
+    {
+        return File(GetStdHandle(STD_ERROR_HANDLE), false);
+    }
 }
 
 #endif

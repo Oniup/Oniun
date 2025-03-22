@@ -4,63 +4,66 @@
 
 #include "Oniun/Core/String/String.h"
 
-class IImGuiWindow
+namespace Oniun
 {
-public:
-    static constexpr ImGuiWindowFlags DefaultFlags = ImGuiWindowFlags_NoCollapse;
-
-public:
-    IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = DefaultFlags, bool destroyOnClose = false, bool open = true);
-
-    virtual ~IImGuiWindow()
+    class IImGuiWindow
     {
-    }
+    public:
+        static constexpr ImGuiWindowFlags DefaultFlags = ImGuiWindowFlags_NoCollapse;
 
-public:
-    FORCE_INLINE const String& GetTitle() const
-    {
-        return m_Title;
-    }
+    public:
+        IImGuiWindow(const StringView& title, ImGuiWindowFlags flags = DefaultFlags, bool destroyOnClose = false, bool open = true);
 
-    FORCE_INLINE ImGuiWindowFlags GetFlags() const
-    {
-        return m_Flags;
-    }
+        virtual ~IImGuiWindow()
+        {
+        }
 
-    FORCE_INLINE bool IsOpened() const
-    {
-        return m_Open;
-    }
+    public:
+        FORCE_INLINE const String& GetTitle() const
+        {
+            return m_Title;
+        }
 
-    FORCE_INLINE bool DestroyOnClose()
-    {
-        return m_DestroyOnClose;
-    }
+        FORCE_INLINE ImGuiWindowFlags GetFlags() const
+        {
+            return m_Flags;
+        }
 
-    FORCE_INLINE void SetTitle(const StringView& title)
-    {
-        m_Title = title;
-    }
+        FORCE_INLINE bool IsOpened() const
+        {
+            return m_Open;
+        }
 
-    FORCE_INLINE void SetFlags(ImGuiWindowFlags flags)
-    {
-        m_Flags = flags;
-    }
+        FORCE_INLINE bool DestroyOnClose()
+        {
+            return m_DestroyOnClose;
+        }
 
-    FORCE_INLINE void SetIsOpened(bool open)
-    {
-        m_Open = open;
-    }
+        FORCE_INLINE void SetTitle(const StringView& title)
+        {
+            m_Title = title;
+        }
 
-    virtual void Draw() = 0;
+        FORCE_INLINE void SetFlags(ImGuiWindowFlags flags)
+        {
+            m_Flags = flags;
+        }
 
-    virtual void Begin();
-    virtual void End();
+        FORCE_INLINE void SetIsOpened(bool open)
+        {
+            m_Open = open;
+        }
 
-protected:
-    String m_Title;
-    ImGuiWindowFlags m_Flags;
-    bool m_DestroyOnClose;
-    bool m_Open;
+        virtual void Draw() = 0;
 
-};
+        virtual void Begin();
+        virtual void End();
+
+    protected:
+        String m_Title;
+        ImGuiWindowFlags m_Flags;
+        bool m_DestroyOnClose;
+        bool m_Open;
+
+    };
+}

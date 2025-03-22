@@ -1,25 +1,27 @@
 #pragma once
 
-#include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/ClassConstraints.h"
 
-class DeltaTime : public Singleton<DeltaTime>
+namespace Oniun
 {
-    friend Singleton;
-
-public:
-    static void CalcDelta();
-    static float GetElapsedTime();
-
-    FORCE_INLINE static float GetTime()
+    class DeltaTime : public Singleton<DeltaTime>
     {
-        return Instance()->m_Delta;
-    }
+        friend Singleton;
 
-private:
-    DeltaTime();
+    public:
+        static void CalcDelta();
+        static float GetElapsedTime();
 
-private:
-    float m_Last;
-    float m_Delta;
-};
+        FORCE_INLINE static float GetTime()
+        {
+            return Instance()->m_Delta;
+        }
+
+    private:
+        DeltaTime();
+
+    private:
+        float m_Last;
+        float m_Delta;
+    };
+}

@@ -1,47 +1,50 @@
 #pragma once
 
-class INonCopyable
+namespace Oniun
 {
-public:
-    INonCopyable() = default;
-
-private:
-    INonCopyable(const INonCopyable& other) = delete;
-    INonCopyable& operator=(INonCopyable& other) = delete;
-};
-
-struct INonMoveable
-{
-public:
-    INonMoveable() = default;
-
-private:
-    INonMoveable(INonMoveable&& other) = delete;
-    INonMoveable& operator=(INonMoveable&& other) = delete;
-};
-
-template <typename T>
-class Singleton
-{
-    friend T;
-
-private:
-    Singleton(const Singleton& other) = delete;
-    Singleton(Singleton&& other) = delete;
-
-protected:
-    Singleton()
+    class INonCopyable
     {
-    }
+    public:
+        INonCopyable() = default;
 
-    ~Singleton()
-    {
-    }
+    private:
+        INonCopyable(const INonCopyable& other) = delete;
+        INonCopyable& operator=(INonCopyable& other) = delete;
+    };
 
-public:
-    static T* Instance()
+    struct INonMoveable
     {
-        static T instance;
-        return &instance;
-    }
-};
+    public:
+        INonMoveable() = default;
+
+    private:
+        INonMoveable(INonMoveable&& other) = delete;
+        INonMoveable& operator=(INonMoveable&& other) = delete;
+    };
+
+    template <typename T>
+    class Singleton
+    {
+        friend T;
+
+    private:
+        Singleton(const Singleton& other) = delete;
+        Singleton(Singleton&& other) = delete;
+
+    protected:
+        Singleton()
+        {
+        }
+
+        ~Singleton()
+        {
+        }
+
+    public:
+        static T* Instance()
+        {
+            static T instance;
+            return &instance;
+        }
+    };
+}

@@ -3,19 +3,22 @@
 
 #include <GLFW/glfw3.h>
 
-void DeltaTime::CalcDelta()
+namespace Oniun
 {
-    float time = GetElapsedTime();
-    Instance()->m_Delta = time - Instance()->m_Last;
-    Instance()->m_Last = time;
-}
+    void DeltaTime::CalcDelta()
+    {
+        float time = GetElapsedTime();
+        Instance()->m_Delta = time - Instance()->m_Last;
+        Instance()->m_Last = time;
+    }
 
-float DeltaTime::GetElapsedTime()
-{
-    return static_cast<float>(glfwGetTime());
-}
+    float DeltaTime::GetElapsedTime()
+    {
+        return static_cast<float>(glfwGetTime());
+    }
 
-DeltaTime::DeltaTime()
-    : m_Last(static_cast<float>(glfwGetTime())), m_Delta(0.0f)
-{
+    DeltaTime::DeltaTime()
+        : m_Last(static_cast<float>(glfwGetTime())), m_Delta(0.0f)
+    {
+    }
 }

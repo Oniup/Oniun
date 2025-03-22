@@ -1,7 +1,10 @@
 #pragma once
 
-struct IPlatform
+namespace Oniun
 {
-    static File GetStdOutStream();
-    static File GetStdErrorStream();
-};
+    struct IPlatform
+    {
+        static File GetStdOutStream();
+        static File GetStdErrorStream();
+    };
+}

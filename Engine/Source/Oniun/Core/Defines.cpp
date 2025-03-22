@@ -4,11 +4,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace Assert_Internal
+namespace Oniun
 {
-    void Assert(const char* expression, const char* file, const char* function, int line)
+    namespace Assert_Internal
     {
-        std::fprintf(stderr, "Fatal: (%s) At %s:%d in %s", expression, function, line, file);
-        std::exit(-1);
+        void Assert(const char* expression, const char* file, const char* function, int line)
+        {
+            std::fprintf(stderr, "Fatal: (%s) At %s:%d in %s", expression, function, line, file);
+            std::exit(-1);
+        }
     }
 }

@@ -28,33 +28,36 @@
 
 #define NO_POS MAX_UINT64
 
-enum PlatformType
+namespace Oniun
 {
-    PlatformType_Windows,
-    PlatformType_Macos,
-    PlatformType_Linux,
+    enum PlatformType
+    {
+        PlatformType_Windows,
+        PlatformType_Macos,
+        PlatformType_Linux,
 
-    PlatformType_Ios,
-    PlatformType_Android,
+        PlatformType_Ios,
+        PlatformType_Android,
 
-    PlatformType_XboxOne,
-    PlatformType_XboxScarlet,
+        PlatformType_XboxOne,
+        PlatformType_XboxScarlet,
 
-    PlatformType_Ps4,
-    PlatformType_Ps5,
+        PlatformType_Ps4,
+        PlatformType_Ps5,
 
-    PlatformType_Switch,
-};
+        PlatformType_Switch,
+    };
 
-enum class ArchitectureType
-{
-    ArchitectureType_X64,
-    ArchitectureType_Arm64,
-};
+    enum class ArchitectureType
+    {
+        ArchitectureType_X64,
+        ArchitectureType_Arm64,
+    };
 
-namespace Assert_Internal
-{
-    void Assert(const char* expression, const char* file, const char* function, int line);
+    namespace Assert_Internal
+    {
+        void Assert(const char* expression, const char* file, const char* function, int line);
+    }
 }
 
 // Platform
@@ -115,7 +118,7 @@ namespace Assert_Internal
 #define ASSERT(_Expression) \
 { \
     if (!(_Expression)) \
-        Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__); \
+        Oniun::Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__); \
 }
 
 #if !ONU_DIST

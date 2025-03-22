@@ -2,10 +2,13 @@
 
 #include "Oniun/RHI/IImGuiWindow.h"
 
-class Hierarchy : public IImGuiWindow
+namespace Oniun
 {
-public:
-    Hierarchy();
+    class Hierarchy : public IImGuiWindow
+    {
+    public:
+        Hierarchy();
 
-    void Draw() override;
-};
+        void Draw() override;
+    };
+}

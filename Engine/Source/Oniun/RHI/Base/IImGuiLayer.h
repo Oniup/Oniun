@@ -4,43 +4,46 @@
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/RHI/IImGuiWindow.h"
 
-class RendererLayer;
-
-class IImGuiLayer : public EngineLayer
+namespace Oniun
 {
-public:
-    IImGuiLayer();
-    ~IImGuiLayer() override;
+    class RendererLayer;
 
-public:
-    static const ImWchar* GetGlyphRangesRequired();
-
-    FORCE_INLINE ImFont* GetDefaultFont() const
+    class IImGuiLayer : public EngineLayer
     {
-        return m_DefaultFont;
-    }
+    public:
+        IImGuiLayer();
+        ~IImGuiLayer() override;
 
-    FORCE_INLINE ImFont* GetMonoFont() const
-    {
-        return m_MonoFont;
-    }
+    public:
+        static const ImWchar* GetGlyphRangesRequired();
 
-    FORCE_INLINE Array<IImGuiWindow*>& GetWindows()
-    {
-        return m_Windows;
-    }
+        FORCE_INLINE ImFont* GetDefaultFont() const
+        {
+            return m_DefaultFont;
+        }
 
-    bool Register(IImGuiWindow* window);
-    void OnStart() override;
+        FORCE_INLINE ImFont* GetMonoFont() const
+        {
+            return m_MonoFont;
+        }
 
-    virtual void NewFrame();
-    virtual void RenderPlatformDrawData() = 0;
+        FORCE_INLINE Array<IImGuiWindow*>& GetWindows()
+        {
+            return m_Windows;
+        }
 
-    void Render(RendererLayer& renderer);
-    void UpdatePlatformWindows();
+        bool Register(IImGuiWindow* window);
+        void OnStart() override;
 
-private:
-    ImFont* m_DefaultFont;
-    ImFont* m_MonoFont;
-    Array<IImGuiWindow*> m_Windows;
-};
+        virtual void NewFrame();
+        virtual void RenderPlatformDrawData() = 0;
+
+        void Render(RendererLayer& renderer);
+        void UpdatePlatformWindows();
+
+    private:
+        ImFont* m_DefaultFont;
+        ImFont* m_MonoFont;
+        Array<IImGuiWindow*> m_Windows;
+    };
+}

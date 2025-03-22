@@ -13,7 +13,7 @@
 #define RAND_MAX_WIDTH IMAX_BITS(RAND_MAX)
 static_assert((RAND_MAX & (RAND_MAX + 1u)) == 0, "RAND_MAX not a Mersenne number");
 
-namespace Math
+namespace Oniun::Math
 {
     FORCE_INLINE uint64 RandomUInt64()
     {

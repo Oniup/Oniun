@@ -5,7 +5,7 @@
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
 
-namespace StringUtils
+namespace Oniun::StringUtils
 {
     // String Utf8ToUtf16(const CharStringView& str)
     // {

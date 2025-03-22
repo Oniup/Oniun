@@ -1,6 +1,9 @@
 #pragma once
 
-class ComponentQuery
+namespace Oniun
 {
-public:
-};
+    class ComponentQuery
+    {
+    public:
+    };
+}

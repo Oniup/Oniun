@@ -8,26 +8,29 @@
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Renderer/RendererLayer.h"
 
-ImGuiLayer::ImGuiLayer()
+namespace Oniun
 {
-    RendererLayer* renderer = Engine::GetLayer<RendererLayer>();
-    ImGui_ImplGlfw_InitForOpenGL(renderer->GetWindow()->GetInternalWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 450");
-}
+    ImGuiLayer::ImGuiLayer()
+    {
+        RendererLayer* renderer = Engine::GetLayer<RendererLayer>();
+        ImGui_ImplGlfw_InitForOpenGL(renderer->GetWindow()->GetInternalWindow(), true);
+        ImGui_ImplOpenGL3_Init("#version 450");
+    }
 
-ImGuiLayer::~ImGuiLayer()
-{
-    ImGui_ImplOpenGL3_Shutdown();
-}
+    ImGuiLayer::~ImGuiLayer()
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+    }
 
-void ImGuiLayer::NewFrame()
-{
-    ImGui_ImplOpenGL3_NewFrame();
+    void ImGuiLayer::NewFrame()
+    {
+        ImGui_ImplOpenGL3_NewFrame();
 
-    IImGuiLayer::NewFrame();
-}
+        IImGuiLayer::NewFrame();
+    }
 
-void ImGuiLayer::RenderPlatformDrawData()
-{
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    void ImGuiLayer::RenderPlatformDrawData()
+    {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
 }

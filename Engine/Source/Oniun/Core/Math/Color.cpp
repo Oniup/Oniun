@@ -3,12 +3,15 @@
 
 #include "Oniun/Core/String/Format.h"
 
-String ToString(const Color32& color)
+namespace Oniun
 {
-    return Format("[ {}, {}, {}, {} ]", color.R, color.G, color.B, color.A);
-}
+    String ToString(const Color32& color)
+    {
+        return Format("[ {}, {}, {}, {} ]", color.R, color.G, color.B, color.A);
+    }
 
-String ToString(const Color& color)
-{
-    return Format("[ {}, {}, {}, {} ]", color.R, color.G, color.B, color.A);
+    String ToString(const Color& color)
+    {
+        return Format("[ {}, {}, {}, {} ]", color.R, color.G, color.B, color.A);
+    }
 }

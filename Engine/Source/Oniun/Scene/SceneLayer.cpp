@@ -1,25 +1,28 @@
 #include "Oniun.pch.h"
 #include "Oniun/Scene/SceneLayer.h"
 
-uint64 SceneLayer::m_ChunksPerBlockCount = 0;
-
-SceneLayer::SceneLayer(uint64 componentChunksPerBlockCount)
-    : m_Active(nullptr)
+namespace Oniun
 {
-    m_ChunksPerBlockCount = componentChunksPerBlockCount;
-}
+    uint64 SceneLayer::m_ChunksPerBlockCount = 0;
 
-Scene* SceneLayer::GetLoadedScene(const StringView& title) const
-{
-    for (Scene& scene : m_Loaded)
+    SceneLayer::SceneLayer(uint64 componentChunksPerBlockCount)
+        : m_Active(nullptr)
     {
-        if (scene.GetTitle() == title)
-            return &scene;
+        m_ChunksPerBlockCount = componentChunksPerBlockCount;
     }
-    return nullptr;
-}
 
-void SceneLayer::OnUpdate()
-{
-    // TODO: Iterate through all systems and call their overrides
+    Scene* SceneLayer::GetLoadedScene(const StringView& title) const
+    {
+        for (Scene& scene : m_Loaded)
+        {
+            if (scene.GetTitle() == title)
+                return &scene;
+        }
+        return nullptr;
+    }
+
+    void SceneLayer::OnUpdate()
+    {
+        // TODO: Iterate through all systems and call their overrides
+    }
 }
