@@ -1,6 +1,7 @@
 #include "Oniun.pch.h"
 #include "Oniun/Scene/Scene.h"
 
+#include "Oniun/Core/Logger.h"
 #include "Oniun/Scene/Entity.h"
 
 Scene::Scene(const StringView& title)
@@ -8,51 +9,94 @@ Scene::Scene(const StringView& title)
 {
 }
 
+Scene::~Scene()
+{
+}
+
 Entity Scene::Add(const StringView& name)
 {
-    EntityName key = {};
-    key.Name.Resize(name.Length() + 1);
-    Crt::Copy(key.Name.Data(), name.Data(), name.Length());
-    key.Name.Data()[key.Name.Count() - 1] = '\0';
+    ASSERT(name.Length() + 1 < MaxEntityNameSize);
+    EntityEntry newEntry = {
+        .NameId = 0,
+        .Parent = NO_POS,
+        .FirstChild = NO_POS,
+        .Next = NO_POS,
+    };
+    // Copy the name into buffer
+    newEntry.Name.Resize(name.Length() + 1);
+    Crt::Copy(newEntry.Name.Data(), name.Data(), name.Length());
+    newEntry.Name.Data()[newEntry.Name.Count() - 1] = '\0';
 
-    while (m_Entities.Contains(key))
-        ++key.OffsetCounter;
-    auto&[entName, entEntry] = m_Entities.Add(key, EntityEntry{nullptr, nullptr, nullptr});
-    return Entity(&entName, &entEntry, this);
-}
-
-Entity Scene::Find(const EntityName& name)
-{
-    Pair<EntityName, EntityEntry>* entity = m_Entities.TryGetPair(name);
-    if (entity)
-        return Entity(&entity->Key, &entity->Value, this);
-    return Entity();
-}
-
-Array<Entity> Scene::Find(const StringView& name)
-{
-    EntityName key = {};
-    key.Name.Resize(name.Length() + 1);
-    Crt::Copy(key.Name.Data(), name.Data(), name.Length());
-    key.Name.Data()[key.Name.Count() - 1] = '\0';
-
-    Array<Entity> entities;
-    Pair<EntityName, EntityEntry>* entity = m_Entities.TryGetPair(key);
-    while (entity)
+    // Search for existing
+    UUID id = newEntry.GetId();
+    while (m_Entities.contains(id))
     {
-        entities.Add(Entity(&entity->Key, &entity->Value, this));
-        ++key.OffsetCounter;
-        entity = m_Entities.TryGetPair(key);
+        ++newEntry.NameId;
+        id = newEntry.GetId();
     }
-    return entities;
+    // Add
+    m_Entities.insert({id, newEntry});
+    return Entity(id, this);
+}
+
+Entity Scene::Find(const EntityEntry& name)
+{
+    UUID id = name.GetId();
+    if(m_Entities.contains(id))
+        return Entity(id, this);
+    return Entity::Invalid;
+}
+
+Entity Scene::Find(UUID entityId)
+{
+    if (m_Entities.contains(entityId))
+        return Entity(entityId, this);
+    return Entity::Invalid;
 }
 
 void Scene::Remove(const Entity& entity)
 {
-    m_Entities.Remove(*entity.m_Name);
+    m_Entities.erase(entity.m_Id);
 }
 
 bool Scene::IsAlive(const Entity& entity)
 {
-    return m_Entities.Contains(*entity.m_Name);
+    return m_Entities.contains(entity.m_Id);
+}
+
+byte* Scene::AddComponent(UUID entity, const ComponentType& type)
+{
+    if (!m_Entities.contains(entity))
+    {
+        LOG(Warning, "Entity doesn't, cannot add component");
+        return nullptr;
+    }
+
+    // Get pool with desired component type
+    if (m_Pools.contains(type.Id))
+    {
+        // Add if doesn't exist
+        m_Pools.insert({type.Id, ComponentPool(type)});
+    }
+    ComponentPool& pool = m_Pools.at(type.Id);
+    // Allocate space for component and get uninitialized byte data
+    byte* byteData = pool.Allocate(entity);
+    if (!byteData)
+    {
+        EntityEntry& entry = m_Entities.at(entity);
+        LOG(Error, "Failed to add component to entity '{} ({})'", entry.Name.Data(), entry.NameId);
+    }
+    return byteData;
+}
+
+byte* Scene::GetComponent(UUID entity, const ComponentType& type)
+{
+    if (m_Pools.contains(entity))
+        return m_Pools.at(entity).Get(entity);
+    return nullptr;
+}
+
+UUID Scene::EntityEntry::GetId() const
+{
+    return Hash_Internal::FnvHash(Name.Data(), Name.Count()) + Hash<uint64>{}.Get(NameId);
 }

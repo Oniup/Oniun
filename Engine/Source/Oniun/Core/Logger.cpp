@@ -72,7 +72,7 @@ void Logger::WriteImpl(LogType type, const StringView& file, const StringView& f
 {
     String path(file);
     uint64 index = file.Find("Oniun");
-    if (index != INVALID_INDEX)
+    if (index != NO_POS)
         path.Set(ToSlice(file.Begin() + index, file.End()));
     path.CorrectPathSlashes();
 

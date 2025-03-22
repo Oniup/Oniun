@@ -17,8 +17,8 @@ public:
     {
     }
 
-    FORCE_INLINE constexpr StringView(const char* str, uint64 length = INVALID_INDEX)
-        : m_Length(str == nullptr ? 0 : (length == INVALID_INDEX ? StringUtils::Length(str) : length)), m_Data(str)
+    FORCE_INLINE constexpr StringView(const char* str, uint64 length = NO_POS)
+        : m_Length(str == nullptr ? 0 : (length == NO_POS ? StringUtils::Length(str) : length)), m_Data(str)
     {
     }
 
@@ -102,11 +102,6 @@ public:
     {
         return Compare(str) != 0;
     }
-
-    String operator+(char ch) const;
-    String operator+(const StringView& str) const;
-    String operator/(char ch) const;
-    String operator/(const String& str) const;
 
 public:
     FORCE_INLINE constexpr bool IsEmpty() const

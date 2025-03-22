@@ -26,7 +26,7 @@
 #define MAX_FLOAT   3.402823466e+38f
 #define MAX_DOUBLE  1.7976931348623158e+308
 
-#define INVALID_INDEX MAX_UINT64
+#define NO_POS MAX_UINT64
 
 enum PlatformType
 {
@@ -106,6 +106,8 @@ namespace Assert_Internal
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
 #define DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT 256
 #define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])
+
+#define COMP_POOL_MAX_TYPE_COUNT 5
 
 /// Assert exists program if _Expression is false
 ///

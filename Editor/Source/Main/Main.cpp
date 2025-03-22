@@ -2,6 +2,7 @@
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"
 
+#include <thread>
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/Math/Vector3.h"
@@ -81,25 +82,80 @@ int EntryPoint(const CommandLineArguments& args)
     imGui->Register(Memory::New<Hierarchy>());
 
     Engine::RegisterLayer<SceneLayer>();
+    std::thread thread([]()
     {
         Scene scene;
-        Entity player;
-        for (uint64 i = 0; i < 1000; ++i)
+        Array<Entity> firstTargets;
+        uint64 count = 1;
+        for (uint64 i = 0; i < 500; ++i)
         {
-            Entity entity;
-            if (i == 132)
+            Entity entity = scene.Add(ToString(i));
+            if (i % 5 == 0)
             {
-                entity = scene.Add("Player");
-                player = entity;
-                player.AddChild("Weapon");
+                for (uint64 j = 0; j < count; ++j)
+                    entity.AddChild();
+                ++count;
             }
-            else
-                entity = scene.Add();
-
-            entity.Add<TransformComponent>(Vector3(i), Vector3(1.0f), Vector3(0.0f));
+            if (i % 25 == 0)
+                firstTargets.Add(entity);
         }
-    }
+        {
+            Entity slimeBase = scene.Add("Slime");
+            Entity body = slimeBase.AddChild("Body");
+            body.AddChild("Left Eye");
+            body.AddChild("Right Eye");
+
+            Entity treasure = slimeBase.AddChild("Treasure");
+            treasure.AddChild("Weapon");
+            Entity coinPouch = treasure.AddChild("Coin Pouch");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+        }
+        {
+            Entity playerBase = scene.Add("Player");
+            playerBase.AddChild("Head");
+            Entity torso = playerBase.AddChild("Torso");
+            torso.AddChild("Left Arm").AddChild("Hand");
+            torso.AddChild("Right Arm").AddChild("Hand");
+
+            Entity hips = torso.AddChild("Hips");
+            hips.AddChild("Left Leg").AddChild("Foot");
+            hips.AddChild("Right Leg").AddChild("Foot");
+        }
+        {
+            auto addTree = [](Entity& parent)
+            {
+                Entity tree = parent.AddChild("Tree");
+                tree.AddChild("Trunk").AddChild("Leaves");
+            };
+
+            Entity environment = scene.Add("Environment");
+            environment.AddChild("Floor");
+            addTree(environment);
+            addTree(environment);
+            addTree(environment);
+            addTree(environment);
+        }
+
+        for (Entity& ent : firstTargets)
+            LOG(Info, "{}", ent);
+
+        FixedArray<StringView, 3> targets({"Player", "Environment", "Slime"});
+        for (auto& [id, entry] : scene.GetEntityEntries())
+        {
+            Entity entity(id, &scene);
+            for (const StringView& targetName : targets)
+            {
+                if (entity.GetName() == targetName)
+                    LOG(Info, "{}", entity);
+            }
+        }
+    });
 
     engine.Run();
+    thread.join();
+
     return 0;
 }

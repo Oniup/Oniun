@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Oniun/Core/Hash.h"
+#include <unordered_map>
+#include "Oniun/Core/UUID.h"
 #include "Oniun/Core/String/String.h"
+#include "Oniun/Scene/ComponentPool.h"
 
 class Entity;
 
@@ -12,21 +14,27 @@ public:
     static constexpr uint64 MaxEntityFullNameSize = MaxEntityNameSize + 32;
 
 private:
-    struct EntityName
+    struct EntityEntry
     {
         using NameBuffer = FixedArray<char, MaxEntityNameSize>;
 
         NameBuffer Name;
-        uint64 OffsetCounter;
+        uint64 NameId;
 
-        FORCE_INLINE bool operator==(const EntityName& name) const
+        uint64 Parent;
+        uint64 FirstChild;
+        uint64 Next;
+
+        UUID GetId() const;
+
+        FORCE_INLINE bool operator==(const EntityEntry& name) const
         {
-            return Name == name.Name && OffsetCounter == name.OffsetCounter;
+            return Name == name.Name && NameId == name.NameId;
         }
 
-        FORCE_INLINE bool operator!=(const EntityName& name) const
+        FORCE_INLINE bool operator!=(const EntityEntry& name) const
         {
-            return Name != name.Name && OffsetCounter != name.OffsetCounter;
+            return Name != name.Name && NameId != name.NameId;
         }
 
         FORCE_INLINE bool operator==(const StringView& name) const
@@ -40,19 +48,11 @@ private:
         }
     };
 
-
-    struct EntityEntry
-    {
-        EntityName* Parent;
-        EntityName* FirstChild;
-        EntityName* Next;
-    };
-
     friend Entity;
-    friend Hash<EntityName>;
 
 public:
     Scene(const StringView& title = "Empty Scene");
+    ~Scene();
 
 public:
     FORCE_INLINE const String& GetTitle() const
@@ -60,37 +60,54 @@ public:
         return m_Title;
     }
 
-    FORCE_INLINE HashMap<EntityName, EntityEntry>& GetEntityEntries()
+    FORCE_INLINE std::unordered_map<UUID, EntityEntry>& GetEntityEntries()
     {
         return m_Entities;
     }
 
     Entity Add(const StringView& name = "Entity");
-    Entity Find(const EntityName& name);
-    Array<Entity> Find(const StringView& name);
+    Entity Find(const EntityEntry& name);
+    Entity Find(UUID entityId);
     void Remove(const Entity& entity);
     bool IsAlive(const Entity& entity);
 
     template <typename TComponent, typename... TArgs>
-    TComponent* AddComponent(EntityEntry entity, TArgs&&... args);
+    TComponent* AddComponent(UUID entity, TArgs&&... args);
+
+    template <typename TComponent>
+    TComponent* GetComponent(UUID entity);
+
+private:
+    byte* AddComponent(UUID entity, const ComponentType& type);
+    byte* GetComponent(UUID entity, const ComponentType& type);
 
 private:
     String m_Title;
 
-    HashMap<EntityName, EntityEntry> m_Entities;
+    std::unordered_map<UUID, EntityEntry> m_Entities;
+    std::unordered_map<uint64, ComponentPool> m_Pools;
 };
 
 template <typename TComponent, typename ... TArgs>
-TComponent* Scene::AddComponent(EntityEntry entity, TArgs&&... args)
+TComponent* Scene::AddComponent(UUID entity, TArgs&&... args)
 {
+    constexpr ComponentType type = ComponentType::Get<TComponent>();
+    byte* byteData = AddComponent(entity, type);
+    if (!byteData)
+    {
+        TComponent* component = reinterpret_cast<TComponent*>(byteData);
+        Memory::ConstructItem(component, Memory::Forward<TArgs>(args)...);
+        return component;
+    }
     return nullptr;
 }
 
-template <>
-struct Hash<Scene::EntityName>
+template <typename TComponent>
+TComponent* Scene::GetComponent(UUID entity)
 {
-    FORCE_INLINE constexpr uint64 Get(const Scene::EntityName& src) const
-    {
-        return Crt::FnvHash(src.Name.Data(), src.Name.Count()) + src.OffsetCounter;
-    }
-};
+    constexpr ComponentType type = ComponentType::Get<TComponent>();
+    byte* byteData = GetComponent(entity, type);
+    if (byteData)
+        return reinterpret_cast<TComponent*>(byteData);
+    return nullptr;
+}

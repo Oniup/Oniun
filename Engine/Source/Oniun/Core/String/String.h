@@ -179,7 +179,7 @@ public:
 
     FORCE_INLINE bool IsEmpty() const
     {
-        return m_Length == 0 || m_Length == INVALID_INDEX || !m_Data.Ptr();
+        return m_Length == 0 || m_Length == NO_POS || !m_Data.Ptr();
     }
 
 public:
@@ -209,7 +209,7 @@ public:
 
     bool Compare(const StringView& str) const;
 
-    String Substring(uint64 startIndex, uint64 length = INVALID_INDEX) const;
+    String Substring(uint64 startIndex, uint64 length = NO_POS) const;
     String TrimTrailing() const;
 
     uint64 Find(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;

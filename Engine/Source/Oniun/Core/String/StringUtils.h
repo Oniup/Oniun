@@ -121,7 +121,7 @@ namespace StringUtils
     constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
     {
         if (searchLength > length)
-            return INVALID_INDEX;
+            return NO_POS;
 
         for (uint64 i = offset; i < length - searchLength + 1; ++i)
         {
@@ -137,14 +137,14 @@ namespace StringUtils
             if (found)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     constexpr uint64 FindIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
                                     uint64 offset = 0)
     {
         if (searchLength > length)
-            return INVALID_INDEX;
+            return NO_POS;
 
         for (uint64 i = offset; i < length - searchLength + 1; ++i)
         {
@@ -162,7 +162,7 @@ namespace StringUtils
             if (found)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     constexpr uint64 Find(const char* str, uint64 length, char search, uint64 offset = 0)
@@ -172,14 +172,14 @@ namespace StringUtils
             if (str[i] == search)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     constexpr uint64 FindLast(const char* str, uint64 length, const char* search, uint64 searchLength,
                               uint64 offset = 0)
     {
         if (searchLength > length)
-            return INVALID_INDEX;
+            return NO_POS;
 
         for (uint64 i = length - searchLength - offset; i > 0; --i)
         {
@@ -195,14 +195,14 @@ namespace StringUtils
             if (found)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     constexpr uint64 FindLastIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
                                         uint64 offset = 0)
     {
         if (searchLength > length)
-            return INVALID_INDEX;
+            return NO_POS;
 
         for (uint64 i = length - searchLength - offset; i > 0; --i)
         {
@@ -220,7 +220,7 @@ namespace StringUtils
             if (found)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     constexpr uint64 FindLast(const char* str, uint64 length, char search, uint64 offset = 0)
@@ -230,7 +230,7 @@ namespace StringUtils
             if (str[i - 1] == search)
                 return i - 1;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
 

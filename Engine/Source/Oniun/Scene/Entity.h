@@ -9,9 +9,11 @@ class Entity
     friend Scene;
 
 public:
+    static Entity Invalid;
+
+public:
     Entity();
-    Entity(Scene::EntityName* name, Scene::EntityEntry* entry, Scene* scene);
-    Entity(const Scene::EntityName* name, const Scene::EntityEntry* entry, const Scene* scene);
+    Entity(UUID id, Scene* scene);
 
 public:
     StringView GetName() const;
@@ -25,7 +27,6 @@ public:
     bool HasChildren() const;
     bool HasSiblings() const;
 
-    bool IsValid() const;
     bool IsAlive() const;
 
     Entity AddChild(const StringView& name = "Child Entity");
@@ -42,20 +43,40 @@ public:
     template <typename TComponent, typename... TArgs>
     TComponent* Add(TArgs&&... args);
 
+    template <typename TComponent>
+    TComponent* Get();
+
 private:
-    Scene::EntityName* m_Name;
-    Scene::EntityEntry* m_Entry;
+    FORCE_INLINE Scene::EntityEntry* GetEntry()
+    {
+        return &m_Scene->m_Entities.at(m_Id);
+    }
+
+    FORCE_INLINE const Scene::EntityEntry* GetEntry() const
+    {
+        return &m_Scene->m_Entities.at(m_Id);
+    }
+
+private:
+    UUID m_Id;
     Scene* m_Scene;
 };
 
 template <typename TComponent, typename ... TArgs>
 TComponent* Entity::Add(TArgs&&... args)
 {
-    DEBUG_ASSERT(m_Entry);
-    return m_Scene->AddComponent<TComponent>(*m_Entry, Memory::Forward<TArgs>(args)...);
+    return m_Scene->AddComponent<TComponent>(m_Id, Memory::Forward<TArgs>(args)...);
 }
 
-/// Formats the entity into a string representing the children as a tree
+template <typename TComponent>
+TComponent* Entity::Get()
+{
+    return m_Scene->GetComponent<TComponent>(m_Id);
+}
+
+/// Formats the entity into a string representing the children as a tree.
+///
+/// Resulting string should look similar to the following:
 /// Entity
 ///  ├ Head
 ///  └ Upper Torso
@@ -68,4 +89,8 @@ TComponent* Entity::Add(TArgs&&... args)
 ///        │  └ Foot
 ///        └ Right Leg
 ///           └ Foot
-String ToString(const Entity& entity, bool fullNames = false);
+///
+/// @param entity    Target entity to convert to a string.
+/// @param fullNames Should include the unique number. (e.g. "Entity (123)").
+/// @return A string version of the entity
+String ToString(const Entity& entity, bool fullNames = true);

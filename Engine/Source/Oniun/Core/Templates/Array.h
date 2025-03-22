@@ -400,13 +400,13 @@ public:
             if (m_Data[i] == item)
                 return i;
         }
-        return INVALID_INDEX;
+        return NO_POS;
     }
 
     template <typename TComparableType>
     constexpr uint64 FindLast(const TComparableType& item) const
     {
-        uint64 last = INVALID_INDEX;
+        uint64 last = NO_POS;
         for (uint64 i = 0; i < m_Count; ++i)
         {
             if (m_Data[i] == item)

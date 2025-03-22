@@ -38,7 +38,7 @@ bool FileSystem::CreateDirectory(const StringView& path)
 
         // Recursively create all sub directories
         uint64 slash = path.FindLast('/');
-        if (slash != INVALID_INDEX)
+        if (slash != NO_POS)
         {
             String subPath(Slice(path.begin(), path.begin() + slash));
             if (CreateDirectory(subPath))
@@ -65,14 +65,14 @@ bool FileSystem::DeleteDirectory(const StringView& path)
     }
 
     WIN32_FIND_DATAA  findData;
-    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
+    HANDLE handle = FindFirstFileA(*(String(path) / '*'), &findData);
     do
     {
         StringView name(findData.cFileName);
         if (name == "." || name == "..")
             continue;
 
-        String filePath = path / name;
+        String filePath = String(path) / name;
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
             if (!DeleteDirectory(*filePath))
@@ -120,7 +120,7 @@ bool FileSystem::GetDirectoryFiles(Array<String>& filePaths, const StringView& p
 bool FileSystem::GetChildDirectories(Array<String>& directories, const StringView& path)
 {
     WIN32_FIND_DATAA findData;
-    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
+    HANDLE handle = FindFirstFileA(*(String(path) / '*'), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -135,7 +135,7 @@ bool FileSystem::GetChildDirectories(Array<String>& directories, const StringVie
             continue;
 
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            directories.Add(path / name);
+            directories.Add(String(path) / name);
     }
     while (FindNextFileA(handle, &findData));
 
@@ -370,7 +370,7 @@ bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringVie
 {
     // Combine the path and the pattern into one string and initialize windows search handle
     WIN32_FIND_DATAA findData;
-    HANDLE handle = FindFirstFileA(*(path / searchPattern), &findData);
+    HANDLE handle = FindFirstFileA(*(String(path) / searchPattern), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -386,7 +386,7 @@ bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringVie
             continue;
 
         if (!(findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            filePaths.Add(path / name);
+            filePaths.Add(String(path) / name);
     }
     while (FindNextFileA(handle, &findData));
 
@@ -401,7 +401,7 @@ bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView
 
     // Combine the path and the pattern into one string and initialize windows search handle
     WIN32_FIND_DATAA findData;
-    HANDLE handle = FindFirstFileA(*(path / '*'), &findData);
+    HANDLE handle = FindFirstFileA(*(String(path) / '*'), &findData);
     if (handle == INVALID_HANDLE_VALUE)
     {
         LOG(Error, *Platform::GetLastErrorMessage());
@@ -418,7 +418,7 @@ bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView
 
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-            if (!GetDirectoryFilesAll(filePaths, path / name, searchPattern))
+            if (!GetDirectoryFilesAll(filePaths, String(path) / name, searchPattern))
             {
                 FindClose(handle);
                 return false;

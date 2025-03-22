@@ -18,6 +18,11 @@ public:
     {
     }
 
+    constexpr Function(Signature signature)
+        : m_Caller((void*)signature), m_Function(&FunctionPointer)
+    {
+    }
+
     constexpr Function(const Function& function)
         : m_Caller(function.m_Caller), m_Function(function.m_Function)
     {
@@ -48,6 +53,13 @@ public:
         m_Function = function.m_Function;
         function.m_Caller = nullptr;
         function.m_Function = nullptr;
+        return *this;
+    }
+
+    constexpr Function& operator=(Signature signature)
+    {
+        m_Caller = (void*)signature;
+        m_Function = &FunctionPointer;
         return *this;
     }
 

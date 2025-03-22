@@ -79,7 +79,7 @@ public:
         }
 
         Iterator()
-            : m_Map(nullptr), m_Index(INVALID_INDEX)
+            : m_Map(nullptr), m_Index(NO_POS)
         {
         }
 
@@ -349,7 +349,7 @@ public:
     bool Contains(const TKey& key)
     {
         uint64 pos = GetPosition(key);
-        return !m_Data[pos].Empty;
+        return !m_Data[pos].Empty && m_Data[pos].Data.Key == key;
     }
 
     TValue& At(const TKey& key)
@@ -526,26 +526,14 @@ private:
         return hash % Capacity();
     }
 
-    FORCE_INLINE uint64 GetPosition(const TKey& key, uint64 capacity) const
-    {
-        uint64 hash = THash().Get(key);
-        if ((capacity & (capacity - 1)) == 0)
-        {
-            uint64 index = hash & (capacity - 1);
-            return index;
-        }
-        uint64 index = hash % capacity;
-        return index;
-    }
-
-    FORCE_INLINE uint64 GrowIfNeeded(const TKey& keyToBeAdded, uint64 count, uint64 pos = INVALID_INDEX)
+    FORCE_INLINE uint64 GrowIfNeeded(const TKey& keyToBeAdded, uint64 count, uint64 pos = NO_POS)
     {
         uint64 newCapacity = Capacity() != 0 ? Capacity() : 1;
         // If count goes above 75% of the capacity
         if (count * 4 > newCapacity * 3)
             Resize(newCapacity * 2);
 
-        if (pos == INVALID_INDEX)
+        if (pos == NO_POS)
             pos = GetPosition(keyToBeAdded);
 
         // Keep Resizing and rehashing until there is no collision
@@ -553,9 +541,9 @@ private:
         {
             ASSERT(m_Data[pos].Data.Key != keyToBeAdded);
             newCapacity = newCapacity * 2;
-            pos = GetPosition(keyToBeAdded, newCapacity);
             if (newCapacity != Capacity())
                 Resize(newCapacity);
+            pos = GetPosition(keyToBeAdded);
         }
         return pos;
     }

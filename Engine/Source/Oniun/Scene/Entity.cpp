@@ -1,123 +1,120 @@
 #include "Oniun.pch.h"
 #include "Oniun/Scene/Entity.h"
 
+Entity Entity::Invalid;
+
 Entity::Entity()
-    : m_Name(nullptr), m_Entry(nullptr), m_Scene(nullptr)
+    : m_Id(NO_POS), m_Scene(nullptr)
 {
 }
 
-Entity::Entity(Scene::EntityName* name, Scene::EntityEntry* entry, Scene* scene)
-    : m_Name(name), m_Entry(entry), m_Scene(scene)
+Entity::Entity(UUID id, Scene* scene)
+    : m_Id(id), m_Scene(scene)
 {
 }
 
 StringView Entity::GetName() const
 {
-    DEBUG_ASSERT(IsValid());
-    return m_Name->Name.Data();
+    DEBUG_ASSERT(IsAlive());
+    return GetEntry()->Name.Data();
 }
 
 String Entity::GetFullName() const
 {
-    DEBUG_ASSERT(IsValid());
-    if (m_Name->OffsetCounter > 0)
-        return Format("{} ({})", m_Name->Name.Data(), m_Name->OffsetCounter);
-    return m_Name->Name.Data();
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->NameId > 0)
+        return Format("{}{}", GetEntry()->Name.Data(), GetEntry()->NameId);
+    return GetEntry()->Name.Data();
 }
 
 uint64 Entity::GetNameId() const
 {
-    DEBUG_ASSERT(IsValid());
-    return m_Name->OffsetCounter;
+    DEBUG_ASSERT(IsAlive());
+    return GetEntry()->NameId;
 }
 
 uint64 Entity::GetId() const
 {
-    DEBUG_ASSERT(IsValid());
-    return Hash<Scene::EntityName>{}.Get(*m_Name);
+    DEBUG_ASSERT(IsAlive());
+    return GetEntry()->GetId();
 }
 
 Entity Entity::GetParent() const
 {
-    DEBUG_ASSERT(IsValid());
-    if (m_Entry->Parent)
-        return m_Scene->Find(*m_Entry->Parent);
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->Parent != NO_POS)
+        return m_Scene->Find(GetEntry()->Parent);
     return Entity();
 }
 
 Entity Entity::GetFirstChild() const
 {
-    DEBUG_ASSERT(IsValid());
-    if (m_Entry->FirstChild)
-        return m_Scene->Find(*m_Entry->FirstChild);
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->FirstChild != NO_POS)
+        return m_Scene->Find(GetEntry()->FirstChild);
     return Entity();
 }
 
 Entity Entity::GetNextSibling() const
 {
-    DEBUG_ASSERT(IsValid());
-    if (m_Entry->Next)
-        return m_Scene->Find(*m_Entry->Next);
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->Next != NO_POS)
+        return m_Scene->Find(GetEntry()->Next);
     return Entity();
 }
 
 bool Entity::HasChildren() const
 {
-    if (!IsValid())
+    if (!IsAlive())
         return false;
-    return m_Entry->FirstChild != nullptr;
+    return GetEntry()->FirstChild != NO_POS;
 }
 
 bool Entity::HasSiblings() const
 {
-    if (!IsValid())
+    if (!IsAlive())
         return false;
-    return m_Entry->Next != nullptr;
-}
-
-bool Entity::IsValid() const
-{
-    return m_Entry != nullptr;
+    return GetEntry()->Next != NO_POS;
 }
 
 bool Entity::IsAlive() const
 {
-    return m_Scene->IsAlive(*this);
+    return m_Id != NO_POS && m_Scene->IsAlive(*this);
 }
 
 Entity Entity::AddChild(const StringView& name)
 {
-    DEBUG_ASSERT(IsValid());
-    if (m_Entry->FirstChild)
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->FirstChild != NO_POS)
     {
-        Entity child = m_Scene->Find(*m_Entry->FirstChild);
-        while (child.m_Entry->Next)
-            child = m_Scene->Find(*child.m_Entry->Next);
+        Entity child = m_Scene->Find(GetEntry()->FirstChild);
+        while (child.GetEntry()->Next != NO_POS)
+            child = m_Scene->Find(child.GetEntry()->Next);
 
         Entity newChild = m_Scene->Add(name);
-        newChild.m_Entry->Parent = m_Name;
-        child.m_Entry->Next = newChild.m_Name;
+        newChild.GetEntry()->Parent = m_Id;
+        child.GetEntry()->Next = newChild.m_Id;
         return newChild;
     }
 
     Entity child = m_Scene->Add(name);
-    child.m_Entry->Parent = m_Name;
-    m_Entry->FirstChild = child.m_Name;
+    child.GetEntry()->Parent = m_Id;
+    GetEntry()->FirstChild = child.m_Id;
     return child;
 }
 
 Entity Entity::RemoveChild(const StringView& name, bool exact)
 {
-    DEBUG_ASSERT(IsValid());
-    if (!m_Entry->FirstChild)
-        return Entity();
+    DEBUG_ASSERT(IsAlive());
+    if (GetEntry()->FirstChild != NO_POS)
+        return Invalid;
 
     // Find child
     Entity previous;
-    Entity child = m_Scene->Find(*m_Entry->FirstChild);
-    while (child.IsValid())
+    Entity child = m_Scene->Find(GetEntry()->FirstChild);
+    while (child.IsAlive())
     {
-        if (exact && child.m_Name->OffsetCounter > 0)
+        if (exact && child.GetEntry()->NameId > 0)
         {
             if (child.GetFullName().Compare(name))
                 break;
@@ -130,27 +127,27 @@ Entity Entity::RemoveChild(const StringView& name, bool exact)
         previous = child;
         child = child.GetNextSibling();
     }
-    // Remove child from entity
-    if (child.IsValid())
+    // Remove child from entity without destroying it
+    if (child.IsAlive())
     {
-        if (previous.IsValid())
-            previous.m_Entry->Next = child.m_Entry->Next;
+        if (previous.IsAlive())
+            previous.GetEntry()->Next = child.GetEntry()->Next;
         else
-            m_Entry->FirstChild = nullptr;
-        child.m_Entry->Parent = nullptr;
+            GetEntry()->FirstChild = NO_POS;
+        child.GetEntry()->Parent = NO_POS;
     }
     return child;
 }
 
 void EntityToString(String& result, const Entity& entity, bool fullNames, uint64 depth, String& prefix)
 {
-    if (!entity.IsValid())
+    if (!entity.IsAlive())
         return;
 
     // Get entity name
     char buffer[Scene::MaxEntityFullNameSize];
-    if (fullNames)
-        Crt::Format(buffer, Scene::MaxEntityFullNameSize, "%s (%llu)", *entity.GetName(), entity.GetNameId());
+    if (fullNames && entity.GetNameId() > 0)
+        Crt::Format(buffer, Scene::MaxEntityFullNameSize, "%s%llu", *entity.GetName(), entity.GetNameId());
     else
         Crt::Format(buffer, Scene::MaxEntityFullNameSize, "%s", *entity.GetName());
 
@@ -163,12 +160,11 @@ void EntityToString(String& result, const Entity& entity, bool fullNames, uint64
     // Collect children
     Entity child = entity.GetFirstChild();
     Array<Entity> children;
-    while (child.IsValid())
+    while (child.IsAlive())
     {
         children.Add(child);
         child = child.GetNextSibling();
     }
-
     // Process children with correct formatting
     for (size_t i = 0; i < children.Count(); ++i)
     {
