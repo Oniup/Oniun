@@ -1,8 +1,5 @@
 #include "GuiWindows/Console.h"
 
-#include <cstdio>
-#include <ctime>
-
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Math/Color.h"
 #include "Oniun/RHI/ImGuiLayer.h"
@@ -72,7 +69,7 @@ namespace Oniun
         // Get lighter background color to be 1.5 times lighter than the base background
         const ImGuiStyle& style = ImGui::GetStyle();
         ImVec4 lighterBg = style.Colors[ImGuiCol_WindowBg];
-        constexpr float lighterMulti = 1.5f;
+        constexpr float lighterMulti = 1.8f;
         lighterBg = ImVec4(lighterBg.x * lighterMulti, lighterBg.y * lighterMulti, lighterBg.z * lighterMulti, lighterBg.w);
 
         // Set color
@@ -109,7 +106,8 @@ namespace Oniun
 
             constexpr uint64 bufferMaxCount = 256;
             char childName[bufferMaxCount];
-            std::snprintf(childName, bufferMaxCount, "LogMessage%llu", i);
+            Crt::Format(childName, bufferMaxCount, "LogMessage%llu", i);
+
             ImGui::BeginChild(childName, ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY);
             {
                 // Display log
@@ -135,6 +133,7 @@ namespace Oniun
                 }
             }
             ImGui::EndChild();
+            ImGui::Spacing();
 
             ++i;
         }

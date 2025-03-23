@@ -42,7 +42,11 @@ namespace Oniun
             exitCode = m_Job->Run();
             m_Job->Exit();
         }
-        LOG(Trace, "Thread \'{}\', ID: {} exited with code {}", m_Job->GetName(), m_Id, exitCode);
+        if (exitCode != 0)
+            LOG(Error, "Thread \"{}\", ID: {} exited with error code {}", m_Job->GetName(), m_Id, exitCode);
+        else
+            LOG(Trace, "Thread \'{}\', ID: {} exited with code {}", m_Job->GetName(), m_Id, exitCode);
+
         m_IsRunning = false;
 
         // TODO: Remove from the thread registry layer

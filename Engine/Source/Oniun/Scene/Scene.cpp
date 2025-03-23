@@ -17,7 +17,7 @@ namespace Oniun
 
     Entity Scene::Add(const StringView& name)
     {
-        ASSERT(name.Length() + 1 < MaxEntityNameSize);
+        ASSERT(name.Length() + 1 < EntityEntry::MaxNameSize);
         EntityEntry newEntry = {
             .NameId = 0,
             .Parent = NO_POS,
@@ -64,14 +64,14 @@ namespace Oniun
 
     void Scene::Remove(const Entity& entity)
     {
-        m_Entities.Remove(entity.m_Id);
+        m_Entities.Remove(entity.GetId());
         for (auto&[compId, pool] : m_Pools)
             pool.Remove(entity);
     }
 
     bool Scene::IsAlive(const Entity& entity)
     {
-        return m_Entities.Contains(entity.m_Id);
+        return m_Entities.Contains(entity.GetId());
     }
 
     byte* Scene::AddComponent(UUID entity, const ComponentType& type)
@@ -106,10 +106,5 @@ namespace Oniun
         if (!pool)
             return nullptr;
         return pool->Get(entity);
-    }
-
-    UUID Scene::EntityEntry::GetId() const
-    {
-        return Hash_Internal::FnvHash(Name.Data(), Name.Count()) + Hash<uint64>{}.Get(NameId);
     }
 }

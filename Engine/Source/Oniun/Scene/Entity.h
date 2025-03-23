@@ -2,14 +2,13 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/String/Format.h"
+#include "Oniun/Scene/EntityEntry.h"
 #include "Oniun/Scene/Scene.h"
 
 namespace Oniun
 {
     class Entity
     {
-        friend Scene;
-
     public:
         static Entity Invalid;
 
@@ -58,12 +57,12 @@ namespace Oniun
         TComponent* Get();
 
     private:
-        FORCE_INLINE Scene::EntityEntry* GetEntry()
+        FORCE_INLINE EntityEntry* GetEntry()
         {
             return &m_Scene->m_Entities.At(m_Id);
         }
 
-        FORCE_INLINE const Scene::EntityEntry* GetEntry() const
+        FORCE_INLINE const EntityEntry* GetEntry() const
         {
             return &m_Scene->m_Entities.At(m_Id);
         }

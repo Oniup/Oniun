@@ -9,6 +9,7 @@
 #include "Oniun/Core/Templates/Function.h"
 #include "Oniun/PLatform/EntryPoint.h"
 #include "Oniun/Renderer/RendererLayer.h"
+#include "Oniun/Scene/ComponentQuery.h"
 #include "Oniun/Scene/Entity.h"
 #include "Oniun/Scene/Scene.h"
 #include "Oniun/Scene/SceneLayer.h"
@@ -22,6 +23,11 @@ namespace Oniun
         Vector3 Position;
         Vector3 Scale;
         Vector3 Rotation;
+    };
+
+    struct MessageComponent
+    {
+        String Message;
     };
 
     struct MeshComponent
@@ -68,43 +74,28 @@ namespace Oniun
         int32 Run() override
         {
             auto start = std::chrono::high_resolution_clock::now();
+            Scene scene;
+            for (uint64 i = 0; i < 1000; ++i)
             {
-                Scene scene;
-                Entity player;
-                for (uint64 i = 0; i < 20000; ++i)
-                {
-                    Entity entity;
-                    if (i != 75)
-                        entity = scene.Add();
-                    else
-                    {
-                        player = scene.Add("Player");
-                        entity = player;
-                    }
-
-                    entity.Add<TransformComponent>(Vector3(1.0f, 2.0f, 3.0f), Vector3(1.0f), Vector3(0.0f));
-                    MeshComponent* mesh = entity.Add<MeshComponent>();
-                    mesh->Vertices.Resize(250);
-                    mesh->Indices.Resize(125);
-
-                    if (i > 75)
-                    {
-                        TransformComponent* transform = player.Get<TransformComponent>();
-                        if (mesh != nullptr)
-                            transform->Position.X += 1.0f;
-                        mesh->Vertices.Resize(mesh->Vertices.Count() + 1);
-                    }
-                }
-
-                TransformComponent* transform = player.Get<TransformComponent>();
-                MeshComponent* mesh = player.Get<MeshComponent>();
-                LOG(Info, "Player position: {}, number of vertices the mesh has: {}", transform->Position,
-                    mesh->Vertices.Count());
+                Entity entity = scene.Add();
+                entity.Add<TransformComponent>(Vector3(i));
+                if (i % 2 == 0)
+                    entity.Add<MessageComponent>(ToString(i));
             }
             auto end = std::chrono::high_resolution_clock::now();
-            float duration = std::chrono::duration<float>(end - start).count();
-            LOG(Warning, "Duration: {}", duration);
+            float creationDuration = std::chrono::duration<float>(end - start).count();
 
+            start = std::chrono::high_resolution_clock::now();
+            uint64 i = 0;
+            for (ComponentQuery<TransformComponent, MessageComponent> query(scene); !query.IsEnd(); ++query)
+            {
+                TransformComponent* transform = query.Get<TransformComponent>();
+                MessageComponent* message = query.Get<MessageComponent>();
+                transform->Position = Vector3(i * 10);
+                ++i;
+            }
+            end = std::chrono::high_resolution_clock::now();
+            LOG(Warning, "Creation: {}, Query: {}", creationDuration, std::chrono::duration<float>(end - start).count());
             return 0;
         }
     };
@@ -133,10 +124,33 @@ namespace Oniun
         imGui->Register(Memory::New<Hierarchy>());
 
         Engine::RegisterLayer<SceneLayer>();
-        Thread thread(Memory::New<TestSceneJob>());
-        thread.Start();
+        // Thread thread(Memory::New<TestSceneJob>());
+        // thread.Start();
+        {
+            Scene scene;
+            for (uint64 i = 0; i < 10; ++i)
+            {
+                Entity entity = scene.Add();
+                entity.Add<TransformComponent>(Vector3(i));
+                if (i % 2 == 0)
+                    entity.Add<MessageComponent>(ToString(i));
+            }
+
+            uint64 i = 0;
+            for (ComponentQuery<TransformComponent, MessageComponent> query(scene); !query.IsEnd(); ++query)
+            {
+                TransformComponent* transform = query.Get<TransformComponent>();
+                MessageComponent* message = query.Get<MessageComponent>();
+                transform->Position *= 10;
+                message->Message.Set("Testing");
+                ++i;
+            }
+            for (ComponentQuery<TransformComponent> query(scene); !query.IsEnd(); ++query)
+                LOG(Info, "{}: {}", query.GetCurrentEntityFullName(), query.Get<TransformComponent>()->Position);
+        }
 
         engine.Run();
+        // thread.Join();
 
         return 0;
     }

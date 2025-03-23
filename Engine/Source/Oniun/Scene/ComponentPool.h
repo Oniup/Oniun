@@ -30,6 +30,9 @@ namespace Oniun
     class ComponentPool
     {
     public:
+        using Iterator = HashMap<uint64, byte*>::Iterator;
+
+    public:
         ComponentPool(const ComponentType& type);
         ComponentPool(ComponentPool&& pool);
         ~ComponentPool();
@@ -43,6 +46,11 @@ namespace Oniun
         FORCE_INLINE uint64 GetBlockSize() const
         {
             return m_BlockSize;
+        }
+
+        FORCE_INLINE const ComponentType& GetSupportedType() const
+        {
+            return m_Type;
         }
 
     public:

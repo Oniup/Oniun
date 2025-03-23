@@ -158,11 +158,11 @@ namespace Oniun
             return;
 
         // Get entity name
-        char buffer[Scene::MaxEntityFullNameSize];
+        char buffer[EntityEntry::MaxFullNameSize];
         if (fullNames && entity.GetNameId() > 0)
-            Crt::Format(buffer, Scene::MaxEntityFullNameSize, "%s%llu", *entity.GetName(), entity.GetNameId());
+            Crt::Format(buffer, EntityEntry::MaxFullNameSize, "%s%llu", *entity.GetName(), entity.GetNameId());
         else
-            Crt::Format(buffer, Scene::MaxEntityFullNameSize, "%s", *entity.GetName());
+            Crt::Format(buffer, EntityEntry::MaxFullNameSize, "%s", *entity.GetName());
 
         result.Append(prefix);
         result.Append(buffer);
