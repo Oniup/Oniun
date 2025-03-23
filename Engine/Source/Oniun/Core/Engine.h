@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Oniun/Core/ClassConstraints.h"
 #include "Oniun/Core/EngineLayer.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/String.h"
@@ -99,7 +98,6 @@ namespace Oniun
         Array<EngineLayer*> m_Layers;
         AppInfo m_Info;
         bool m_Running;
-
     };
 
     String ToString(const AppInfo::Version& version);

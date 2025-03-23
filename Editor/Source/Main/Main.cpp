@@ -3,7 +3,6 @@
 #include "GuiWindows/Hierarchy.h"
 
 #include <chrono>
-#include <thread>
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/Math/Vector3.h"
@@ -13,6 +12,8 @@
 #include "Oniun/Scene/Entity.h"
 #include "Oniun/Scene/Scene.h"
 #include "Oniun/Scene/SceneLayer.h"
+
+#include "Oniun/Platform/Thread.h"
 
 namespace Oniun
 {
@@ -56,88 +57,19 @@ namespace Oniun
         Face RightFace;
     };
 
-    void TestHashMap();
-
-    int EntryPoint(const CommandLineArguments& args)
+    class TestSceneJob : public IThreadJob
     {
-        Logger logger;
-#if !ONU_DIST
-        Logger::AddOutput(Memory::New<TerminalLogOutput>());
-#endif
-        Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
+    public:
+        TestSceneJob()
+            : IThreadJob("Testing Scene")
+        {
+        }
 
-        Engine engine(AppInfo{
-            .Name = "Oniun Engine",
-            .CommandLineArguments = args,
-            .AppBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
-            .EngineBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
-        });
-
-        const AppInfo& info = Engine::GetAppInfo();
-        Engine::RegisterLayer<RendererLayer>(Format("{} {}", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
-
-        ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
-        imGui->Register(Memory::New<DockingSpace>());
-        imGui->Register(Memory::New<Console>());
-        imGui->Register(Memory::New<Hierarchy>());
-
-        Engine::RegisterLayer<SceneLayer>();
-        std::thread thread([]()
+        int32 Run() override
         {
             auto start = std::chrono::high_resolution_clock::now();
             {
                 Scene scene;
-                // {
-                //     Entity slimeBase = scene.Add("Slime");
-                //     Entity body = slimeBase.AddChild("Body");
-                //     body.AddChild("Left Eye");
-                //     body.AddChild("Right Eye");
-                //
-                //     Entity treasure = slimeBase.AddChild("Treasure");
-                //     treasure.AddChild("Weapon");
-                //     Entity coinPouch = treasure.AddChild("Coin Pouch");
-                //     coinPouch.AddChild("Coin");
-                //     coinPouch.AddChild("Coin");
-                //     coinPouch.AddChild("Coin");
-                //     coinPouch.AddChild("Coin");
-                // }
-                // {
-                //     Entity playerBase = scene.Add("Player");
-                //     playerBase.AddChild("Head");
-                //     Entity torso = playerBase.AddChild("Torso");
-                //     torso.AddChild("Left Arm").AddChild("Hand");
-                //     torso.AddChild("Right Arm").AddChild("Hand");
-                //
-                //     Entity hips = torso.AddChild("Hips");
-                //     hips.AddChild("Left Leg").AddChild("Foot");
-                //     hips.AddChild("Right Leg").AddChild("Foot");
-                // }
-                // {
-                //     auto addTree = [](Entity& parent)
-                //     {
-                //         Entity tree = parent.AddChild("Tree");
-                //         tree.AddChild("Trunk").AddChild("Leaves");
-                //     };
-                //
-                //     Entity environment = scene.Add("Environment");
-                //     environment.AddChild("Floor");
-                //     addTree(environment);
-                //     addTree(environment);
-                //     addTree(environment);
-                //     addTree(environment);
-                // }
-                //
-                // FixedArray<StringView, 3> targets({"Player", "Environment", "Slime"});
-                // for (auto& [id, entry] : scene.GetEntityEntries())
-                // {
-                //     Entity entity(id, &scene);
-                //     for (const StringView& targetName : targets)
-                //     {
-                //         if (entity.GetName() == targetName)
-                //             LOG(Info, "{}", entity);
-                //     }
-                // }
-
                 Entity player;
                 for (uint64 i = 0; i < 20000; ++i)
                 {
@@ -172,10 +104,39 @@ namespace Oniun
             auto end = std::chrono::high_resolution_clock::now();
             float duration = std::chrono::duration<float>(end - start).count();
             LOG(Warning, "Duration: {}", duration);
+
+            return 0;
+        }
+    };
+
+    int EntryPoint(const CommandLineArguments& args)
+    {
+        Logger logger;
+#if !ONU_DIST
+        Logger::AddOutput(Memory::New<TerminalLogOutput>());
+#endif
+        Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
+
+        Engine engine(AppInfo{
+            .Name = "Oniun Engine",
+            .CommandLineArguments = args,
+            .AppBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
+            .EngineBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
         });
 
+        const AppInfo& info = Engine::GetAppInfo();
+        Engine::RegisterLayer<RendererLayer>(Format("{} {}", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
+
+        ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
+        imGui->Register(Memory::New<DockingSpace>());
+        imGui->Register(Memory::New<Console>());
+        imGui->Register(Memory::New<Hierarchy>());
+
+        Engine::RegisterLayer<SceneLayer>();
+        Thread thread(Memory::New<TestSceneJob>());
+        thread.Start();
+
         engine.Run();
-        thread.join();
 
         return 0;
     }
