@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/Time/DeltaTime.h"
 
 #include <GLFW/glfw3.h>

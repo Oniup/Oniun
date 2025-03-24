@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/Logger.h"
 
 #include "Oniun/Core/Time/DateTime.h"

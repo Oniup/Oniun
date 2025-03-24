@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Scene/ComponentPool.h"
 
 #include "Oniun/Core/Engine.h"

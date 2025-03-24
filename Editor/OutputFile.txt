@@ -1,0 +1,4 @@
+[Info 1:25:41 3/24/2025 Oniun::EntryPoint:121 Oniun/Editor/Source/Main/Main.cpp]:
+Current working directory: C:/Dev/GameEngines/Oniun/Editor
+[Info 1:31:12 3/24/2025 Oniun::EntryPoint:121 Oniun/Editor/Source/Main/Main.cpp]:
+Current working directory: C:/Dev/GameEngines/Oniun/Editor

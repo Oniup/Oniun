@@ -8,13 +8,13 @@
 #include "Oniun/Core/Math/Vector3.h"
 #include "Oniun/Core/Templates/Function.h"
 #include "Oniun/PLatform/EntryPoint.h"
+#include "Oniun/Platform/FileSystem.h"
+#include "Oniun/Platform/Thread.h"
 #include "Oniun/Renderer/RendererLayer.h"
 #include "Oniun/Scene/ComponentQuery.h"
 #include "Oniun/Scene/Entity.h"
 #include "Oniun/Scene/Scene.h"
 #include "Oniun/Scene/SceneLayer.h"
-
-#include "Oniun/Platform/Thread.h"
 
 namespace Oniun
 {
@@ -116,7 +116,9 @@ namespace Oniun
         });
 
         const AppInfo& info = Engine::GetAppInfo();
-        Engine::RegisterLayer<RendererLayer>(Format("{} {}", info.Name, info.EngineBuild), -1, -1, Window::DefaultFlags);
+        Engine::RegisterLayer<RendererLayer>(Format("{} {}", info.Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
+
+        LOG(Info, "Current working directory: {}", FileSystem::GetCurrentDirectory());
 
         ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
         imGui->Register(Memory::New<DockingSpace>());

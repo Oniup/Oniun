@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Scene/SceneLayer.h"
 
 namespace Oniun

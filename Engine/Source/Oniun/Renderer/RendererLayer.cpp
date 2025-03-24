@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Renderer/RendererLayer.h"
 
 #include <glad/glad.h>

@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/String/Format.h"
 
 #include <cstdio>

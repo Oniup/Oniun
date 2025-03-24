@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/Memory/Crt.h"
 
 #define STB_SPRINTF_IMPLEMENTATION

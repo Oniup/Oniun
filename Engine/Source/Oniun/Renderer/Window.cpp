@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Renderer/Window.h"
 
 #include "Oniun/Core/Logger.h"

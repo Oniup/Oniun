@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/Engine.h"
 
 #include <GLFW/glfw3.h>

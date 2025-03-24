@@ -1,11 +1,11 @@
-#include "Oniun.pch.h"
-
 #if ONU_PLATFORM_WINDOWS
 
 #include "Oniun/Platform/Windows/Win32Thread.h"
+
+#include <Windows.h>
+
 #include "Oniun/Core/Logger.h"
 
-#include "Windows.h"
 
 namespace Oniun
 {

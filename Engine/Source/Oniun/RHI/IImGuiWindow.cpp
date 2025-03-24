@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/RHI/IImGuiWindow.h"
 
 namespace Oniun

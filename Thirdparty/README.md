@@ -26,7 +26,6 @@
 
 * include, and src
 
-
 ## glfw
 
 * Upstream: https://github.com/glfw/glfw
@@ -35,7 +34,8 @@
 
 #### Files Extracted:
 
-* deps, include, and src
+* CMakeLists.txt
+* CMake, deps, include, and src 
 
 
 ## ImGui

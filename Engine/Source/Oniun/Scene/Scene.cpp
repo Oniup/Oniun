@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Scene/Scene.h"
 
 #include "Oniun/Core/Logger.h"
@@ -81,7 +80,6 @@ namespace Oniun
             LOG(Warning, "Entity doesn't, cannot add component");
             return nullptr;
         }
-
         // Get pool with desired component type
         ComponentPool* pool = m_Pools.Try(type.Id);
         if (!pool)

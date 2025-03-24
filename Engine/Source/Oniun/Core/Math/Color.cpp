@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Core/Math/Color.h"
 
 #include "Oniun/Core/String/Format.h"

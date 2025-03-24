@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/RHI/Base/IImGuiLayer.h"
 
 #include <GLFW/glfw3.h>
@@ -11,8 +10,8 @@
 
 namespace Oniun
 {
-    static constexpr StringView EngineDefaultFont = "../../../Engine/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
-    static constexpr StringView EngineMonoFont = "../../../Engine/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
+    static constexpr StringView EngineDefaultFont = "../Engine/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
+    static constexpr StringView EngineMonoFont = "../Engine/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
     static constexpr uint64 EngineDefaultFontSize = 20;
 
     void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)

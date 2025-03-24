@@ -1,4 +1,3 @@
-#include "Oniun.pch.h"
 #include "Oniun/Platform/Base/IThread.h"
 
 #include "Oniun/Core/Logger.h"
