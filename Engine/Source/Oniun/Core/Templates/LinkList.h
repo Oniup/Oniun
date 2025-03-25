@@ -397,7 +397,7 @@ namespace Oniun
 
         void RemoveAt(uint64 index)
         {
-            DEBUG_ASSERT(index < m_Count);
+            ASSERT(index < m_Count);
             Node* node = m_First;
             for (uint64 i = 0; i < index; ++i)
                 node = node->Next;
@@ -429,7 +429,7 @@ namespace Oniun
 
         T PopAt(uint64 index)
         {
-            DEBUG_ASSERT(index < m_Count);
+            ASSERT(index < m_Count);
             Node* node = m_First;
             for (uint64 i = 0; i < index; ++i)
                 node = node->Next;

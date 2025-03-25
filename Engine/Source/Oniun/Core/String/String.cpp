@@ -501,7 +501,7 @@ namespace Oniun
 
     void String::Insert(uint64 index, const StringView& str)
     {
-        DEBUG_ASSERT(index < m_Length);
+        ASSERT(index < m_Length);
         uint64 oldLength = m_Length;
         Resize(m_Length + str.Length());
         Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
@@ -510,7 +510,7 @@ namespace Oniun
 
     void String::Remove(uint64 index, uint64 length)
     {
-        DEBUG_ASSERT(index + length < m_Length);
+        ASSERT(index + length < m_Length);
         Crt::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, (m_Length - index + length));
         Resize(m_Length - length);
         m_Data[m_Length] = 0;
@@ -528,7 +528,7 @@ namespace Oniun
 
     String String::Substring(uint64 startIndex, uint64 length) const
     {
-        DEBUG_ASSERT(startIndex + length < m_Length);
+        ASSERT(startIndex + length < m_Length);
         String substr(length);
         Slice slice(ToSlice(*this, startIndex, length));
         substr.Set(slice);

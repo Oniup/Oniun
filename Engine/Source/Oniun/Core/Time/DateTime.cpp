@@ -30,7 +30,7 @@ namespace Oniun
         timeInfo.tm_mday = monthDay;
         timeInfo.tm_year = year;
         m_Time = mktime(&timeInfo);
-        DEBUG_ASSERT(m_Time != -1)
+        ASSERT(m_Time != -1)
     }
 
     int64 DateTime::GetTime() const
@@ -86,7 +86,7 @@ namespace Oniun
 
     String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bool militaryTime)
     {
-        DEBUG_ASSERT((includeTime && includeDate) || (includeTime || includeDate))
+        ASSERT((includeTime && includeDate) || (includeTime || includeDate))
 
         time_t time = dateTime.GetTime();
         tm* tm = localtime(&time);

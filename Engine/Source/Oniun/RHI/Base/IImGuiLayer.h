@@ -10,6 +10,8 @@ namespace Oniun
 
     class IImGuiLayer : public EngineLayer
     {
+        API_ENGINE_LAYER()
+
     public:
         IImGuiLayer();
         ~IImGuiLayer() override;

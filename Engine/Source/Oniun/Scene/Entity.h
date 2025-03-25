@@ -22,6 +22,16 @@ namespace Oniun
             return m_Id;
         }
 
+        FORCE_INLINE bool operator==(const Entity& entity) const
+        {
+            return m_Id == entity.m_Id && m_Scene == entity.m_Scene;
+        }
+
+        FORCE_INLINE bool operator!=(const Entity& entity) const
+        {
+            return m_Id != entity.m_Id && m_Scene != entity.m_Scene;
+        }
+
     public:
         StringView GetName() const;
         String GetFullName() const;
@@ -30,6 +40,7 @@ namespace Oniun
         Entity GetParent() const;
         Entity GetFirstChild() const;
         Entity GetNextSibling() const;
+        Array<Entity> GetChildren() const;
 
     public:
         bool HasChildren() const;

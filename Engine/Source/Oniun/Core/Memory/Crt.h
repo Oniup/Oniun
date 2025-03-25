@@ -60,7 +60,7 @@ namespace Oniun::Crt
     FORCE_INLINE void* Allocate(uint64 size)
     {
         void* ptr = std::malloc(size);
-        DEBUG_ASSERT(ptr && "Ran out of memory");
+        ASSERT(ptr && "Ran out of memory");
         return ptr;
     }
 

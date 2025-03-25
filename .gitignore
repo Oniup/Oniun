@@ -8,6 +8,12 @@ bin
 compile_commands.json
 platform/windows/godot_res.res
 
+# CMake generated files
+*.dir
+cmake_install.cmake
+CMakeFiles
+CMakeCache.txt
+
 # Ninja build files
 *.ninja
 .ninja/

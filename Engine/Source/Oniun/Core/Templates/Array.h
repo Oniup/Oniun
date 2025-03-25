@@ -37,7 +37,7 @@ namespace Oniun
         constexpr Array(uint64 count, uint64 capacity)
             : m_Count(count)
         {
-            DEBUG_ASSERT(count < capacity);
+            ASSERT(count < capacity);
             m_Data.Allocate(capacity);
             Memory::ConstructItems(m_Data.Ptr(), m_Count);
         }
@@ -335,7 +335,7 @@ namespace Oniun
 
         constexpr void Insert(const T& value, uint64 index)
         {
-            DEBUG_ASSERT(index <= m_Count);
+            ASSERT(index <= m_Count);
             if (Resize(m_Count + 1))
             {
                 Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
@@ -345,7 +345,7 @@ namespace Oniun
 
         constexpr void Insert(T&& value, uint64 index)
         {
-            DEBUG_ASSERT(index <= m_Count);
+            ASSERT(index <= m_Count);
             if (Resize(m_Count + 1))
             {
                 Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
@@ -367,7 +367,7 @@ namespace Oniun
 
         constexpr void RemoveAt(uint64 index)
         {
-            DEBUG_ASSERT(index <= m_Count);
+            ASSERT(index <= m_Count);
             Memory::DestructItem(&m_Data[index]);
             Crt::Move(m_Data.Ptr() + index, m_Data.Ptr() + index + 1, sizeof(T) * (m_Count - index - 1));
             Resize(m_Count - 1);
@@ -375,20 +375,20 @@ namespace Oniun
 
         constexpr void RemoveAt(Iterator iterator)
         {
-            DEBUG_ASSERT(iterator < end());
+            ASSERT(iterator < end());
             RemoveAt(end() - iterator);
         }
 
         constexpr void RemoveLast()
         {
-            DEBUG_ASSERT(m_Count > 0);
+            ASSERT(m_Count > 0);
             Memory::DestructItem(&Back());
             Resize(m_Count - 1);
         }
 
         constexpr T Pop()
         {
-            DEBUG_ASSERT(m_Count > 0);
+            ASSERT(m_Count > 0);
             T item(Memory::Move(Back()));
             Resize(m_Count - 1);
             return item;
@@ -444,7 +444,7 @@ namespace Oniun
     template <typename T, typename TAllocationType>
     constexpr Slice<T> ToSlice(const Array<T, TAllocationType>& array, uint64 index, uint64 count)
     {
-        DEBUG_ASSERT(index + count <= array.Count());
+        ASSERT(index + count <= array.Count());
         return Slice(array.Data() + index, count);
     }
 }

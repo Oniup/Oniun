@@ -83,50 +83,27 @@ namespace Oniun
 #define ONU_PLATFORM_MACOS 1
 #endif
 
-// Build
-
-#if !defined(ONU_DEBUG)
-#define ONU_DEBUG 0
-#else
-#undef ONU_DEBUG
-#define ONU_DEBUG 1
-#endif
-
-#if !defined(ONU_RELEASE)
-#define ONU_RELEASE 0
-#else
-#undef ONU_RELEASE
-#define ONU_RELEASE 1
-#endif
-
-#if !defined(ONU_DIST)
-#define ONU_DIST 0
-#else
-#undef ONU_DIST
-#define ONU_DIST 1
-#endif
-
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
 #define DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT 256
-#define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0])
+#define CARRAY_COUNT(_CArray) (sizeof(_CArray) / sizeof(_CArray[0]))
 
 #define COMP_POOL_MAX_TYPE_COUNT 5
 
 /// Assert exists program if _Expression is false
 ///
 /// @param _Expression If true, then continue program, otherwise exists out with exit code -1
-#define ASSERT(_Expression) \
+#define FORCE_ASSERT(_Expression) \
 { \
     if (!(_Expression)) \
         Oniun::Assert_Internal::Assert(#_Expression, __FILE__, __FUNCTION__, __LINE__); \
 }
 
-#if !ONU_DIST
+#ifndef NDEBUG
 /// Debug Assert exists program if _Expression is false
 /// @warning Does not get called if build is set to Dist
 ///
 /// @param _Expression If true, then continue program, otherwise exists out with exit code -1
-#define DEBUG_ASSERT(_Expression) ASSERT(_Expression)
+#define ASSERT(_Expression) FORCE_ASSERT(_Expression)
 #else
-#define DEBUG_ASSERT(_Expression)
+#define ASSERT(_Expression)
 #endif

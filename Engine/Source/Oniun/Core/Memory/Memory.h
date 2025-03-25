@@ -28,7 +28,7 @@ namespace Oniun::Memory
     }
 
     template<typename T>
-    FORCE_INLINE constexpr void Swap(T& val0, T& val1)
+    FORCE_INLINE constexpr void Swap(T&& val0, T&& val1)
     {
         T temp = Move(val0);
         val0 = Move(val1);

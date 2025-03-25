@@ -8,6 +8,7 @@ add_executable(
     ${HDR_FILES}
     ${SRC_FILES}
 )
+
 target_include_directories(
     OniunEditor PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Source
@@ -17,8 +18,17 @@ target_link_libraries(
     OniunEditor PUBLIC
     Oniun
 )
-set_property(
-    TARGET OniunEditor PROPERTY
-    VS_DEBUGGER_WORKING_DIRECTORY "${BINARY_OUTPUT_DIRECTORY}"
-)
 
+if (WIN32)
+    set_target_properties(
+        OniunEditor PROPERTIES
+        WIN32_EXECUTABLE "$<CONFIG:Release>"
+    )
+
+    if (MSVC)
+        set_target_properties(
+            OniunEditor PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${BINARY_OUTPUT_DIRECTORY}/"
+        )
+    endif()
+endif()

@@ -67,7 +67,7 @@ namespace Oniun
 
         FORCE_INLINE constexpr TReturn operator()(TParams... args) const
         {
-            DEBUG_ASSERT(m_Function);
+            ASSERT(m_Function);
             return m_Function(m_Caller, Memory::Forward<TParams>(args)...);
         }
 

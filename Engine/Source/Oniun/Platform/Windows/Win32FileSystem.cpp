@@ -359,7 +359,7 @@ namespace Oniun
     void FileSystem::OpenFileExplorer(const StringView& openPath)
     {
         RendererLayer* renderer = Engine::GetLayer<RendererLayer>();
-        DEBUG_ASSERT(renderer);
+        ASSERT(renderer);
         HWND handle = glfwGetWin32Window(renderer->GetWindow()->GetInternalWindow());
         ShellExecuteA(handle, "explore", *openPath, nullptr, nullptr, SW_SHOWNORMAL);
     }

@@ -7,7 +7,7 @@ namespace Oniun
     IThread::IThread(IThreadJob* runnable)
         : m_IsRunning(false), m_Job(runnable), m_Id(0)
     {
-        DEBUG_ASSERT(m_Job);
+        ASSERT(m_Job);
     }
 
     bool IThread::Start()

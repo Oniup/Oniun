@@ -23,7 +23,7 @@ namespace Oniun
 
     void RendererLayer::SetImGuiWindowLayer(ImGuiLayer* layer)
     {
-        DEBUG_ASSERT(!m_ImGuiLayer && "Cannot have two ImGui contexts");
+        ASSERT(!m_ImGuiLayer && "Cannot have two ImGui contexts");
         m_ImGuiLayer = layer;
     }
 

@@ -366,28 +366,28 @@ namespace Oniun
         TValue& At(const TKey& key)
         {
             Bucket* bucket = GetBucket(key);
-            ASSERT(bucket);
+            FORCE_ASSERT(bucket);
             return bucket->Data.Value;
         }
 
         const TValue& At(const TKey& key) const
         {
             Bucket* bucket = GetBucket(key);
-            ASSERT(bucket);
+            FORCE_ASSERT(bucket);
             return bucket->Data.Value;
         }
 
         Pair<TKey, TValue>& GetPair(const TKey& key)
         {
             Bucket* bucket = GetBucket(key);
-            ASSERT(bucket);
+            FORCE_ASSERT(bucket);
             return bucket->Data;
         }
 
         const Pair<TKey, TValue>& GetPair(const TKey& key) const
         {
             Bucket* bucket = GetBucket(key);
-            ASSERT(bucket);
+            FORCE_ASSERT(bucket);
             return bucket->Data;
         }
 

@@ -14,7 +14,7 @@ namespace Oniun
 
         char* operator[](int32 index)
         {
-            DEBUG_ASSERT(index < Count);
+            ASSERT(index < Count);
             return Args[index];
         }
     };
@@ -47,8 +47,8 @@ namespace Oniun
     class Engine
     {
     public:
-        Engine(const AppInfo& appInfo);
-        ~Engine();
+        Engine();
+        virtual ~Engine();
 
     public:
         FORCE_INLINE static void Quit()
@@ -61,16 +61,17 @@ namespace Oniun
             return m_Instance->m_Info;
         }
 
+        virtual void Setup() = 0;
         void Run();
 
         template <typename TLayer, typename... TArgs>
-        FORCE_INLINE static TLayer* RegisterLayer(TArgs&&... args)
+        FORCE_INLINE TLayer* RegisterLayer(TArgs&&... args)
         {
             return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::New<TLayer>(args...)));
         }
 
         template <typename TLayer>
-        FORCE_INLINE static TLayer* RegisterLayer(TLayer* layer)
+        FORCE_INLINE TLayer* RegisterLayer(TLayer* layer)
         {
             return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(layer));
         }
@@ -88,6 +89,9 @@ namespace Oniun
             return nullptr;
         }
 
+    protected:
+        void RegisterAppInfo(const AppInfo& info);
+
     private:
         EngineLayer* ImplRegisterLayer(EngineLayer* layer);
         EngineLayer* ImplGetLayer(uint64 fastId);
@@ -98,7 +102,12 @@ namespace Oniun
         Array<EngineLayer*> m_Layers;
         AppInfo m_Info;
         bool m_Running;
+
+    protected:
+        Logger m_Logger;
     };
+
+    extern Engine* CreateApplication(const CommandLineArguments& args);
 
     String ToString(const AppInfo::Version& version);
 }

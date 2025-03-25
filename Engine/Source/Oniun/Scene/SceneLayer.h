@@ -9,6 +9,8 @@ namespace Oniun
     {
         API_ENGINE_LAYER()
 
+        friend Scene;
+
     public:
         SceneLayer(uint64 componentChunksPerBlockCount = DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT);
 
@@ -30,10 +32,17 @@ namespace Oniun
 
         Scene* GetLoadedScene(const StringView& title) const;
 
+        // static void SetCreateEntityCallback(Function<void(Entity entity)>&& callback);
+        // static void SetDestroyEntityCallback(Function<void(Entity entity)>&& callback);
+
+    public:
         void OnUpdate() override;
 
     private:
         static uint64 m_ChunksPerBlockCount;
+        // static Function<void(Entity entity)> m_CreateEntityCallback;
+        // static Function<void(Entity entity)> m_DestroyEntityCallback;
+
         Array<Scene> m_Loaded;
         Scene* m_Active;
     };

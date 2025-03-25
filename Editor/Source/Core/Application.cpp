@@ -1,22 +1,25 @@
+#include "Core/Application.h"
+
+#include <Oniun/Core/EntryPoint.h>
+
+// Core engine layers
+#include <Oniun/Renderer/RendererLayer.h>
+#include <Oniun/RHI/ImGuiLayer.h>
+#include <Oniun/Scene/SceneLayer.h>
+
+// Test
+#include <chrono>
+#include <Oniun/Core/Math/Vector3.h>
+#include <Oniun/PLatform/Thread.h>
+#include <Oniun/Scene/ComponentQuery.h>
+#include <Oniun/Scene/Entity.h>
+
+// Editor core windows
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"
 
-#include <chrono>
-#include "Oniun/Core/Engine.h"
-#include "Oniun/Core/Logger.h"
-#include "Oniun/Core/Math/Vector3.h"
-#include "Oniun/Core/Templates/Function.h"
-#include "Oniun/PLatform/EntryPoint.h"
-#include "Oniun/Platform/FileSystem.h"
-#include "Oniun/Platform/Thread.h"
-#include "Oniun/Renderer/RendererLayer.h"
-#include "Oniun/Scene/ComponentQuery.h"
-#include "Oniun/Scene/Entity.h"
-#include "Oniun/Scene/Scene.h"
-#include "Oniun/Scene/SceneLayer.h"
-
-namespace Oniun
+namespace Oniun::Editor
 {
     struct TransformComponent
     {
@@ -100,60 +103,44 @@ namespace Oniun
         }
     };
 
-    int EntryPoint(const CommandLineArguments& args)
+    Application::Application(const CommandLineArguments& args)
     {
-        Logger logger;
-#if !ONU_DIST
-        Logger::AddOutput(Memory::New<TerminalLogOutput>());
-#endif
-        Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
-
-        Engine engine(AppInfo{
+        RegisterAppInfo(AppInfo{
             .Name = "Oniun Engine",
             .CommandLineArguments = args,
             .AppBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
             .EngineBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
         });
+    }
 
-        const AppInfo& info = Engine::GetAppInfo();
-        Engine::RegisterLayer<RendererLayer>(Format("{} {}", info.Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
+    void Application::Setup()
+    {
+        // Setup debug logger
+#ifndef NDEBUG
+        Logger::AddOutput(Memory::New<TerminalLogOutput>());
+#endif
+        Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
 
-        LOG(Info, "Current working directory: {}", FileSystem::GetCurrentDirectory());
+        // Core engine layers
+        RegisterLayer<RendererLayer>(Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
+        RegisterLayer<SceneLayer>();
 
-        ImGuiLayer* imGui = Engine::RegisterLayer<ImGuiLayer>();
+        // Editor core windows
+        ImGuiLayer* imGui = RegisterLayer<ImGuiLayer>();
         imGui->Register(Memory::New<DockingSpace>());
         imGui->Register(Memory::New<Console>());
         imGui->Register(Memory::New<Hierarchy>());
 
-        Engine::RegisterLayer<SceneLayer>();
+        LOG(Info, "This is a test");
+
         // Thread thread(Memory::New<TestSceneJob>());
-        // thread.Start();
-        {
-            Scene scene;
-            for (uint64 i = 0; i < 10; ++i)
-            {
-                Entity entity = scene.Add();
-                entity.Add<TransformComponent>(Vector3(i));
-                if (i % 2 == 0)
-                    entity.Add<MessageComponent>(ToString(i));
-            }
+    }
+}
 
-            uint64 i = 0;
-            for (ComponentQuery<TransformComponent, MessageComponent> query(scene); !query.IsEnd(); ++query)
-            {
-                TransformComponent* transform = query.Get<TransformComponent>();
-                MessageComponent* message = query.Get<MessageComponent>();
-                transform->Position *= 10;
-                message->Message.Set("Testing");
-                ++i;
-            }
-            for (ComponentQuery<TransformComponent> query(scene); !query.IsEnd(); ++query)
-                LOG(Info, "{}: {}", query.GetCurrentEntityFullName(), query.Get<TransformComponent>()->Position);
-        }
-
-        engine.Run();
-        // thread.Join();
-
-        return 0;
+namespace Oniun
+{
+    Engine* CreateApplication(const CommandLineArguments& args)
+    {
+        return Memory::New<Editor::Application>(args);
     }
 }

@@ -1,5 +1,6 @@
 #include "Oniun/Scene/Scene.h"
 
+#include "SceneLayer.h"
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Scene/Entity.h"
 
@@ -16,7 +17,7 @@ namespace Oniun
 
     Entity Scene::Add(const StringView& name)
     {
-        ASSERT(name.Length() + 1 < EntityEntry::MaxNameSize);
+        FORCE_ASSERT(name.Length() + 1 < EntityEntry::MaxNameSize);
         EntityEntry newEntry = {
             .NameId = 0,
             .Parent = NO_POS,
@@ -37,7 +38,10 @@ namespace Oniun
         }
         // Add
         m_Entities.Add(id, newEntry);
-        return Entity(id, this);
+        Entity entity(id, this);
+        // if (SceneLayer::m_CreateEntityCallback.IsBound())
+        //     SceneLayer::m_CreateEntityCallback(entity);
+        return entity;
     }
 
     Entity Scene::Find(const EntityEntry& name)
@@ -63,9 +67,22 @@ namespace Oniun
 
     void Scene::Remove(const Entity& entity)
     {
+        // Remove all children entities
+        Entity child = entity.GetFirstChild();
+        while (child != Entity::Invalid)
+        {
+            Entity next = child.GetNextSibling();
+            Remove(child);
+            child = next;
+        }
+
         m_Entities.Remove(entity.GetId());
-        for (auto&[compId, pool] : m_Pools)
+        for (auto& [compId, pool] : m_Pools)
             pool.Remove(entity);
+
+        // TODO: Implement the Hierarchy callback for the destruct and create
+        // if (SceneLayer::m_DestroyEntityCallback.IsBound())
+        //     SceneLayer::m_DestroyEntityCallback(entity);
     }
 
     bool Scene::IsAlive(const Entity& entity)

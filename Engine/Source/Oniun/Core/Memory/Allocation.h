@@ -67,10 +67,10 @@ namespace Oniun
         public:
             FORCE_INLINE void Allocate(uint64 capacity)
             {
-                DEBUG_ASSERT(!m_Data);
+                ASSERT(!m_Data);
                 m_Data = static_cast<T*>(Crt::Allocate(capacity * sizeof(T)));
                 m_Capacity = capacity;
-                DEBUG_ASSERT(m_Data && "Out of memory");
+                ASSERT(m_Data && "Out of memory");
             }
 
             FORCE_INLINE void Relocate(uint64 newCapacity, uint64 oldCount, uint64 newCount)
@@ -79,7 +79,7 @@ namespace Oniun
                 {
                     T* newData = newCapacity != 0 ? static_cast<T*>(Crt::Allocate(newCapacity * sizeof(T))) : nullptr;
                     if (newCapacity != 0)
-                        DEBUG_ASSERT(m_Data);
+                        ASSERT(m_Data);
 
                     if (oldCount)
                     {
@@ -107,7 +107,7 @@ namespace Oniun
 
             FORCE_INLINE void Free()
             {
-                DEBUG_ASSERT(m_Data);
+                ASSERT(m_Data);
                 Crt::Free(m_Data);
                 m_Data = nullptr;
                 m_Capacity = 0;
@@ -179,12 +179,12 @@ namespace Oniun
         public:
             FORCE_INLINE constexpr void Allocate(uint64 capacity)
             {
-                DEBUG_ASSERT(capacity <= TCapacity);
+                ASSERT(capacity <= TCapacity);
             }
 
             FORCE_INLINE constexpr void Relocate(uint64 newCapacity, uint64 oldCount, uint64 newCount)
             {
-                DEBUG_ASSERT(newCapacity <= TCapacity);
+                ASSERT(newCapacity <= TCapacity);
             }
 
             FORCE_INLINE constexpr void Move(Data&& allocator)
@@ -199,7 +199,7 @@ namespace Oniun
 
             FORCE_INLINE constexpr void Swap(Data& allocator)
             {
-                DEBUG_ASSERT(false && "Swapping fixed allocation is not supported");
+                ASSERT(false && "Swapping fixed allocation is not supported");
             }
 
         private:

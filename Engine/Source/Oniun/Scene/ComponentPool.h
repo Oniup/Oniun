@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/UUID.h"
+#include "Oniun/COre/Templates/Function.h"
 #include "Oniun/Core/Templates/LinkList.h"
 #include "Oniun/Serialization/TypeInfo.h"
 

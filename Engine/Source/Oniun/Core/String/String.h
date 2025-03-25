@@ -88,13 +88,13 @@ namespace Oniun
 
         FORCE_INLINE char& operator[](uint64 index)
         {
-            DEBUG_ASSERT(index < m_Length);
+            ASSERT(index < m_Length);
             return m_Data[index];
         }
 
         FORCE_INLINE char operator[](uint64 index) const
         {
-            DEBUG_ASSERT(index < m_Length);
+            ASSERT(index < m_Length);
             return m_Data[index];
         }
 

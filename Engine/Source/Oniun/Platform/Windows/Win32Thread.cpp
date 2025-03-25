@@ -20,7 +20,6 @@ namespace Oniun
         {
             WaitForSingleObject(m_Thread, INFINITE);
             CloseHandle(m_Thread);
-            m_Thread = nullptr;
         }
     }
 

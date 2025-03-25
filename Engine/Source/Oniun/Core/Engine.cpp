@@ -6,10 +6,10 @@ namespace Oniun
 {
     Engine* Engine::m_Instance = nullptr;
 
-    Engine::Engine(const AppInfo& appInfo)
-        : m_Info(appInfo), m_Running(true)
+    Engine::Engine()
+        : m_Running(true)
     {
-        DEBUG_ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
+        ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
 
         glfwInit();
         m_Instance = this;
@@ -31,6 +31,11 @@ namespace Oniun
             for (EngineLayer* layer : m_Layers)
                 layer->OnUpdate();
         }
+    }
+
+    void Engine::RegisterAppInfo(const AppInfo& info)
+    {
+        m_Info = info;
     }
 
     EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)
