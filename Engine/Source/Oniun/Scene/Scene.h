@@ -8,19 +8,41 @@
 namespace Oniun
 {
     class Entity;
+    class SceneLayer;
 
     class Scene
     {
         friend Entity;
+        friend SceneLayer;
+
+    public:
+        using Iterator = HashMap<UUID, EntityEntry>::Iterator;
 
     public:
         Scene(const StringView& title = "Empty Scene");
+        Scene(Scene&& scene);
         ~Scene();
+
+    public:
+        FORCE_INLINE bool operator==(const Scene& scene) const
+        {
+            return this == &scene;
+        }
+
+        FORCE_INLINE bool operator!=(const Scene& scene) const
+        {
+            return this != &scene;
+        }
 
     public:
         FORCE_INLINE const String& GetTitle() const
         {
             return m_Title;
+        }
+
+        FORCE_INLINE void SetTitle(const StringView& title)
+        {
+            m_Title = title;
         }
 
         FORCE_INLINE HashMap<UUID, EntityEntry>& GetEntityEntries()
@@ -43,9 +65,23 @@ namespace Oniun
             return m_Pools;
         }
 
+        FORCE_INLINE Iterator begin()
+        {
+            return m_Entities.Begin();
+        }
+
+        FORCE_INLINE Iterator end()
+        {
+            return m_Entities.End();
+        }
+
         Entity Add(const StringView& name = "Entity");
         Entity Find(const EntityEntry& name);
-        Entity Find(UUID entityId);
+        Entity Find(UUID entity);
+
+        Pair<UUID, EntityEntry*> FindAsPair(const EntityEntry& name);
+        Pair<UUID, EntityEntry*> FindAsPair(UUID entity);
+
         void RenameEntity(Entity& entity);
         void Remove(const Entity& entity);
         bool IsAlive(const Entity& entity);

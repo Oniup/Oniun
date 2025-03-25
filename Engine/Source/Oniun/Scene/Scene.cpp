@@ -11,6 +11,12 @@ namespace Oniun
     {
     }
 
+    Scene::Scene(Scene&& scene)
+        : m_Title(Memory::Move(scene.m_Title)), m_Entities(Memory::Move(scene.m_Entities)),
+          m_Pools(Memory::Move(scene.m_Pools))
+    {
+    }
+
     Scene::~Scene()
     {
     }
@@ -39,8 +45,6 @@ namespace Oniun
         // Add
         m_Entities.Add(id, newEntry);
         Entity entity(id, this);
-        // if (SceneLayer::m_CreateEntityCallback.IsBound())
-        //     SceneLayer::m_CreateEntityCallback(entity);
         return entity;
     }
 
@@ -52,12 +56,29 @@ namespace Oniun
         return Entity::Invalid;
     }
 
-    Entity Scene::Find(UUID entityId)
+    Entity Scene::Find(UUID entity)
     {
-        EntityEntry* entry = m_Entities.Try(entityId);
+        EntityEntry* entry = m_Entities.Try(entity);
         if (entry)
-            return Entity(entityId, this);
+            return Entity(entity, this);
         return Entity::Invalid;
+    }
+
+    Pair<UUID, EntityEntry*> Scene::FindAsPair(const EntityEntry& name)
+    {
+        UUID id = name.GetId();
+        EntityEntry* entry = m_Entities.Try(id);
+        if (entry)
+            return Pair(id, entry);
+        return Pair<UUID, EntityEntry*>(NO_POS, nullptr);
+    }
+
+    Pair<UUID, EntityEntry*> Scene::FindAsPair(UUID entity)
+    {
+        EntityEntry* entry = m_Entities.Try(entity);
+        if (entry)
+            return Pair(entity, entry);
+        return Pair<UUID, EntityEntry*>(NO_POS, nullptr);
     }
 
     void Scene::RenameEntity(Entity& entity)
@@ -79,10 +100,6 @@ namespace Oniun
         m_Entities.Remove(entity.GetId());
         for (auto& [compId, pool] : m_Pools)
             pool.Remove(entity);
-
-        // TODO: Implement the Hierarchy callback for the destruct and create
-        // if (SceneLayer::m_DestroyEntityCallback.IsBound())
-        //     SceneLayer::m_DestroyEntityCallback(entity);
     }
 
     bool Scene::IsAlive(const Entity& entity)
@@ -102,7 +119,7 @@ namespace Oniun
         if (!pool)
         {
             // Add if doesn't exist
-            m_Pools.Add(type.Id, ComponentPool(type));
+            m_Pools.Add(type.Id, Memory::Move(ComponentPool(type)));
             pool = &m_Pools.At(type.Id);
         }
         // Allocate space for component and get uninitialized byte data

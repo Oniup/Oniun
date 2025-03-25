@@ -16,8 +16,8 @@ namespace Oniun
     public:
         static constexpr uint64 QueryCount = sizeof...(TComponents);
 
-        ComponentQuery(Scene& scene)
-            : m_Iter(scene.GetEntityEntries().Begin()), m_End(scene.GetEntityEntries().End()), m_Scene(&scene)
+        ComponentQuery(Scene* scene)
+            : m_Iter(scene->GetEntityEntries().Begin()), m_End(scene->GetEntityEntries().End()), m_Scene(scene)
         {
             constexpr uint64 compIds[QueryCount] = {TypeInfo::GetFastId<TComponents>()...};
             HashMap<uint64, ComponentPool>& pools = m_Scene->GetComponentPools();

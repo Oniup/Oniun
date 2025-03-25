@@ -1,5 +1,6 @@
 #include "Core/Application.h"
 
+// Main function that calls CreateApplication
 #include <Oniun/Core/EntryPoint.h>
 
 // Core engine layers
@@ -8,7 +9,6 @@
 #include <Oniun/Scene/SceneLayer.h>
 
 // Test
-#include <chrono>
 #include <Oniun/Core/Math/Vector3.h>
 #include <Oniun/PLatform/Thread.h>
 #include <Oniun/Scene/ComponentQuery.h>
@@ -66,42 +66,60 @@ namespace Oniun::Editor
         Face RightFace;
     };
 
-    class TestSceneJob : public IThreadJob
+    void SetupTestScene(Scene* scene)
     {
-    public:
-        TestSceneJob()
-            : IThreadJob("Testing Scene")
+        scene->SetTitle("Test Scene");
         {
+            Entity slimeBase = scene->Add("Slime");
+            Entity body = slimeBase.AddChild("Body");
+            body.AddChild("Left Eye");
+            body.AddChild("Right Eye");
+
+            Entity treasure = slimeBase.AddChild("Treasure");
+            treasure.AddChild("Weapon");
+            Entity coinPouch = treasure.AddChild("Coin Pouch");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+            coinPouch.AddChild("Coin");
+        }
+        {
+            Entity playerBase = scene->Add("Player");
+            playerBase.AddChild("Head");
+            Entity torso = playerBase.AddChild("Torso");
+            torso.AddChild("Left Arm").AddChild("Hand");
+            torso.AddChild("Right Arm").AddChild("Hand");
+
+            Entity hips = torso.AddChild("Hips");
+            hips.AddChild("Left Leg").AddChild("Foot");
+            hips.AddChild("Right Leg").AddChild("Foot");
+        }
+        {
+            auto addTree = [](Entity& parent)
+            {
+                Entity tree = parent.AddChild("Tree");
+                tree.AddChild("Trunk").AddChild("Leaves");
+            };
+
+            Entity environment = scene->Add("Environment");
+            environment.AddChild("Floor");
+            addTree(environment);
+            addTree(environment);
+            addTree(environment);
+            addTree(environment);
         }
 
-        int32 Run() override
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-            Scene scene;
-            for (uint64 i = 0; i < 1000; ++i)
-            {
-                Entity entity = scene.Add();
-                entity.Add<TransformComponent>(Vector3(i));
-                if (i % 2 == 0)
-                    entity.Add<MessageComponent>(ToString(i));
-            }
-            auto end = std::chrono::high_resolution_clock::now();
-            float creationDuration = std::chrono::duration<float>(end - start).count();
-
-            start = std::chrono::high_resolution_clock::now();
-            uint64 i = 0;
-            for (ComponentQuery<TransformComponent, MessageComponent> query(scene); !query.IsEnd(); ++query)
-            {
-                TransformComponent* transform = query.Get<TransformComponent>();
-                MessageComponent* message = query.Get<MessageComponent>();
-                transform->Position = Vector3(i * 10);
-                ++i;
-            }
-            end = std::chrono::high_resolution_clock::now();
-            LOG(Warning, "Creation: {}, Query: {}", creationDuration, std::chrono::duration<float>(end - start).count());
-            return 0;
-        }
-    };
+        // FixedArray<StringView, 3> targets({"Player", "Environment", "Slime"});
+        // for (auto& [id, entry] : scene->GetEntityEntries())
+        // {
+        //     Entity entity(id, scene);
+        //     for (const StringView& targetName : targets)
+        //     {
+        //         if (entity.GetName() == targetName)
+        //             LOG(Info, "{}", entity);
+        //     }
+        // }
+    }
 
     Application::Application(const CommandLineArguments& args)
     {
@@ -123,7 +141,7 @@ namespace Oniun::Editor
 
         // Core engine layers
         RegisterLayer<RendererLayer>(Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
-        RegisterLayer<SceneLayer>();
+        SceneLayer* sceneLayer = RegisterLayer<SceneLayer>();
 
         // Editor core windows
         ImGuiLayer* imGui = RegisterLayer<ImGuiLayer>();
@@ -131,9 +149,7 @@ namespace Oniun::Editor
         imGui->Register(Memory::New<Console>());
         imGui->Register(Memory::New<Hierarchy>());
 
-        LOG(Info, "This is a test");
-
-        // Thread thread(Memory::New<TestSceneJob>());
+        SetupTestScene(sceneLayer->LoadScene());
     }
 }
 

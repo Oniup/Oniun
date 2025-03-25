@@ -115,11 +115,10 @@ namespace Oniun
             return *this;
         }
 
-        FORCE_INLINE constexpr Array& operator=(
-            Array&& array)
+        FORCE_INLINE constexpr Array& operator=(Array&& array)
         {
             Free();
-            m_Data.Move(array.m_Data);
+            m_Data.Move(Memory::Move(array.m_Data));
             m_Count = array.m_Count;
             array.m_Count = 0;
             return *this;
@@ -330,7 +329,7 @@ namespace Oniun
         constexpr void Add(T&& value)
         {
             if (Resize(m_Count + 1))
-                Memory::ConstructItem(&m_Data[m_Count - 1], value);
+                Memory::ConstructItem(&m_Data[m_Count - 1], Memory::Move(value));
         }
 
         constexpr void Insert(const T& value, uint64 index)
@@ -349,7 +348,7 @@ namespace Oniun
             if (Resize(m_Count + 1))
             {
                 Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
-                Memory::MoveItems(m_Data.Ptr() + index, &value, 1);
+                Memory::ConstructItem(m_Data.Ptr() + index, Memory::Move(value));
             }
         }
 
@@ -392,6 +391,16 @@ namespace Oniun
             T item(Memory::Move(Back()));
             Resize(m_Count - 1);
             return item;
+        }
+
+        constexpr bool Contains(const T& compare) const
+        {
+            for (uint64 i = 0; i < m_Count; ++i)
+            {
+                if (m_Data[i] == compare)
+                    return true;
+            }
+            return false;
         }
 
         template <typename TComparableType>

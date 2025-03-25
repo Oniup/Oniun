@@ -35,10 +35,9 @@ namespace Oniun
         return GetEntry()->NameId;
     }
 
-    uint64 Entity::GetId() const
+    UUID Entity::GetId() const
     {
-        ASSERT(IsAlive());
-        return GetEntry()->GetId();
+        return m_Id;
     }
 
     Entity Entity::GetParent() const

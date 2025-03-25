@@ -1,11 +1,12 @@
 #include "Oniun/Scene/SceneLayer.h"
 
+#include "Oniun/Core/Logger.h"
+
 namespace Oniun
 {
     uint64 SceneLayer::m_ChunksPerBlockCount = 0;
 
     SceneLayer::SceneLayer(uint64 componentChunksPerBlockCount)
-        : m_Active(nullptr)
     {
         m_ChunksPerBlockCount = componentChunksPerBlockCount;
     }
@@ -20,15 +21,26 @@ namespace Oniun
         return nullptr;
     }
 
-    // void SceneLayer::SetCreateEntityCallback(Function<void(Entity entity)>&& callback)
-    // {
-    //     m_CreateEntityCallback = Memory::Move(callback);
-    // }
-    //
-    // void SceneLayer::SetDestroyEntityCallback(Function<void(Entity entity)>&& callback)
-    // {
-    //     m_DestroyEntityCallback = Memory::Move(callback);
-    // }
+    Scene* SceneLayer::LoadScene(const StringView& resourcePath)
+    {
+        if (resourcePath.IsEmpty())
+            m_Loaded.Add(Memory::Move(Scene()));
+        else
+        {
+            // TODO: Find scene resource file and load ...
+            return nullptr;
+        }
+        return &m_Loaded.Last();
+    }
+
+    void SceneLayer::UnloadScene(Scene*& scene)
+    {
+        if (scene != nullptr)
+        {
+            m_Loaded.Remove(*scene);
+            scene = nullptr;
+        }
+    }
 
     void SceneLayer::OnUpdate()
     {

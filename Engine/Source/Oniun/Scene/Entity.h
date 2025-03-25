@@ -36,11 +36,21 @@ namespace Oniun
         StringView GetName() const;
         String GetFullName() const;
         uint64 GetNameId() const;
-        uint64 GetId() const;
+        UUID GetId() const;
         Entity GetParent() const;
         Entity GetFirstChild() const;
         Entity GetNextSibling() const;
         Array<Entity> GetChildren() const;
+
+        FORCE_INLINE EntityEntry* GetEntry()
+        {
+            return &m_Scene->m_Entities.At(m_Id);
+        }
+
+        FORCE_INLINE const EntityEntry* GetEntry() const
+        {
+            return &m_Scene->m_Entities.At(m_Id);
+        }
 
     public:
         bool HasChildren() const;
@@ -66,17 +76,6 @@ namespace Oniun
 
         template <typename TComponent>
         TComponent* Get();
-
-    private:
-        FORCE_INLINE EntityEntry* GetEntry()
-        {
-            return &m_Scene->m_Entities.At(m_Id);
-        }
-
-        FORCE_INLINE const EntityEntry* GetEntry() const
-        {
-            return &m_Scene->m_Entities.At(m_Id);
-        }
 
     private:
         UUID m_Id;
