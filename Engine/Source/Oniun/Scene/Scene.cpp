@@ -12,8 +12,7 @@ namespace Oniun
     }
 
     Scene::Scene(Scene&& scene)
-        : m_Title(Memory::Move(scene.m_Title)), m_Entities(Memory::Move(scene.m_Entities)),
-          m_Pools(Memory::Move(scene.m_Pools))
+        : m_Title(Memory::Move(scene.m_Title)), m_Entities(Memory::Move(scene.m_Entities)), m_Pools(Memory::Move(scene.m_Pools))
     {
     }
 

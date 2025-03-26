@@ -6,7 +6,7 @@
 namespace Oniun
 {
     Hierarchy::Hierarchy()
-        : IImGuiWindow("Hierarchy"), m_SelectedEntity(NO_POS)
+        : IImGuiWindow("Hierarchy"), m_CurrentSelected(NO_POS)
     {
     }
 
@@ -29,7 +29,11 @@ namespace Oniun
 
     void Hierarchy::EntitySetDrag(const UUID& entity, const EntityEntry& entry, Scene* scene)
     {
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
+
+        bool isSelected = m_CurrentSelected == entity || m_Selected.Contains(entity);
+        if (isSelected)
+            flags |= ImGuiTreeNodeFlags_Selected;
 
         // Setting name
         char name[EntityEntry::MaxFullNameSize];
@@ -42,9 +46,21 @@ namespace Oniun
         ImGui::PushID(entity);
         if (ImGui::TreeNodeEx(name, flags))
         {
-            Array<Entity> children = Entity(entity, scene).GetChildren();
-            for (Entity& child : children)
+            if (ImGui::IsItemClicked())
+            {
+                if (isSelected)
+                    m_Selected.Remove(entity);
+                else
+                    m_Selected.Add(entity);
+            }
+
+            Entity child = Entity(entity, scene).GetFirstChild();
+            while (child != Entity::Invalid)
+            {
                 EntitySetDrag(child.GetId(), *child.GetEntry(), scene);
+                child = child.GetNextSibling();
+            }
+
             ImGui::TreePop();
         }
         ImGui::PopID();

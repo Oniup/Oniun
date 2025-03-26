@@ -16,6 +16,7 @@ namespace Oniun
         void EntitySetDrag(const UUID& entity, const EntityEntry& entry, Scene* scene);
 
     private:
-        UUID m_SelectedEntity;
+        UUID m_CurrentSelected;
+        Array<UUID> m_Selected;
     };
 }

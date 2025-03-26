@@ -4,20 +4,31 @@
 #include <Oniun/Core/EntryPoint.h>
 
 // Core engine layers
+#include <Oniun/Event/Event.h>
 #include <Oniun/Renderer/RendererLayer.h>
 #include <Oniun/RHI/ImGuiLayer.h>
 #include <Oniun/Scene/SceneLayer.h>
 
 // Test
+#include <Oniun/Core/Input.h>
 #include <Oniun/Core/Math/Vector3.h>
-#include <Oniun/PLatform/Thread.h>
 #include <Oniun/Scene/ComponentQuery.h>
 #include <Oniun/Scene/Entity.h>
+
+#include <Oniun/Event/KeyboardEvents.h>
 
 // Editor core windows
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"
+
+namespace Oniun
+{
+    Engine* CreateApplication(const CommandLineArguments& args)
+    {
+        return Memory::New<Editor::Application>(args);
+    }
+}
 
 namespace Oniun::Editor
 {
@@ -28,49 +39,15 @@ namespace Oniun::Editor
         Vector3 Rotation;
     };
 
-    struct MessageComponent
+    void SetupTestScene()
     {
-        String Message;
-    };
-
-    struct MeshComponent
-    {
-        struct Vertex
-        {
-            Vector3 Position;
-            Vector3 Normal;
-            float UvX;
-            float UvY;
-        };
-
-        Array<Vertex> Vertices;
-        Array<uint32> Indices;
-    };
-
-    struct RigidbodyComponent
-    {
-        Vector3 Velocity;
-    };
-
-    struct BoxColliderComponent
-    {
-        struct Face
-        {
-            Vector3 BottomLeft;
-            Vector3 BottomRight;
-            Vector3 TopLeft;
-            Vector3 TopRight;
-        };
-
-        Face LeftFace;
-        Face RightFace;
-    };
-
-    void SetupTestScene(Scene* scene)
-    {
+        Scene* scene = Engine::GetLayer<SceneLayer>()->LoadScene();
         scene->SetTitle("Test Scene");
+
+        // Create entities
         {
             Entity slimeBase = scene->Add("Slime");
+            slimeBase.Add<TransformComponent>();
             Entity body = slimeBase.AddChild("Body");
             body.AddChild("Left Eye");
             body.AddChild("Right Eye");
@@ -85,12 +62,15 @@ namespace Oniun::Editor
         }
         {
             Entity playerBase = scene->Add("Player");
-            playerBase.AddChild("Head");
+            playerBase.Add<TransformComponent>();
+            playerBase.AddChild("Head").Add<TransformComponent>();
             Entity torso = playerBase.AddChild("Torso");
+            torso.Add<TransformComponent>();
             torso.AddChild("Left Arm").AddChild("Hand");
             torso.AddChild("Right Arm").AddChild("Hand");
 
             Entity hips = torso.AddChild("Hips");
+            hips.Add<TransformComponent>();
             hips.AddChild("Left Leg").AddChild("Foot");
             hips.AddChild("Right Leg").AddChild("Foot");
         }
@@ -98,6 +78,7 @@ namespace Oniun::Editor
             auto addTree = [](Entity& parent)
             {
                 Entity tree = parent.AddChild("Tree");
+                tree.Add<TransformComponent>();
                 tree.AddChild("Trunk").AddChild("Leaves");
             };
 
@@ -108,27 +89,25 @@ namespace Oniun::Editor
             addTree(environment);
             addTree(environment);
         }
+    }
 
-        // FixedArray<StringView, 3> targets({"Player", "Environment", "Slime"});
-        // for (auto& [id, entry] : scene->GetEntityEntries())
-        // {
-        //     Entity entity(id, scene);
-        //     for (const StringView& targetName : targets)
-        //     {
-        //         if (entity.GetName() == targetName)
-        //             LOG(Info, "{}", entity);
-        //     }
-        // }
+    void PrintTestMessage(Event* event, void* sender)
+    {
+        KeyPressedEvent* evt = static_cast<KeyPressedEvent*>(event);
+        if (evt->GetKeyCode() == KeyCode::F3 && !evt->IsRepeated())
+        {
+            static LogType type = LogType::Info;
+            ++(uint64&)(type);
+            if (type > LogType::Error)
+                type = LogType::Verbose;
+
+            Logger::Write(type, __FILE__, __FUNCTION__, __LINE__, "Debug Message");
+        }
     }
 
     Application::Application(const CommandLineArguments& args)
     {
-        RegisterAppInfo(AppInfo{
-            .Name = "Oniun Engine",
-            .CommandLineArguments = args,
-            .AppBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
-            .EngineBuild = AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH),
-        });
+        RegisterAppInfo(AppInfo("Oniun Engine", args, AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH)));
     }
 
     void Application::Setup()
@@ -137,11 +116,15 @@ namespace Oniun::Editor
 #ifndef NDEBUG
         Logger::AddOutput(Memory::New<TerminalLogOutput>());
 #endif
-        Logger::AddOutput(Memory::New<FileLogOutput>("OutputFile.txt"));
+        Logger::AddOutput(Memory::New<FileLogOutput>("OniunEditor.log"));
 
         // Core engine layers
+        RegisterLayer<EventDispatcher>();
+        RegisterLayer<Input>();
         RegisterLayer<RendererLayer>(Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
-        SceneLayer* sceneLayer = RegisterLayer<SceneLayer>();
+        RegisterLayer<SceneLayer>();
+
+        EventDispatcher::AddListener<KeyPressedEvent>(OnEventCallback(PrintTestMessage));
 
         // Editor core windows
         ImGuiLayer* imGui = RegisterLayer<ImGuiLayer>();
@@ -149,14 +132,6 @@ namespace Oniun::Editor
         imGui->Register(Memory::New<Console>());
         imGui->Register(Memory::New<Hierarchy>());
 
-        SetupTestScene(sceneLayer->LoadScene());
-    }
-}
-
-namespace Oniun
-{
-    Engine* CreateApplication(const CommandLineArguments& args)
-    {
-        return Memory::New<Editor::Application>(args);
+        SetupTestScene();
     }
 }

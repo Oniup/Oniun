@@ -28,6 +28,7 @@ namespace Oniun
         virtual uint64 GetFastId() = 0;
         virtual TypeInfo GetTypeInfo() = 0;
 
+    public:
         virtual ~EngineLayer()
         {
         }

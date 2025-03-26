@@ -6,8 +6,25 @@ namespace Oniun
 {
     Engine* Engine::m_Instance = nullptr;
 
+    AppInfo::AppInfo()
+        : CmdLineArgs(), PlatformType()
+    {
+    }
+
+    AppInfo::AppInfo(const StringView& name, const CommandLineArguments& args, const Version& appBuild)
+        : Name(name), CmdLineArgs(args), AppBuild(appBuild),
+          EngineBuild(Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH)), PlatformType(GetPlatformType())
+    {
+        // TODO: Platform type
+    }
+
+    String ToString(const AppInfo::Version& version)
+    {
+        return Format("{}.{}.{}", version.Major, version.Minor, version.Patch);
+    }
+
     Engine::Engine()
-        : m_Running(true)
+        : m_Running(false)
     {
         ASSERT(!m_Instance && "Cannot have multiple instances of the engine");
 
@@ -26,6 +43,10 @@ namespace Oniun
 
     void Engine::Run()
     {
+        for (EngineLayer* layer : m_Layers)
+            layer->OnStart();
+
+        m_Running = true;
         while (m_Running)
         {
             for (EngineLayer* layer : m_Layers)
@@ -40,8 +61,8 @@ namespace Oniun
 
     EngineLayer* Engine::ImplRegisterLayer(EngineLayer* layer)
     {
+        ASSERT(!m_Running)
         m_Layers.Add(layer);
-        m_Layers.Last()->OnStart();
         return m_Layers.Last();
     }
 
@@ -53,10 +74,5 @@ namespace Oniun
                 return layer;
         }
         return nullptr;
-    }
-
-    String ToString(const AppInfo::Version& version)
-    {
-        return Format("{}.{}.{}", version.Major, version.Minor, version.Patch);
     }
 }

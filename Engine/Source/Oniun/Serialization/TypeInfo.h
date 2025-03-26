@@ -72,10 +72,7 @@ namespace Oniun
         {
             using Type = typename TypeInfo_Internal::TypeStripped<T>::Type;
 
-            String name(TypeInfo_Internal::GetTypeNameSlice<Type>());
-            name.Replace("class ", "");
-            name.Replace("struct ", "");
-
+            String name(GetName<T>());
             return TypeInfo
             {
                 .Id = Hash<String>{}.Get(name),
@@ -87,12 +84,20 @@ namespace Oniun
         }
 
         template <typename T>
-        static uint64 GetId()
+        static String GetName()
         {
-            String name(TypeInfo_Internal::GetTypeNameSlice<typename TypeInfo_Internal::TypeStripped<T>::Type>());
+            using Type = typename TypeInfo_Internal::TypeStripped<T>::Type;
+
+            String name(TypeInfo_Internal::GetTypeNameSlice<Type>());
             name.Replace("class ", "");
             name.Replace("struct ", "");
-            return Hash<String>{}.Get(name);
+            return name;
+        }
+
+        template <typename T>
+        static uint64 GetId()
+        {
+            return Hash<String>{}.Get(GetName<T>());
         }
 
         template <typename T>

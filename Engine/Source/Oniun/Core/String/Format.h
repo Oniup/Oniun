@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/String/String.h"
-#include "Oniun/Core/String/StringUtils.h"
+#include "Oniun/Core/String/StringView.h"
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Core/Templates/HashMap.h"
 
@@ -101,8 +101,8 @@ namespace Oniun
         /// @param offset           Current offset in the format string.
         /// @param current          The current argument to format and append.
         template <typename T>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i, uint64& offset,
-                  const T& current)
+        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
+                  uint64& offset, const T& current)
         {
             Add(format, insertPositions, result, i, offset, current);
         }
@@ -119,8 +119,8 @@ namespace Oniun
         /// @param current          The current argument to format and append.
         /// @param args             Additional arguments to format and append.
         template <typename T, typename... TArgs>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i, uint64& offset,
-                  const T& current, const TArgs&... args)
+        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
+                  uint64& offset, const T& current, const TArgs&... args)
         {
             Add(format, insertPositions, result, i, offset, current);
             Next(format, insertPositions, result, i, offset, args...);

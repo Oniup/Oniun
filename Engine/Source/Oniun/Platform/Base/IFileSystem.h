@@ -69,10 +69,10 @@ namespace Oniun
         static String GetSpecialDirectoryPath(SpecialDirectory type) = delete;
 
         static bool DeleteFile(const StringView& path) = delete;
-        static bool MoveFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting = false) = delete
-        ;
-        static bool CopyFile(const StringView& destPath, const StringView& srcPath, bool overwriteExisting = false) = delete
-        ;
+        static bool MoveFile(const StringView& destPath, const StringView& srcPath,
+                             bool overwriteExisting = false) = delete;
+        static bool CopyFile(const StringView& destPath, const StringView& srcPath,
+                             bool overwriteExisting = false) = delete;
 
         static uint64 GetFileSize(const StringView& path) = delete;
         static bool FileExists(const StringView& path) = delete;
@@ -84,7 +84,8 @@ namespace Oniun
         /// @param filter   A string specifying the file types to display in the dialog (e.g., "Text Files\0*.txt\0").
         /// @param title    The title of the file dialog.
         /// @return The path of the selected file as a string.
-        static String OpenDialog(const StringView& openPath, const StringView& filter, const StringView& title) = delete;
+        static String OpenDialog(const StringView& openPath, const StringView& filter, const StringView& title) = delete
+        ;
 
 
         /// Opens the standard dialog window prompt for the user to select multiple files.
@@ -103,7 +104,8 @@ namespace Oniun
         /// @param filter   A string specifying the file types to display in the dialog (e.g., "Text Files\0*.txt\0").
         /// @param title    The title of the file dialog.
         /// @return The path of the file to be saved as a string.
-        static String SaveDialog(const StringView& openPath, const StringView& filter, const StringView& title) = delete;
+        static String SaveDialog(const StringView& openPath, const StringView& filter, const StringView& title) = delete
+        ;
 
 
         /// Opens a dialog to select a directory.

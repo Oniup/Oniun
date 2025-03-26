@@ -120,7 +120,8 @@ namespace Oniun
             }
         }
 
-        constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
+        constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength,
+                              uint64 offset = 0)
         {
             if (searchLength > length)
                 return NO_POS;

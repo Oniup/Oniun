@@ -7,7 +7,7 @@
     {\
         constexpr uint64 maxLength = 30;\
         char buffer[maxLength];\
-        std::snprintf(buffer, maxLength, _Format, val);\
+        Crt::Format(buffer, maxLength, _Format, val); \
         return String(buffer);\
     }
 

@@ -8,19 +8,20 @@ namespace Oniun
     class UUID
     {
     public:
+        FORCE_INLINE static UUID Generate()
+        {
+            return UUID(Math::RandomUInt64());
+        }
+
+    public:
+        UUID()
+            : m_Id(0)
+        {
+        }
+
         UUID(uint64 id)
             : m_Id(id)
         {
-        }
-
-        UUID()
-            : m_Id(Math::RandomUInt64())
-        {
-        }
-
-        FORCE_INLINE void ReGenerate()
-        {
-            m_Id = Math::RandomUInt64();
         }
 
         FORCE_INLINE operator uint64() const

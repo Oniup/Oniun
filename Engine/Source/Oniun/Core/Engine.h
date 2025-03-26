@@ -39,10 +39,16 @@ namespace Oniun
         };
 
         String Name;
-        CommandLineArguments CommandLineArguments;
+        CommandLineArguments CmdLineArgs;
         Version AppBuild;
         Version EngineBuild;
+        PlatformType PlatformType;
+
+        AppInfo();
+        AppInfo(const StringView& name, const CommandLineArguments& args, const Version& appBuild);
     };
+
+    String ToString(const AppInfo::Version& version);
 
     class Engine
     {
@@ -108,6 +114,4 @@ namespace Oniun
     };
 
     extern Engine* CreateApplication(const CommandLineArguments& args);
-
-    String ToString(const AppInfo::Version& version);
 }

@@ -90,6 +90,7 @@ namespace Oniun
     public:
         void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
                    int32 line, const StringView& userMessage, const DateTime& time) override;
+
     private:
         File m_StdStream;
         File m_ErrorStream;
@@ -111,6 +112,7 @@ namespace Oniun
                    int32 line, const StringView& userMessage, const DateTime& time) override;
 
         void SetPath(const StringView& path);
+
     private:
         String m_Path;
         File m_Output;

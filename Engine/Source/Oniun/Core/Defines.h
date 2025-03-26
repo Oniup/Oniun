@@ -30,29 +30,33 @@
 
 namespace Oniun
 {
-    enum PlatformType
+    enum class PlatformType
     {
-        PlatformType_Windows,
-        PlatformType_Macos,
-        PlatformType_Linux,
+        Windows,
+        Macos,
+        Linux,
 
-        PlatformType_Ios,
-        PlatformType_Android,
+        XboxOne,
+        XboxScarlet,
 
-        PlatformType_XboxOne,
-        PlatformType_XboxScarlet,
+        Ps4,
+        Ps5,
 
-        PlatformType_Ps4,
-        PlatformType_Ps5,
+        Switch,
 
-        PlatformType_Switch,
+        Ios,
+        Android,
     };
 
     enum class ArchitectureType
     {
-        ArchitectureType_X64,
-        ArchitectureType_Arm64,
+        X64,
+        X32,
+        Arm64,
+        Arm32,
     };
+
+    PlatformType GetPlatformType();
 
     namespace Assert_Internal
     {
@@ -82,6 +86,8 @@ namespace Oniun
 #undef ONU_PLATFORM_MACOS
 #define ONU_PLATFORM_MACOS 1
 #endif
+
+#define BIT(_X) 1 << _X
 
 #define DEFAULT_HASH_MAP_CAPACITY_COUNT 256
 #define DEFAULT_COMPONENT_POOL_CHUNK_PER_BLOCK_COUNT 256

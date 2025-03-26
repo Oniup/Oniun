@@ -188,14 +188,16 @@ namespace Oniun
             m_Length = StringUtils::Length(m_Data);
         }
 
-        constexpr uint64 Find(const StringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
+        constexpr uint64 Find(const StringView& find, StringSearch opts = StringSearch::CaseSensitive,
+                              uint64 offset = 0) const
         {
             if (opts == StringSearch::CaseSensitive)
                 return StringUtils::Find(m_Data, m_Length, find.m_Data, find.m_Length, offset);
             return StringUtils::FindIgnoreCase(m_Data, m_Length, find.m_Data, find.m_Length, offset);
         }
 
-        constexpr uint64 FindLast(const StringView& find, StringSearch opts = StringSearch::CaseSensitive, uint64 offset = 0) const
+        constexpr uint64 FindLast(const StringView& find, StringSearch opts = StringSearch::CaseSensitive,
+                                  uint64 offset = 0) const
         {
             if (opts == StringSearch::CaseSensitive)
                 return StringUtils::FindLast(m_Data, m_Length, find.m_Data, find.m_Length, offset);

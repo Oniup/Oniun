@@ -215,7 +215,8 @@ namespace Oniun
         String TrimTrailing() const;
 
         uint64 Find(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
-        uint64 FindLast(const StringView& find, StringSearch opt = StringSearch::CaseSensitive, uint64 offset = 0) const;
+        uint64 FindLast(const StringView& find, StringSearch opt = StringSearch::CaseSensitive,
+                        uint64 offset = 0) const;
         bool FindAll(const StringView& find, Array<uint64>& indices) const;
 
         bool BeginsWith(const StringView& text) const;
@@ -227,7 +228,8 @@ namespace Oniun
         void Replace(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
         void ReplaceFirst(const StringView& find, const StringView& replace,
                           StringSearch opt = StringSearch::CaseSensitive);
-        void ReplaceLast(const StringView& find, const StringView& replace, StringSearch opt = StringSearch::CaseSensitive);
+        void ReplaceLast(const StringView& find, const StringView& replace,
+                         StringSearch opt = StringSearch::CaseSensitive);
 
     private:
         uint64 m_Length;

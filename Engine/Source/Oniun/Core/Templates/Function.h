@@ -71,6 +71,11 @@ namespace Oniun
             return m_Function(m_Caller, Memory::Forward<TParams>(args)...);
         }
 
+        FORCE_INLINE constexpr bool operator==(Function function) const
+        {
+            return m_Caller == function.m_Caller && m_Function == function.m_Function;
+        }
+
     public:
         FORCE_INLINE constexpr bool IsBound() const
         {
