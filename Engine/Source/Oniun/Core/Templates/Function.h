@@ -20,8 +20,8 @@ namespace Oniun
         {
         }
 
-        constexpr Function(Signature signature)
-            : m_Caller((void*)signature), m_Function(&FunctionPointer)
+        constexpr Function(Signature function)
+            : m_Caller((void*)function), m_Function(&FunctionPointer)
         {
         }
 

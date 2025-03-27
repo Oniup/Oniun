@@ -91,19 +91,23 @@ namespace Oniun::Editor
         }
     }
 
-    void PrintTestMessage(Event* event, void* sender)
+    class PrintMessage
     {
-        KeyPressedEvent* evt = static_cast<KeyPressedEvent*>(event);
-        if (evt->GetKeyCode() == KeyCode::F3 && !evt->IsRepeated())
+    public:
+        void Print(IEvent* event, void* sender)
         {
-            static LogType type = LogType::Info;
-            ++(uint64&)(type);
-            if (type > LogType::Error)
-                type = LogType::Verbose;
+            KeyPressedEvent* evt = static_cast<KeyPressedEvent*>(event);
+            if (evt->GetKeyCode() == KeyCode::F3 && !evt->IsRepeated())
+            {
+                static LogType type = LogType::Info;
+                ++(uint64&)(type);
+                if (type > LogType::Error)
+                    type = LogType::Verbose;
 
-            Logger::Write(type, __FILE__, __FUNCTION__, __LINE__, "Debug Message");
+                Logger::Write(type, __FILE__, __FUNCTION__, __LINE__, "Debug Message");
+            }
         }
-    }
+    };
 
     Application::Application(const CommandLineArguments& args)
     {
@@ -124,7 +128,12 @@ namespace Oniun::Editor
         RegisterLayer<RendererLayer>(Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
         RegisterLayer<SceneLayer>();
 
-        EventDispatcher::AddListener<KeyPressedEvent>(OnEventCallback(PrintTestMessage));
+        {
+            static PrintMessage object;
+            OnEventCallback callback;
+            callback.Bind<PrintMessage, &PrintMessage::Print>(&object);
+            EventDispatcher::AddListener<KeyPressedEvent>(callback);
+        }
 
         // Editor core windows
         ImGuiLayer* imGui = RegisterLayer<ImGuiLayer>();

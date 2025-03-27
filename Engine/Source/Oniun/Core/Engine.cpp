@@ -15,7 +15,6 @@ namespace Oniun
         : Name(name), CmdLineArgs(args), AppBuild(appBuild),
           EngineBuild(Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH)), PlatformType(GetPlatformType())
     {
-        // TODO: Platform type
     }
 
     String ToString(const AppInfo::Version& version)

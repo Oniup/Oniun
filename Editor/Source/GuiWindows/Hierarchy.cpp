@@ -6,7 +6,7 @@
 namespace Oniun
 {
     Hierarchy::Hierarchy()
-        : IImGuiWindow("Hierarchy"), m_CurrentSelected(NO_POS)
+        : IImGuiWindow("Hierarchy")
     {
     }
 
@@ -31,10 +31,6 @@ namespace Oniun
     {
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-        bool isSelected = m_CurrentSelected == entity || m_Selected.Contains(entity);
-        if (isSelected)
-            flags |= ImGuiTreeNodeFlags_Selected;
-
         // Setting name
         char name[EntityEntry::MaxFullNameSize];
         if (entry.NameId > 0)
@@ -46,14 +42,6 @@ namespace Oniun
         ImGui::PushID(entity);
         if (ImGui::TreeNodeEx(name, flags))
         {
-            if (ImGui::IsItemClicked())
-            {
-                if (isSelected)
-                    m_Selected.Remove(entity);
-                else
-                    m_Selected.Add(entity);
-            }
-
             Entity child = Entity(entity, scene).GetFirstChild();
             while (child != Entity::Invalid)
             {

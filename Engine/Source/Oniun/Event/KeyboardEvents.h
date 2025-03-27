@@ -5,7 +5,7 @@
 
 namespace Oniun
 {
-    class KeyCodeEvent : public Event
+    class KeyCodeEvent : public IEvent
     {
     public:
         KeyCodeEvent(KeyCode code)

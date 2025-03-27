@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Oniun/Core/Engine.h>
+#include <Oniun/Event/Event.h>
 
 namespace Oniun::Editor
 {

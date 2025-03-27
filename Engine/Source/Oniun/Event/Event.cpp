@@ -14,7 +14,7 @@ namespace Oniun
         m_Instance = nullptr;
     }
 
-    bool EventDispatcher::AddCallback(UUID id, OnEventCallback&& callback)
+    bool EventDispatcher::AddCallback(UUID id, const OnEventCallback& callback)
     {
         if (!m_RegisteredEvents.Contains(id))
             m_RegisteredEvents.Add(id);
@@ -27,7 +27,7 @@ namespace Oniun
                 return false;
             }
         }
-        callbacks.Add(Memory::Move(callback));
+        callbacks.Add(callback);
         return true;
     }
 
@@ -47,7 +47,7 @@ namespace Oniun
         return false;
     }
 
-    void EventDispatcher::FireEventCallbacks(UUID id, Event* event, void* sender)
+    void EventDispatcher::FireEventCallbacks(UUID id, IEvent* event, void* sender)
     {
         Array<OnEventCallback>* callbacks = m_RegisteredEvents.Try(id);
         if (!callbacks)

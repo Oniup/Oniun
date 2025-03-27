@@ -7,6 +7,10 @@
 
 namespace Oniun
 {
+    /// @brief Struct representing command line arguments.
+    ///
+    /// The CommandLineArguments struct holds the count and the list of command line arguments passed to the
+    /// application.
     struct CommandLineArguments
     {
         int32 Count;
@@ -50,6 +54,10 @@ namespace Oniun
 
     String ToString(const AppInfo::Version& version);
 
+    /// @brief Base class for the engine application. This is responsible for managing the application's lifecycle, and
+    ///        managing engine layers (EngineLayer).
+    ///
+    /// @warning Only add engine layers within the Setup() override otherwise you risk dangling pointer errors.
     class Engine
     {
     public:
@@ -70,22 +78,37 @@ namespace Oniun
         virtual void Setup() = 0;
         void Run();
 
+        /// @brief Registers an engine layer.
+        ///
+        /// @tparam TLayer The type of the layer to register.
+        /// @tparam TArgs  The types of the arguments to pass to the layer's constructor.
+        /// @param args    The arguments to pass to the layer's constructor.
+        /// @return A pointer to the newly registered layer.
         template <typename TLayer, typename... TArgs>
         FORCE_INLINE TLayer* RegisterLayer(TArgs&&... args)
         {
             return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(Memory::New<TLayer>(args...)));
         }
 
+        /// @brief Registers an engine layer.
+        ///
+        /// @tparam TLayer The type of the layer to register.
+        /// @param layer   A pointer to the layer to register.
+        /// @return A pointer to the newly registered layer.
         template <typename TLayer>
         FORCE_INLINE TLayer* RegisterLayer(TLayer* layer)
         {
             return static_cast<TLayer*>(m_Instance->ImplRegisterLayer(layer));
         }
 
+        /// @brief Gets a registered engine layer.
+        ///
+        /// @tparam TLayer The type of the layer to get.
+        /// @return A pointer to the registered layer, or nullptr if the layer was not found.
         template <typename TLayer>
         FORCE_INLINE static TLayer* GetLayer()
         {
-            uint64 id = TypeInfo::GetFastId<TLayer>();
+            constexpr uint64 id = TypeInfo::GetFastId<TLayer>();
             EngineLayer* layer = m_Instance->ImplGetLayer(id);
 
             if (layer)
@@ -96,6 +119,9 @@ namespace Oniun
         }
 
     protected:
+        /// @brief Registers application information.
+        ///
+        /// @param info The application information to register.
         void RegisterAppInfo(const AppInfo& info);
 
     private:
@@ -113,5 +139,12 @@ namespace Oniun
         Logger m_Logger;
     };
 
+    /// @brief Creates an application instance.
+    ///
+    /// This function should be implemented by the application to create and return an instance of the Engine-derived
+    /// class.
+    ///
+    /// @param args The command line arguments.
+    /// @return A pointer to the created application instance.
     extern Engine* CreateApplication(const CommandLineArguments& args);
 }
