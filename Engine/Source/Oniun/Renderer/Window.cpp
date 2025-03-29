@@ -2,6 +2,10 @@
 
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/String/StringView.h"
+#include "Oniun/Event/Event.h"
+#include "Oniun/Event/WindowEvents.h"
+#include "Oniun/Core/Engine.h"
+#include "Oniun/Renderer/RendererLayer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -50,6 +54,8 @@ namespace Oniun
         int32 centerX = (vidMode->width - width) / 2;
         int32 centerY = (vidMode->height - height) / 2;
         glfwSetWindowPos(m_Window, centerX, centerY);
+
+        SetupCallbacks();
     }
 
     Window::~Window()
@@ -142,5 +148,31 @@ namespace Oniun
             }
         }
         return nullptr;
+    }
+
+    void Window::SetupCallbacks()
+    {
+#define GET_WINDOW Engine::GetLayer<RendererLayer>()->GetWindow()
+
+        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+            {
+                WindowCloseEvent event(GET_WINDOW);
+                EventDispatcher::FireEvent(event);
+            });
+        glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int32 xPos, int32 yPos)
+            {
+                WindowSetPositionEvent event(GET_WINDOW, xPos, yPos);
+                EventDispatcher::FireEvent(event);
+            });
+        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int32 xSize, int32 ySize)
+            {
+                WindowSetSizeEvent event(GET_WINDOW, xSize, ySize);
+                EventDispatcher::FireEvent(event);
+            });
+        glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focus)
+            {
+                WindowFocusEvent event(GET_WINDOW, focus);
+                EventDispatcher::FireEvent(event);
+            });
     }
 }

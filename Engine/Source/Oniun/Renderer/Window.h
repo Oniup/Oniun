@@ -62,6 +62,9 @@ namespace Oniun
         GLFWmonitor* GetInternalCurrentMonitor() const;
 
     private:
+        void SetupCallbacks();
+
+    private:
         GLFWwindow* m_Window;
         Flags m_Flags;
     };

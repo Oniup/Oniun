@@ -39,10 +39,9 @@ namespace Oniun
         ///        the sender.
         ///
         /// @tparam TEvent  The type of event to listen for.
-        /// @tparam TArgs   Additional arguments for the event.
         /// @param callback The callback function to be called when the event is fired.
         /// @return True if the listener was successfully added.
-        template <typename TEvent, typename... TArgs>
+        template <typename TEvent>
         static bool AddListener(const OnEventCallback& callback);
 
         /// @brief Removes a listener for a specific event type.
@@ -73,7 +72,7 @@ namespace Oniun
         HashMap<UUID, Array<OnEventCallback>> m_RegisteredEvents;
     };
 
-    template <typename TEvent, typename ... TArgs>
+    template <typename TEvent>
     bool EventDispatcher::AddListener(const OnEventCallback& callback)
     {
         UUID id = TypeInfo::GetFastId<TEvent>();

@@ -7,21 +7,28 @@
 #include "Oniun/Core/Engine.h"
 #include "Oniun/Renderer/RendererLayer.h"
 #include "Oniun/RHI/ImGuiLayer.h"
+#include "Oniun/Event/Event.h"
+#include "Oniun/Event/WindowEvents.h"
 
 namespace Oniun
 {
-    static constexpr StringView EngineDefaultFont = "../Engine/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
-    static constexpr StringView EngineMonoFont = "../Engine/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
+    static constexpr StringView EngineDefaultFont = ONIUN_RESOURCE_DIRECTORY "/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
+    static constexpr StringView EngineMonoFont = ONIUN_RESOURCE_DIRECTORY "/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
     static constexpr uint64 EngineDefaultFontSize = 20;
 
-    void WindowPositionCallback(GLFWwindow* window, int32 xPos, int32 yPos)
+    static void CorrectScaleBasedOnMonitorContentScaleCallback(IEvent* event, void* sender)
     {
-        static float lastXScale = 1, lastYScale = 1;
+        static float lastXScale = 1;
+        static float lastYScale = 1;
+
+        WindowSetPositionEvent* setPosEvent = static_cast<WindowSetPositionEvent*>(event);
+        GLFWwindow* window = setPosEvent->GetWindow()->GetInternalWindow();
+
         float xScale, yScale;
         glfwGetWindowContentScale(window, &xScale, &yScale);
         if (xScale != lastXScale || yScale != lastYScale)
         {
-            int width, height;
+            int32 width, height;
             glfwGetWindowSize(window, &width, &height);
 
             int32 newWidth = (int32)(width * xScale / lastXScale);
@@ -56,7 +63,7 @@ namespace Oniun
         m_DefaultFont = io.Fonts->AddFontFromFileTTF(*EngineDefaultFont, EngineDefaultFontSize, &config);
         m_MonoFont = io.Fonts->AddFontFromFileTTF(*EngineMonoFont, EngineDefaultFontSize - 2, &config);
 
-        glfwSetWindowPosCallback(Engine::GetLayer<RendererLayer>()->GetWindow()->GetInternalWindow(), WindowPositionCallback);
+        EventDispatcher::AddListener<WindowSetPositionEvent>(CorrectScaleBasedOnMonitorContentScaleCallback);
     }
 
     IImGuiLayer::~IImGuiLayer()
@@ -104,7 +111,6 @@ namespace Oniun
     void IImGuiLayer::Render(RendererLayer& renderer)
     {
         NewFrame();
-
         for (IImGuiWindow* window : m_Windows)
         {
             if (window->IsOpened())
@@ -116,10 +122,8 @@ namespace Oniun
             if (window->DestroyOnClose() && !window->IsOpened())
                 m_Windows.Remove(window);
         }
-
         ImGuiIO& io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float)renderer.GetWindow()->GetWidth(), (float)renderer.GetWindow()->GetHeight());
-
         ImGui::Render();
     }
 

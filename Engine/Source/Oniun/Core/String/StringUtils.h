@@ -15,7 +15,6 @@ namespace Oniun
         // Below up to utf conversions is from Godot but reformatted into the style of this codebase
         // https://github.com/godotengine/godot/blob/master/core/string/char_utils.h
 
-
         constexpr bool IsUpperCase(char ch)
         {
             return (ch >= L'A' && ch <= L'Z');
