@@ -37,6 +37,9 @@ namespace Oniun
         bool Register(IImGuiWindow* window);
         void OnStart() override;
 
+        // TODO: Replace with the config
+        void SetTheme();
+
         virtual void NewFrame();
         virtual void RenderPlatformDrawData() = 0;
 

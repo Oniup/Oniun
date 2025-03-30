@@ -8,14 +8,15 @@ struct GLFWmonitor;
 
 namespace Oniun
 {
-    enum WindowFlag
+    using WindowFlags = int32;
+    enum WindowFlags_
     {
-        WindowFlag_None = 0,
-        WindowFlag_ResizableBit = 1 << 0,
-        WindowFlag_TransparentFrameBufferBit = 1 << 1,
-        WindowFlag_BorderlessBit = 1 << 2,
-        WindowFlag_ModeFullscreenBit = 1 << 3,
-        WindowFlag_ModeWindowedBit = 1 << 4,
+        WindowFlags_None = 0,
+        WindowFlags_Resizable = 1 << 0,
+        WindowFlags_TransparentFrameBuffer = 1 << 1,
+        WindowFlags_Borderless = 1 << 2,
+        WindowFlags_ModeFullscreen = 1 << 3,
+        WindowFlags_ModeWindowed = 1 << 4,
     };
 
     typedef void(*PfnWindowDpiChange)(float xScale, float yScale);
@@ -23,13 +24,11 @@ namespace Oniun
     class Window
     {
     public:
-        using Flags = int32;
-
-        static constexpr Flags DefaultFlags = WindowFlag_ResizableBit;
+        static constexpr WindowFlags DefaultFlags = WindowFlags_Resizable;
 
     public:
         Window();
-        Window(const StringView& title, int32 width, int32 height, Flags flags = DefaultFlags);
+        Window(const StringView& title, int32 width, int32 height, WindowFlags flags = DefaultFlags);
         ~Window();
 
     public:
@@ -41,6 +40,11 @@ namespace Oniun
         FORCE_INLINE const GLFWwindow* GetInternalWindow() const
         {
             return m_Window;
+        }
+
+        FORCE_INLINE WindowFlags GetFlags() const
+        {
+            return m_Flags;
         }
 
     public:
@@ -66,6 +70,6 @@ namespace Oniun
 
     private:
         GLFWwindow* m_Window;
-        Flags m_Flags;
+        WindowFlags m_Flags;
     };
 }

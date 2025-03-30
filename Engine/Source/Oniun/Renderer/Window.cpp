@@ -12,11 +12,11 @@
 namespace Oniun
 {
     Window::Window()
-        : m_Window(nullptr), m_Flags(WindowFlag_None)
+        : m_Window(nullptr), m_Flags(WindowFlags_None)
     {
     }
 
-    Window::Window(const StringView& title, int32 width, int32 height, Flags flags)
+    Window::Window(const StringView& title, int32 width, int32 height, WindowFlags flags)
         : m_Window(nullptr), m_Flags(flags)
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -27,15 +27,15 @@ namespace Oniun
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 #endif
 
-        glfwWindowHint(GLFW_RESIZABLE, flags & WindowFlag_ResizableBit ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, flags & WindowFlag_TransparentFrameBufferBit ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_DECORATED, flags & WindowFlag_BorderlessBit ? GLFW_FALSE : GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, flags & WindowFlags_Resizable ? GLFW_TRUE : GLFW_FALSE);
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, flags & WindowFlags_TransparentFrameBuffer ? GLFW_TRUE : GLFW_FALSE);
+        glfwWindowHint(GLFW_DECORATED, flags & WindowFlags_Borderless ? GLFW_FALSE : GLFW_TRUE);
 
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* vidMode = glfwGetVideoMode(monitor);
 
         bool setSize = width == -1 || height == -1;
-        if (flags & WindowFlag_ModeFullscreenBit || (setSize && flags & WindowFlag_BorderlessBit))
+        if (flags & WindowFlags_ModeFullscreen || (setSize && flags & WindowFlags_Borderless))
         {
             width = vidMode->width;
             height = vidMode->height;
@@ -46,7 +46,7 @@ namespace Oniun
             height = vidMode->height / 2;
         }
 
-        m_Window = glfwCreateWindow(width, height, *title, flags & WindowFlag_ModeFullscreenBit ? monitor : nullptr, nullptr);
+        m_Window = glfwCreateWindow(width, height, *title, flags & WindowFlags_ModeFullscreen ? monitor : nullptr, nullptr);
         if (!m_Window)
             LOG(Fatal, "Failed to create window");
         glfwMakeContextCurrent(m_Window);
