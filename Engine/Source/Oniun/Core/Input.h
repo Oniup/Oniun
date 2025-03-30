@@ -15,7 +15,8 @@ namespace Oniun
     public:
         static constexpr uint64 MaxGamepadsConnectedCount = 16;
 
-        enum KeyState
+        // TODO: Expand so there doesn't have to be a previous array
+        enum State
         {
             Released = 0,
             Pressed,
@@ -29,16 +30,15 @@ namespace Oniun
         void OnUpdate() override;
 
     private:
-        void ProcessKey(KeyState& current, KeyState& previous, KeyCode key);
-
-        bool IsRepeating(KeyState current, KeyState previous, int32 key) const;
+        void ProcessKey(State& current, State& previous, KeyCode key);
+        bool IsRepeating(State current, State previous, int32 key) const;
 
     private:
         static Input* m_Instance;
 
         Window* m_Window;
-        FixedArray<KeyState, (uint64)KeyCode::MaxCount> m_CurrentKeyCodes;
-        FixedArray<KeyState, (uint64)KeyCode::MaxCount> m_PreviousKeyCodes;
+        FixedArray<State, (uint64)KeyCode::MaxCount> m_CurrentKeyCodes;
+        FixedArray<State, (uint64)KeyCode::MaxCount> m_PreviousKeyCodes;
         uint64 m_GamesConnectedCount;
     };
 }

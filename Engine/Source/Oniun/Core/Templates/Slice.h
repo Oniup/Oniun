@@ -108,6 +108,11 @@ namespace Oniun
             return m_Data[index];
         }
 
+        constexpr bool IsEmpty() const
+        {
+            return m_Data == nullptr;
+        }
+
     public:
         constexpr bool Contains(const T& value)
         {

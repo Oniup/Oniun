@@ -7,6 +7,8 @@
 
 #define FORMAT_SYNTAX "{}"
 
+// TODO: Rework format functions to use formatter instead of ToString
+
 namespace Oniun
 {
     String ToString(int64 val);
@@ -150,4 +152,5 @@ namespace Oniun
         result.Append(rest);
         return result;
     }
+
 }

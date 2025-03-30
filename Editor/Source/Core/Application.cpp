@@ -17,6 +17,8 @@
 
 #include <Oniun/Event/KeyboardEvents.h>
 
+#include <Oniun/Core/String/Formatter.h>
+
 // Editor core windows
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
@@ -140,6 +142,14 @@ namespace Oniun::Editor
         imGui->Register(Memory::New<DockingSpace>());
         imGui->Register(Memory::New<Console>());
         imGui->Register(Memory::New<Hierarchy>());
+
+        Array<uint64> arr = {1, 2, 3, 4, 5, 6};
+        Formatter<Array<uint64>> formatter;
+        FormatParseArgsContext context("{num|rb|ln}");
+        formatter.Parse(context);
+        String buffer;
+        formatter.FormatTo(buffer, arr);
+        LOG(Info, buffer);
 
         SetupTestScene();
     }

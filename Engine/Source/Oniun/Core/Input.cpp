@@ -42,9 +42,9 @@ namespace Oniun
         // TODO: Gamepad
     }
 
-    void Input::ProcessKey(KeyState& current, KeyState& previous, KeyCode key)
+    void Input::ProcessKey(State& current, State& previous, KeyCode key)
     {
-        current = (KeyState)glfwGetKey(m_Window->GetInternalWindow(), (int32)key);
+        current = (State)glfwGetKey(m_Window->GetInternalWindow(), (int32)key);
         bool isRepeating = IsRepeating(current, previous, (int32)key);
 
         if (current == Pressed)
@@ -60,7 +60,7 @@ namespace Oniun
         previous = current;
     }
 
-    bool Input::IsRepeating(KeyState current, KeyState previous, int32 key) const
+    bool Input::IsRepeating(State current, State previous, int32 key) const
     {
         if (current == previous)
         {

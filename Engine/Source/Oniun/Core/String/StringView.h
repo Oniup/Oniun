@@ -54,14 +54,20 @@ namespace Oniun
         FORCE_INLINE constexpr StringView& operator=(const char* str)
         {
             m_Data = str;
-            m_Length = StringUtils::Length(str);
+            if (str)
+                m_Length = StringUtils::Length(str);
+            else
+                m_Length = 0;
             return *this;
         }
 
         FORCE_INLINE constexpr StringView& operator=(const Slice<char>& slice)
         {
             m_Data = slice.Get();
-            m_Length = slice.Length();
+            if (!slice.IsEmpty())
+                m_Length = slice.Length();
+            else
+                m_Length = 0;
             return *this;
         }
 

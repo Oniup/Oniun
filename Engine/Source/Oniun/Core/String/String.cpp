@@ -255,12 +255,6 @@ namespace Oniun
         return *this;
     }
 
-    String& String::operator/=(const Slice<char>& slice)
-    {
-        Concat('/', slice);
-        return *this;
-    }
-
     String String::operator+(const String& text)
     {
         String str(*this);
@@ -321,13 +315,6 @@ namespace Oniun
     {
         String str(*this);
         str.Concat('/', text);
-        return str;
-    }
-
-    String String::operator/(const Slice<char>& slice)
-    {
-        String str(*this);
-        Concat('/', slice);
         return str;
     }
 
@@ -506,6 +493,15 @@ namespace Oniun
         Resize(m_Length + str.Length());
         Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
         Crt::Copy(m_Data.Ptr() + index, str.Data(), str.Length());
+    }
+
+    void String::Insert(uint64 index, char ch)
+    {
+        ASSERT(index < m_Length);
+        uint64 oldLength = m_Length;
+        Resize(m_Length + 1);
+        Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, (oldLength - index));
+        m_Data[index] = ch;
     }
 
     void String::Remove(uint64 index, uint64 length)

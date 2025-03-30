@@ -203,10 +203,8 @@ namespace Oniun
         void Concat(char left, const char* text);
         void Concat(char left, char ch);
 
-        template <typename... TArgs>
-        void Concat(char left, const TArgs&... args);
-
         void Insert(uint64 index, const StringView& str);
+        void Insert(uint64 index, char ch);
         void Remove(uint64 index, uint64 length);
 
         bool Compare(const StringView& str) const;
@@ -235,12 +233,6 @@ namespace Oniun
         uint64 m_Length;
         Allocator m_Data;
     };
-
-    template <typename... TArgs>
-    void String::Concat(char left, const TArgs&... args)
-    {
-        // TODO: ...
-    }
 
     Slice<char> ToSlice(const String& string);
     Slice<char> ToSlice(const String& string, uint64 index, uint64 length);
