@@ -330,6 +330,23 @@ namespace Oniun
         return res;
     }
 
+    bool Formatter<Matrix>::Parse(const FormatArgsContext& context)
+    {
+        return true;
+    }
+
+    void Formatter<Matrix>::FormatTo(String& dest, const Matrix& mat)
+    {
+        Formatter<Vector4> formatter;
+        formatter.FormatTo(dest, mat.M[0]);
+        dest.Append('\n');
+        formatter.FormatTo(dest, mat.M[1]);
+        dest.Append('\n');
+        formatter.FormatTo(dest, mat.M[2]);
+        dest.Append('\n');
+        formatter.FormatTo(dest, mat.M[3]);
+    }
+
     String ToString(const Matrix& mat)
     {
         return Format("{}\n{}\n{}\n{}\n", mat.M[0], mat.M[1], mat.M[2], mat.M[3]);

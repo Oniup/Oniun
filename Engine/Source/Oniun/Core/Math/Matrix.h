@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/Math/Vector4.h"
+#include "Oniun/Core/String/Formatter.h"
 
 namespace Oniun
 {
@@ -117,7 +118,6 @@ namespace Oniun
             return Div(*this, scalar);
         }
 
-
         static Matrix Add(const Matrix& mat0, const Matrix& mat1);
         static Matrix Add(const Matrix& mat, float scalar);
 
@@ -140,6 +140,13 @@ namespace Oniun
         static Matrix Translate(const Matrix& mat, const Vector3& translation);
         static Matrix Scale(const Matrix& mat, const Vector3& scale);
         static Matrix Rotate(const Matrix& mat, float angle, const Vector3& rotate);
+    };
+
+    template <>
+    struct Formatter<Matrix>
+    {
+        bool Parse(const FormatArgsContext& context);
+        void FormatTo(String& dest, const Matrix& mat);
     };
 
     String ToString(const Matrix& mat);

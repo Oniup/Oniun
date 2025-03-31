@@ -7,6 +7,10 @@
 #include "Oniun/Core/Templates/PackedIterator.h"
 #include "Oniun/Core/Templates/Pair.h"
 
+#include "Oniun/Core/String/String.h"
+#include "Oniun/Core/String/StringView.h"
+#include "Oniun/Core/String/Formatter.h"
+
 #include "Oniun/Core/Hash.h"
 
 #include "Oniun/Core/Memory/Allocation.h"

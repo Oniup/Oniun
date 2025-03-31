@@ -2,6 +2,7 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Math/Math.h"
+#include "Oniun/Core/String/Formatter.h"
 
 namespace Oniun
 {
@@ -85,6 +86,16 @@ namespace Oniun
         Vector4 Round() const;
         Vector4 Clamp(const Vector4& min, const Vector4& max) const;
         Vector4 Clamp(float min, float max) const;
+    };
+
+    template <>
+    struct Formatter<Vector4>
+    {
+        bool Brackets = true;
+        bool AxisPrefix = false;
+
+        bool Parse(const FormatArgsContext& context);
+        void FormatTo(String& dest, const Vector4& vec);
     };
 
     String ToString(const Vector4& vec);

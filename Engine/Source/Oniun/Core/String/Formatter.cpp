@@ -2,41 +2,101 @@
 
 namespace Oniun
 {
-    FormatParseArgsContext::FormatParseArgsContext(const StringView& options)
-        : m_Args(options), m_CurrentBegin(0), m_CurrentEnd(0)
+    FormatArgsContext::ArgIterator::ArgIterator()
+        : m_Context(nullptr), m_CurrentBegin(0), m_CurrentEnd(0)
+    {
+    }
+
+    FormatArgsContext::ArgIterator::ArgIterator(FormatArgsContext* context, uint64 begin, uint64 end)
+        : m_Context(context), m_CurrentBegin(begin), m_CurrentEnd(end)
+    {
+    }
+
+    FormatArgsContext::ArgIterator::ArgIterator(const ArgIterator& iter)
+        : m_Context(iter.m_Context), m_CurrentBegin(iter.m_CurrentBegin), m_CurrentEnd(iter.m_CurrentEnd)
+    {
+    }
+
+    FormatArgsContext::ArgIterator::ArgIterator(ArgIterator&& iter)
+        : m_Context(iter.m_Context), m_CurrentBegin(iter.m_CurrentBegin),
+          m_CurrentEnd(iter.m_CurrentEnd)
+    {
+        iter.m_Context = nullptr;
+        iter.m_CurrentBegin = 0;
+        iter.m_CurrentEnd = 0;
+    }
+
+    FormatArgsContext::ArgIterator& FormatArgsContext::ArgIterator::operator=(const ArgIterator& iter)
+    {
+        m_Context = iter.m_Context;
+        m_CurrentBegin = iter.m_CurrentBegin;
+        m_CurrentEnd = iter.m_CurrentEnd;
+        return *this;
+    }
+
+    FormatArgsContext::ArgIterator& FormatArgsContext::ArgIterator::operator=(ArgIterator&& iter)
+    {
+        m_Context = iter.m_Context;
+        m_CurrentBegin = iter.m_CurrentBegin;
+        m_CurrentEnd = iter.m_CurrentEnd;
+
+        iter.m_Context = nullptr;
+        iter.m_CurrentBegin = 0;
+        iter.m_CurrentEnd = 0;
+        return *this;
+    }
+
+    StringView FormatArgsContext::ArgIterator::operator*() const
+    {
+        return Get();
+    }
+
+    bool FormatArgsContext::ArgIterator::operator==(const ArgIterator& iter) const
+    {
+        return m_Context == iter.m_Context && m_CurrentBegin == iter.m_CurrentBegin && iter.m_CurrentEnd ==
+            m_CurrentEnd;
+    }
+
+    bool FormatArgsContext::ArgIterator::operator!=(const ArgIterator& iter) const
+    {
+        return !(*this == iter);
+    }
+
+    FormatArgsContext::ArgIterator& FormatArgsContext::ArgIterator::operator++()
+    {
+        ++m_CurrentEnd;
+        m_CurrentBegin = m_CurrentEnd;
+        for (uint64 i = m_CurrentBegin; i < m_Context->m_Args.Length() - 1; ++i)
+        {
+            if (m_Context->m_Args[i] == FORMAT_ARG_SEPARATOR_SYNTAX)
+                break;
+            ++m_CurrentEnd;
+        }
+        if (m_CurrentBegin > m_Context->m_Args.Length())
+        {
+            m_CurrentBegin = NO_POS;
+            m_CurrentEnd = NO_POS;
+        }
+        return *this;
+    }
+
+    FormatArgsContext::FormatArgsContext(const StringView& options)
+        : m_Args(options)
     {
         // Check if insert options are valid by checking correct format
         if (m_Args.Length() < 2 || m_Args.First() != '{' || m_Args.Last() != '}')
             m_Args = nullptr;
     }
 
-    bool FormatParseArgsContext::Next()
-    {
-        ++m_CurrentEnd;
-        m_CurrentBegin = m_CurrentEnd;
-        for (uint64 i = m_CurrentBegin; i < m_Args.Length() - 1; ++i)
-        {
-            if (m_Args[i] == FORMAT_ARG_SEPARATOR_SYNTAX)
-                break;
-            ++m_CurrentEnd;
-        }
-        return m_CurrentBegin < m_Args.Length() - 1;
-    }
-
 #define PRIMITIVE_FORMATTER_CLASS_FLOAT(_Type) \
-    Formatter<_Type>::Formatter() \
-        : m_ScientificNotation(false), m_Precision(NO_POS) \
+    bool Formatter<_Type>::Parse(const FormatArgsContext& context) \
     { \
-    } \
-    bool Formatter<_Type>::Parse(FormatParseArgsContext& context) \
-    { \
-        while (context.Next()) \
+        for (StringView arg : context) \
         { \
-            StringView arg(context.Get()); \
             if (arg.First() == '.') \
-                m_Precision = arg.Last() - '0'; \
+                Precision = arg.Last() - '0'; \
             else if (arg == "e" || arg == "E") \
-                m_ScientificNotation = true; \
+                ScientificNotation = true; \
         } \
         return true; \
     } \
@@ -44,9 +104,9 @@ namespace Oniun
     { \
         constexpr uint64 cFormatMaxLength = 8; \
         char cFormat[cFormatMaxLength]; \
-        if (m_Precision != NO_POS) \
-            Crt::Format(cFormat, cFormatMaxLength, "%%.%lluf", m_Precision); \
-        else if (m_ScientificNotation) \
+        if (Precision != NO_POS) \
+            Crt::Format(cFormat, cFormatMaxLength, "%%.%lluf", Precision); \
+        else if (ScientificNotation) \
             Crt::Copy(cFormat, "%e\0", 3); \
         else \
             Crt::Copy(cFormat, "%f\0", 3); \
@@ -54,22 +114,17 @@ namespace Oniun
         char buffer[bufferMaxLength]; \
         Crt::Format(buffer, bufferMaxLength, cFormat, value); \
         dest.Append(buffer); \
-    } \
+    }
 
 #define PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(_Bits, _Format) \
-    Formatter<uint##_Bits>::Formatter() \
-        : m_Hexadecimal(false), m_Pointer(false) \
+    bool Formatter<uint##_Bits>::Parse(const FormatArgsContext& context) \
     { \
-    } \
-    bool Formatter<uint##_Bits>::Parse(FormatParseArgsContext& context) \
-    { \
-        while (context.Next()) \
+        for (StringView arg : context) \
         { \
-            StringView arg(context.Get()); \
             if (arg == "x" || arg == "X") \
-                m_Hexadecimal = true; \
+                Hexadecimal = true; \
             if (arg == "p") \
-                m_Pointer = true; \
+                Pointer = true; \
         } \
         return true; \
     } \
@@ -77,27 +132,22 @@ namespace Oniun
     { \
         constexpr uint##_Bits bufferMaxLength = 20; \
         char buffer[bufferMaxLength]; \
-        if (m_Hexadecimal) \
+        if (Hexadecimal) \
             Crt::Format(buffer, bufferMaxLength, "%x", value); \
-        else if (m_Pointer) \
+        else if (Pointer) \
             Crt::Format(buffer, bufferMaxLength, "%p", value); \
         else \
             Crt::Format(buffer, bufferMaxLength, _Format, value); \
         dest.Append(buffer); \
-    } \
+    }
 
 #define PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(_Bits, _Format) \
-    Formatter<int##_Bits>::Formatter() \
-        : m_Pointer(false) \
+    bool Formatter<int##_Bits>::Parse(const FormatArgsContext& context) \
     { \
-    } \
-    bool Formatter<int##_Bits>::Parse(FormatParseArgsContext& context) \
-    { \
-        while (context.Next()) \
+        for (StringView arg : context) \
         { \
-            StringView arg(context.Get()); \
             if (arg == "p") \
-                m_Pointer = true; \
+                Pointer = true; \
         } \
         return true; \
     } \
@@ -105,12 +155,12 @@ namespace Oniun
     { \
         constexpr int##_Bits bufferMaxLength = 20; \
         char buffer[bufferMaxLength]; \
-        if (m_Pointer) \
+        if (Pointer) \
             Crt::Format(buffer, bufferMaxLength, "%p", value); \
         else \
             Crt::Format(buffer, bufferMaxLength, _Format, value); \
         dest.Append(buffer); \
-    } \
+    }
 
     PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(8, "%u")
     PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(16, "%u")
@@ -125,32 +175,29 @@ namespace Oniun
     PRIMITIVE_FORMATTER_CLASS_FLOAT(float)
     PRIMITIVE_FORMATTER_CLASS_FLOAT(double)
 
-    //Formatter<uint64>::Formatter() : m_Hexadecimal(false), m_Pointer(false)
-    //{
-    //}
+#define FORMATTER_CLASS_STRING(_Type) \
+    bool Formatter<_Type>::Parse(const FormatArgsContext& context) \
+    { \
+        return true; \
+    } \
+    void Formatter<_Type>::FormatTo(String& dest, const _Type& str) \
+    { \
+        dest.Append(str); \
+    }
 
-    //bool Formatter<uint64>::Parse(FormatParseArgsContext& context)
-    //{
-    //    while (context.Next())
-    //    {
-    //        StringView arg(context.Get());
-    //        if (arg == "x" || arg == "X")
-    //            m_Hexadecimal = true;
-    //        if (arg == "p")
-    //            m_Pointer = true;
-    //    } return true;
-    //}
+#define PRIMITIVE_STRING_TYPE_FORMATTER_CLASS(_Type) \
+    bool Formatter<_Type>::Parse(const FormatArgsContext& context) \
+    { \
+        return true; \
+    } \
+    void Formatter<_Type>::FormatTo(String& dest, const char* str) \
+    { \
+        dest.Append(str); \
+    }
 
-    //void Formatter<uint64>::FormatTo(String& dest, uint64 value)
-    //{
-    //    constexpr uint64 bufferMaxLength = 20;
-    //    char buffer[bufferMaxLength];
-    //    if (m_Hexadecimal)
-    //        Crt::Format(buffer, bufferMaxLength, "%x", value);
-    //    else if (m_Pointer)
-    //        Crt::Format(buffer, bufferMaxLength, "%p", value);
-    //    else
-    //        Crt::Format(buffer, bufferMaxLength, "%llu", value); dest.Append(buffer);
-    //}
+    FORMATTER_CLASS_STRING(String)
+    FORMATTER_CLASS_STRING(StringView)
+    PRIMITIVE_STRING_TYPE_FORMATTER_CLASS(char*)
+    PRIMITIVE_STRING_TYPE_FORMATTER_CLASS(const char*)
 }
 

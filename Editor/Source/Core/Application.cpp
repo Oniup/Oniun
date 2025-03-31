@@ -12,6 +12,7 @@
 // Test
 #include <Oniun/Core/Input.h>
 #include <Oniun/Core/Math/Vector3.h>
+#include <Oniun/Core/Math/Vector4.h>
 #include <Oniun/Scene/ComponentQuery.h>
 #include <Oniun/Scene/Entity.h>
 
@@ -23,14 +24,6 @@
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"
-
-namespace Oniun
-{
-    Engine* CreateApplication(const CommandLineArguments& args)
-    {
-        return Memory::New<Editor::Application>(args);
-    }
-}
 
 namespace Oniun::Editor
 {
@@ -111,6 +104,20 @@ namespace Oniun::Editor
         }
     };
 
+    template <typename T>
+    void FormatterTest(const T& val, const StringView& insertStr, bool startOnNewLine = false)
+    {
+        Formatter<T> formatter;
+        FormatArgsContext context(insertStr);
+        formatter.Parse(context);
+        String result;
+        formatter.FormatTo(result, val);
+        if (startOnNewLine)
+            LOG(Info, "{} using \"{}\" =\n{}", TypeInfo::GetName<T>(), insertStr, result);
+        else
+            LOG(Info, "{} using \"{}\" = {}", TypeInfo::GetName<T>(), insertStr, result);
+    }
+
     Application::Application(const CommandLineArguments& args)
     {
         RegisterAppInfo(AppInfo("Oniun Engine", args, AppInfo::Version(ONU_VERSION_MAJOR, ONU_VERSION_MINOR, ONU_VERSION_PATCH)));
@@ -143,14 +150,56 @@ namespace Oniun::Editor
         imGui->Register(Memory::New<Console>());
         imGui->Register(Memory::New<Hierarchy>());
 
-        Array<uint64> arr = {1, 2, 3, 4, 5, 6};
-        Formatter<Array<uint64>> formatter;
-        FormatParseArgsContext context("{num|rb|ln}");
-        formatter.Parse(context);
-        String buffer;
-        formatter.FormatTo(buffer, arr);
-        LOG(Info, buffer);
+        FormatterTest(Array({1, 2, 3, 4, 5, 6, 7}), "{cp|rs|rb}");
+        FormatterTest(Array({"Bob", "Jeff", "Andre", "Jess", "Syllia"}), "{ln|num|rb}", true);
+        FormatterTest(Vector4(1.0f, 2.0f, 3.0f, 4.0f), "{x}");
+        FormatterTest(TransformComponent(Vector3(5.0f, 5.0f, 5.0f), Vector3(1.0f), Vector3(0.0f)), "{ln}", true);
 
         SetupTestScene();
     }
+}
+
+namespace Oniun
+{
+    Engine* CreateApplication(const CommandLineArguments& args)
+    {
+        return Memory::New<Editor::Application>(args);
+    }
+
+    // Add custom formatters
+    template <>
+    struct Formatter<Editor::TransformComponent>
+    {
+        bool NewLine = false;
+
+        bool Parse(const FormatArgsContext& context)
+        {
+            for (StringView arg : context)
+            {
+                if (arg == "ln")
+                    NewLine = true;
+            }
+            return true;
+        }
+
+        void FormatTo(String& dest, const Editor::TransformComponent& transform)
+        {
+            Formatter<Vector3> fmt;
+
+            dest.Append("Position: ");
+            fmt.FormatTo(dest, transform.Position);
+
+            if (NewLine)
+                dest.Append("\nScale:    ");
+            else
+                dest.Append(", Scale: ");
+            fmt.FormatTo(dest, transform.Scale);
+
+            if (NewLine)
+                dest.Append("\nRotation: ");
+            else
+                dest.Append(", Rotation: ");
+            fmt.FormatTo(dest, transform.Rotation);
+        }
+    };
 }

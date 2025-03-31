@@ -379,4 +379,45 @@ namespace Oniun
         Crt::Format(buffer, maxSize, "[ %f, %f, %f, %f ]", vec.X, vec.Y, vec.Z, vec.W);
         return String(buffer);
     }
+
+    bool Formatter<Vector4>::Parse(const FormatArgsContext& context)
+    {
+        for (StringView arg : context)
+        {
+            if (arg == "x")
+                AxisPrefix = true;
+            else if (arg == "rb")
+                Brackets = false;
+        }
+        return true;
+    }
+
+    void Formatter<Vector4>::FormatTo(String& dest, const Vector4& vec)
+    {
+        Formatter<float> fmt;
+        if (Brackets)
+            dest.Append("[");
+
+        if (AxisPrefix)
+            dest.Append("X: ");
+        fmt.FormatTo(dest, vec.X);
+        dest.Append(", ");
+
+        if (AxisPrefix)
+            dest.Append("Y: ");
+        fmt.FormatTo(dest, vec.Y);
+        dest.Append(", ");
+
+        if (AxisPrefix)
+            dest.Append("Z: ");
+        fmt.FormatTo(dest, vec.Z);
+        dest.Append(", ");
+
+        if (AxisPrefix)
+            dest.Append("W: ");
+        fmt.FormatTo(dest, vec.W);
+
+        if (Brackets)
+            dest.Append("]");
+    }
 }

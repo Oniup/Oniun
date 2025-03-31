@@ -345,18 +345,54 @@ namespace Oniun
         );
     }
 
+    Vector3 Vector3::Normalized() const
+    {
+        Vector3 vec(*this);
+        vec.Normalize();
+        return vec;
+    }
+
+    bool Formatter<Vector3>::Parse(const FormatArgsContext& context)
+    {
+        for (StringView arg : context)
+        {
+            if (arg == "x")
+                AxisPrefix = true;
+            else if (arg == "rb")
+                Brackets = false;
+        }
+        return true;
+    }
+
+    void Formatter<Vector3>::FormatTo(String& dest, const Vector3& vec)
+    {
+        Formatter<float> fmt;
+        if (Brackets)
+            dest.Append("[");
+
+        if (AxisPrefix)
+            dest.Append("X: ");
+        fmt.FormatTo(dest, vec.X);
+        dest.Append(", ");
+
+        if (AxisPrefix)
+            dest.Append("Y: ");
+        fmt.FormatTo(dest, vec.Y);
+        dest.Append(", ");
+
+        if (AxisPrefix)
+            dest.Append("Z: ");
+        fmt.FormatTo(dest, vec.Z);
+
+        if (Brackets)
+            dest.Append("]");
+    }
+
     String ToString(const Vector3& vec)
     {
         constexpr uint64 maxLength = 100;
         char buffer[maxLength];
         Crt::Format(buffer, maxLength, "[ %f, %f, %f ]", vec.X, vec.Y, vec.Z);
         return String(buffer);
-    }
-
-    Vector3 Vector3::Normalized() const
-    {
-        Vector3 vec(*this);
-        vec.Normalize();
-        return vec;
     }
 }

@@ -9,13 +9,13 @@ namespace Oniun
         using Type = T;
 
     public:
-        FORCE_INLINE constexpr PackedIterator(T* ptr)
-            : m_Ptr(ptr)
+        FORCE_INLINE constexpr PackedIterator()
+            : m_Ptr(nullptr)
         {
         }
 
-        FORCE_INLINE constexpr PackedIterator()
-            : m_Ptr(nullptr)
+        FORCE_INLINE constexpr PackedIterator(T* ptr)
+            : m_Ptr(ptr)
         {
         }
 

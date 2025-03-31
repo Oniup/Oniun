@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Oniun/Core/String/Formatter.h"
+
 namespace Oniun
 {
     struct Vector3
@@ -73,6 +75,17 @@ namespace Oniun
         Vector3 Round() const;
         Vector3 Clamp(const Vector3& min, const Vector3& max) const;
         Vector3 Clamp(float min, float max) const;
+    };
+
+    template <>
+    struct Formatter<Vector3>
+    {
+        bool Brackets;
+        bool AxisPrefix;
+
+        bool Parse(const FormatArgsContext& context);
+        void FormatTo(String& dest, const Vector3& vec);
+
     };
 
     String ToString(const Vector3& vec);
