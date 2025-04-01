@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/Math/Vector4.h"
-#include "Oniun/Core/String/Formatter.h"
+#include "Oniun/Core/String/Format.h"
 
 namespace Oniun
 {
@@ -145,9 +145,7 @@ namespace Oniun
     template <>
     struct Formatter<Matrix>
     {
-        bool Parse(const FormatArgsContext& context);
+        FORMATTER_DEFAULT_PARSE_FUNC()
         void FormatTo(String& dest, const Matrix& mat);
     };
-
-    String ToString(const Matrix& mat);
 }

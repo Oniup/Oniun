@@ -62,7 +62,7 @@ namespace Oniun
 
         FORCE_INLINE String GetCurrentEntityFullName() const
         {
-            return Format("{}{}", m_Iter->Value.Name.Data(), m_Iter->Value.NameId);
+            return Fmt::Format("{}{}", m_Iter->Value.Name.Data(), m_Iter->Value.NameId);
         }
 
     public:

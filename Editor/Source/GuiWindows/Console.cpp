@@ -69,11 +69,11 @@ namespace Oniun
         // Get lighter background color to be 1.5 times lighter than the base background
         const ImGuiStyle& style = ImGui::GetStyle();
         ImVec4 lighterBg = style.Colors[ImGuiCol_WindowBg];
-        constexpr float lighterMulti = 1.3f;
+        constexpr float lighterMulti = 1.5f;
         lighterBg = ImVec4(lighterBg.x * lighterMulti, lighterBg.y * lighterMulti, lighterBg.z * lighterMulti, lighterBg.w);
 
-        // Set color
         uint64 i = 0;
+        String logBuffer;
         for (const Output& log : m_Logs)
         {
             if (!m_IncludeFilter[(uint64)log.Type])
@@ -108,14 +108,14 @@ namespace Oniun
             char childName[bufferMaxCount];
             Crt::Format(childName, bufferMaxCount, "LogMessage%llu", i);
 
+            logBuffer.Clear();
+            Fmt::FormatTo(logBuffer, "[{} {}]: {}:{}: {}\n{}", log.Type, log.Time, log.Function, log.Line, log.File,
+                          log.UserMessage);
+
             ImGui::BeginChild(childName, ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY);
             {
                 // Display log
-                ImGui::TextWrapped("[%s %d:%d:%d %d/%d/%d] %s:%d %s", *ToString(log.Type), log.Time.GetHour(),
-                                   log.Time.GetMinutes(), log.Time.GetSeconds(), log.Time.GetMonth(),
-                                   log.Time.GetMonthDay(),
-                                   log.Time.GetYear(), *log.Function, log.Line, *log.File);
-                ImGui::TextWrapped("%s", *log.UserMessage);
+                ImGui::TextWrapped(*logBuffer);
 
                 // Remove style
                 if (m_Colored && log.Type != LogType::Info)
@@ -127,8 +127,7 @@ namespace Oniun
                 if (ImGui::BeginPopupContextWindow())
                 {
                     if (ImGui::MenuItem("Copy"))
-                        ImGui::SetClipboardText(*Format("[{} {}]: {}:{}: {}\n{}", ToString(log.Type), log.Time,
-                                                        log.Function, log.Line, log.File, log.UserMessage));
+                        ImGui::SetClipboardText(*logBuffer);
                     ImGui::EndPopup();
                 }
             }
@@ -150,7 +149,7 @@ namespace Oniun
                 if (ImGui::BeginMenu("Filter"))
                 {
                     for (uint64 i = 0; i < (uint64)LogType::Count; ++i)
-                        ImGui::Checkbox(*ToString((LogType)i), &m_IncludeFilter[i]);
+                        ImGui::Checkbox(*Fmt::Format("{}", (LogType)i), &m_IncludeFilter[i]);
                     ImGui::EndMenu();
                 }
                 ImGui::MenuItem("Auto-scroll", nullptr, &m_AutoScroll);

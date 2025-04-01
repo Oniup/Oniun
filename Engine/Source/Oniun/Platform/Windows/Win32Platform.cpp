@@ -18,8 +18,8 @@ namespace Oniun
         DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
                                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
         if (msgSize > 0)
-            return Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
-        return Format("Windows Error:{} => Unknown", errorCode);
+            return Fmt::Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
+        return Fmt::Format("Windows Error:{} => Unknown", errorCode);
     }
 
     File Platform::GetStdOutStream()

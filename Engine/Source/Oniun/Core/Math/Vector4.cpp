@@ -372,14 +372,6 @@ namespace Oniun
         return vec;
     }
 
-    String ToString(const Vector4& vec)
-    {
-        constexpr uint64 maxSize = 100;
-        char buffer[maxSize];
-        Crt::Format(buffer, maxSize, "[ %f, %f, %f, %f ]", vec.X, vec.Y, vec.Z, vec.W);
-        return String(buffer);
-    }
-
     bool Formatter<Vector4>::Parse(const FormatArgsContext& context)
     {
         for (StringView arg : context)

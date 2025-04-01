@@ -25,7 +25,7 @@ namespace Oniun
         ASSERT(IsAlive());
         const EntityEntry* entry = GetEntry();
         if (entry->NameId > 0)
-            return Format("{}{}", entry->Name.Data(), entry->NameId);
+            return Fmt::Format("{}{}", entry->Name.Data(), entry->NameId);
         return entry->Name.Data();
     }
 
@@ -169,21 +169,40 @@ namespace Oniun
         return child;
     }
 
-    void EntityToString(String& result, const Entity& entity, bool fullNames, uint64 depth, String& prefix)
+    bool Formatter<Entity>::Parse(const FormatArgsContext& context)
+    {
+        for (StringView arg : context)
+        {
+            if (arg == "sm")
+                FullNames = false;
+        }
+        return true;
+    }
+
+    void Formatter<Entity>::FormatTo(String& dest, const Entity& entity)
+    {
+        if (entity.IsAlive())
+        {
+            String prefix("");
+            EntityToString(dest, entity, 0, prefix);
+        }
+    }
+
+    void Formatter<Entity>::EntityToString(String& dest, const Entity& entity, uint64 depth, String& prefix)
     {
         if (entity != Entity::Invalid)
             return;
 
         // Get entity name
         char buffer[EntityEntry::MaxFullNameSize];
-        if (fullNames && entity.GetNameId() > 0)
+        if (FullNames && entity.GetNameId() > 0)
             Crt::Format(buffer, EntityEntry::MaxFullNameSize, "%s%llu", *entity.GetName(), entity.GetNameId());
         else
             Crt::Format(buffer, EntityEntry::MaxFullNameSize, "%s", *entity.GetName());
 
-        result.Append(prefix);
-        result.Append(buffer);
-        result.Append("\n");
+        dest.Append(prefix);
+        dest.Append(buffer);
+        dest.Append("\n");
         prefix.Replace("└", " ");
         prefix.Replace("├", "│");
 
@@ -195,18 +214,7 @@ namespace Oniun
         {
             bool isLast = (i == children.Count() - 1);
             String childPrefix = prefix + (isLast ? "└ " : "├ ");
-            EntityToString(result, children[i], fullNames, depth + 1, childPrefix);
+            EntityToString(dest, children[i], depth + 1, childPrefix);
         }
-    }
-
-    String ToString(const Entity& entity, bool fullNames)
-    {
-        String result;
-        if (entity.IsAlive())
-        {
-            String prefix("");
-            EntityToString(result, entity, fullNames, 0, prefix);
-        }
-        return result;
     }
 }

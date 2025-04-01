@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
+#include "Oniun/Core/String/Format.h"
 #include "Oniun/Core/String/String.h"
 
 namespace Oniun
@@ -178,6 +179,17 @@ namespace Oniun
     static constexpr Color Wheat = Color("#F5DEB3");
     static constexpr Color YellowGreen = Color("#9ACD32");
 
-    String ToString(const Color32& color);
-    String ToString(const Color& color);
+    template <>
+    struct Formatter<Color32>
+    {
+        FORMATTER_DEFAULT_PARSE_FUNC()
+        void FormatTo(String& ctx, const Color32& color);
+    };
+
+    template <>
+    struct Formatter<Color>
+    {
+        FORMATTER_DEFAULT_PARSE_FUNC()
+        void FormatTo(String& ctx, const Color& color);
+    };
 }

@@ -387,12 +387,4 @@ namespace Oniun
         if (Brackets)
             dest.Append("]");
     }
-
-    String ToString(const Vector3& vec)
-    {
-        constexpr uint64 maxLength = 100;
-        char buffer[maxLength];
-        Crt::Format(buffer, maxLength, "[ %f, %f, %f ]", vec.X, vec.Y, vec.Z);
-        return String(buffer);
-    }
 }

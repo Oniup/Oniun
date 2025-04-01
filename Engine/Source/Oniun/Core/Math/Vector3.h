@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Oniun/Core/String/Formatter.h"
+#include "Oniun/Core/String/Format.h"
 
 namespace Oniun
 {
@@ -87,6 +87,4 @@ namespace Oniun
         void FormatTo(String& dest, const Vector3& vec);
 
     };
-
-    String ToString(const Vector3& vec);
 }

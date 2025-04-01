@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Oniun/Core/ClassConstraints.h"
 #include "Oniun/Core/String/Format.h"
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Array.h"
@@ -18,8 +17,6 @@ namespace Oniun
         Fatal,
         Count,
     };
-
-    StringView ToString(LogType type);
 
     class ILogOutput
     {
@@ -64,7 +61,7 @@ namespace Oniun
         static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
                           const StringView& format, const TArgs&... args)
         {
-            String usrMsg = Format(format, args...);
+            String usrMsg = Fmt::Format(format, args...);
             m_Instance->WriteImpl(type, file, function, line, usrMsg);
         }
 
@@ -116,6 +113,13 @@ namespace Oniun
     private:
         String m_Path;
         File m_Output;
+    };
+
+    template <>
+    struct Formatter<LogType>
+    {
+        bool Parse(const FormatArgsContext& ctx);
+        void FormatTo(String& dest, LogType type);
     };
 }
 

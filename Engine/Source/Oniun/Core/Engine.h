@@ -52,8 +52,6 @@ namespace Oniun
         AppInfo(const StringView& name, const CommandLineArguments& args, const Version& appBuild);
     };
 
-    String ToString(const AppInfo::Version& version);
-
     /// @brief Base class for the engine application. This is responsible for managing the application's lifecycle, and
     ///        managing engine layers (EngineLayer).
     ///
@@ -147,4 +145,11 @@ namespace Oniun
     /// @param args The command line arguments.
     /// @return A pointer to the created application instance.
     extern Engine* CreateApplication(const CommandLineArguments& args);
+
+    template <>
+    struct Formatter<AppInfo::Version>
+    {
+        FORMATTER_DEFAULT_PARSE_FUNC()
+        void FormatTo(String& ctx, const AppInfo::Version& version);
+    };
 }

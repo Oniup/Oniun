@@ -7,27 +7,6 @@ namespace Oniun
 {
     Logger* Logger::m_Instance = nullptr;
 
-    StringView ToString(LogType type)
-    {
-        switch (type)
-        {
-        case LogType::Verbose:
-            return "Verbose";
-        case LogType::Trace:
-            return "Trace";
-        case LogType::Info:
-            return "Info";
-        case LogType::Warning:
-            return "Warning";
-        case LogType::Error:
-            return "Error";
-        case LogType::Fatal:
-            return "Fatal";
-        default:
-            return "Invalid";
-        }
-    }
-
     Logger::Logger()
     {
         m_Instance = this;
@@ -78,7 +57,7 @@ namespace Oniun
         path.CorrectPathSlashes();
 
         DateTime time(DateTime::Now());
-        String formattedMessage = Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMessage);
+        String formattedMessage = Fmt::Format("[{} {} {}:{} {}]:\n{}\n", type, time, function, line, path, userMessage);
 
         for (ILogOutput* output : m_Outputs)
             output->Write(type, formattedMessage, path, function, line, userMessage, time);
@@ -138,6 +117,38 @@ namespace Oniun
         {
             m_Path = path;
             m_Output = Memory::Move(newOutput);
+        }
+    }
+
+    bool Formatter<LogType>::Parse(const FormatArgsContext& ctx)
+    {
+        return true;
+    }
+
+    void Formatter<LogType>::FormatTo(String& dest, LogType type)
+    {
+        switch (type)
+        {
+        case LogType::Verbose:
+            dest.Append("Verbose");
+            break;
+        case LogType::Trace:
+            dest.Append("Trace");
+            break;
+        case LogType::Info:
+            dest.Append("Info");
+            break;
+        case LogType::Warning:
+            dest.Append("Warning");
+            break;
+        case LogType::Error:
+            dest.Append("Error");
+            break;
+        case LogType::Fatal:
+            dest.Append("Fatal");
+            break;
+        default:
+            dest.Append("Invalid");
         }
     }
 }

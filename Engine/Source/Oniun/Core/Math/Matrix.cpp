@@ -1,7 +1,6 @@
 #include "Oniun/Core/Math/Matrix.h"
 
 #include "Oniun/Core/Math/Vector3.h"
-#include "Oniun/Core/String/Format.h"
 
 namespace Oniun
 {
@@ -330,11 +329,6 @@ namespace Oniun
         return res;
     }
 
-    bool Formatter<Matrix>::Parse(const FormatArgsContext& context)
-    {
-        return true;
-    }
-
     void Formatter<Matrix>::FormatTo(String& dest, const Matrix& mat)
     {
         Formatter<Vector4> formatter;
@@ -345,10 +339,5 @@ namespace Oniun
         formatter.FormatTo(dest, mat.M[2]);
         dest.Append('\n');
         formatter.FormatTo(dest, mat.M[3]);
-    }
-
-    String ToString(const Matrix& mat)
-    {
-        return Format("{}\n{}\n{}\n{}\n", mat.M[0], mat.M[1], mat.M[2], mat.M[3]);
     }
 }

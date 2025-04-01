@@ -41,6 +41,11 @@ namespace Oniun
             str.m_Length = 0;
         }
 
+        FORCE_INLINE constexpr StringView(const Iterator& begin, const Iterator& end)
+            : m_Length(end - begin), m_Data(begin.Ptr())
+        {
+        }
+
         StringView(const String& str);
 
     public:

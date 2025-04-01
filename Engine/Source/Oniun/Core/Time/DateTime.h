@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Oniun/Core/String/Format.h"
+
 namespace Oniun
 {
     class DateTime
@@ -29,6 +31,14 @@ namespace Oniun
         int64 m_Time;
     };
 
-    String ToString(const DateTime& dateTime, bool includeTime = true, bool includeDate = true,
-                    bool militaryTime = false);
+    template <>
+    struct Formatter<DateTime>
+    {
+        bool IncludeTime = true;
+        bool IncludeDate = true;
+        bool MilitaryTime = false;
+
+        bool Parse(const FormatArgsContext& context);
+        void FormatTo(String& dest, const DateTime& dateTime);
+    };
 }

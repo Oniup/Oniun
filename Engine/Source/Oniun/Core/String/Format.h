@@ -6,151 +6,380 @@
 #include "Oniun/Core/Templates/HashMap.h"
 
 #define FORMAT_SYNTAX "{}"
+#define FORMAT_OPENING_SYNTAX '{'
+#define FORMAT_CLOSING_SYNTAX '}'
+#define FORMAT_ARG_SEPARATOR_SYNTAX '|'
+#define FORMAT_ARG_CONTAINER_OPT_SYNTAX ':'
 
-// TODO: Rework format functions to use formatter instead of ToString
+#define FORMATTER_DEFAULT_PARSE_FUNC() \
+    FORCE_INLINE bool Parse(const Oniun::FormatArgsContext& context) \
+    { \
+        return true; \
+    }
 
 namespace Oniun
 {
-    String ToString(int64 val);
-    String ToString(int32 val);
-    String ToString(int16 val);
-    String ToString(int8 val);
-
-    String ToString(uint64 val);
-    String ToString(uint32 val);
-    String ToString(uint16 val);
-    String ToString(uint8 val);
-
-    String ToString(float val);
-    String ToString(double val);
-
-    FORCE_INLINE StringView ToString(const StringView& val)
+    template <typename T>
+    struct Formatter
     {
-        return val;
-    }
+        /// @brief Here you parse the arguments passed within the {} and store the options within the formatter to be
+        ///        used when FormatTo(...) is called.
+        /// @note  If you don't need to parse any options just return true.
+        ///
+        /// @param context Format option arguments for formatting the type.
+        /// @return True if should continue to format into a string, otherwise parse failed and should append into
+        ///         destination string.
+        bool Parse(const class FormatArgsContext& context) = delete;
+
+        /// @brief Format and append the resulting string to the destination string.
+        ///
+        /// @param dest  Destination string to push string formatted version of type to.
+        /// @param value Data of target type to stringify
+        void FormatTo(String& dest, const T& value) = delete;
+    };
+
+    class FormatArgsContext
+    {
+    public:
+        class ArgIterator
+        {
+        public:
+            ArgIterator();
+            ArgIterator(FormatArgsContext* context, uint64 begin, uint64 end);
+            ArgIterator(const ArgIterator& iter);
+            ArgIterator(ArgIterator&& iter);
+
+        public:
+            ArgIterator& operator=(const ArgIterator& iter);
+            ArgIterator& operator=(ArgIterator&& iter);
+
+            StringView operator*() const;
+
+            bool operator==(const ArgIterator& iter) const;
+            bool operator!=(const ArgIterator& iter) const;
+
+            ArgIterator& operator++();
+
+        public:
+            FORCE_INLINE StringView Get() const
+            {
+                return StringView(m_Context->m_Args.Data() + m_CurrentBegin, m_CurrentEnd - m_CurrentBegin);
+            }
+
+        private:
+            FormatArgsContext* m_Context;
+            uint64 m_CurrentBegin;
+            uint64 m_CurrentEnd;
+        };
+
+    public:
+        FormatArgsContext(const StringView& options);
+
+    public:
+        FORCE_INLINE bool IsValid()
+        {
+            return !m_Args.IsEmpty();
+        }
+
+        FORCE_INLINE ArgIterator begin() const
+        {
+            ArgIterator iter(const_cast<FormatArgsContext*>(this), 0, 0);
+            ++iter;
+            return iter;
+        }
+
+        FORCE_INLINE ArgIterator end() const
+        {
+            ArgIterator iter(const_cast<FormatArgsContext*>(this), NO_POS, NO_POS);
+            ++iter;
+            return iter;
+        }
+
+        FORCE_INLINE ArgIterator Begin() const
+        {
+            return begin();
+        }
+
+        FORCE_INLINE ArgIterator End() const
+        {
+            return end();
+        }
+
+    private:
+        StringView m_Args;
+    };
+
+#define PRIMITIVE_FORMATTER_CLASS_FLOAT(_Type) \
+    template <> \
+    struct Formatter<_Type> \
+    { \
+        bool ScientificNotation = false; \
+        uint64 Precision = NO_POS; \
+        bool Parse(const FormatArgsContext& context); \
+        void FormatTo(String& dest, _Type value); \
+    };
+
+#define PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(_Bits) \
+    template <> \
+    struct Formatter<int##_Bits> \
+    { \
+        bool Pointer = false; \
+        bool Parse(const FormatArgsContext& context); \
+        void FormatTo(String& dest, int##_Bits value); \
+    };
+
+#define PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(_Bits) \
+    template <> \
+    struct Formatter<uint##_Bits> \
+    { \
+        bool Hexadecimal = false; \
+        bool Pointer = false; \
+        bool Parse(const FormatArgsContext& context); \
+        void FormatTo(String& dest, uint##_Bits value); \
+    };
+
+#define PRIMITIVE_FORMATTER_CLASS_STRING(_Type) \
+    template <> \
+    struct Formatter<_Type> \
+    { \
+        bool Parse(const FormatArgsContext& context);  \
+        void FormatTo(String& dest, const char* str);  \
+    };
+
+#define FORMATTER_CLASS_STRING(_Type) \
+    template <> \
+    struct Formatter<_Type> \
+    { \
+        bool Parse(const FormatArgsContext& context); \
+        void FormatTo(String& dest, const _Type& str); \
+    };
+
+    PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(8)
+    PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(16)
+    PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(32)
+    PRIMITIVE_FORMATTER_CLASS_SIGNED_INT(64)
+
+    PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(8)
+    PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(16)
+    PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(32)
+    PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT(64)
+
+    PRIMITIVE_FORMATTER_CLASS_FLOAT(float)
+    PRIMITIVE_FORMATTER_CLASS_FLOAT(double)
+
+    PRIMITIVE_FORMATTER_CLASS_STRING(char*)
+    PRIMITIVE_FORMATTER_CLASS_STRING(const char*)
+
+    FORMATTER_CLASS_STRING(String)
+    FORMATTER_CLASS_STRING(StringView)
+
+#undef PRIMITIVE_FORMATTER_CLASS_SIGNED_INT
+#undef PRIMITIVE_FORMATTER_CLASS_UNSIGNED_INT
+#undef PRIMITIVE_FORMATTER_CLASS_FLOAT
+#undef PRIMITIVE_FORMATTER_CLASS_STRING
+#undef FORMATTER_CLASS_STRING
+
+    template <uint64 TLength>
+    struct Formatter<char[TLength]>
+    {
+        FORMATTER_DEFAULT_PARSE_FUNC()
+
+        void FormatTo(String& dest, const char* str)
+        {
+            dest.Append(str);
+        }
+    };
 
     template <typename T, typename TAllocationType>
-    String ToString(const Array<T, TAllocationType>& array, bool sameLine = true)
+    struct Formatter<Array<T, TAllocationType>>
     {
-        String result(array.Count() * sizeof(T));
-        result.Append("[");
-        bool first = true;
-        for (const T& val : array)
+        static constexpr const char* DefaultSeparator = ",";
+
+        bool NewLinePerElement = false;
+        bool Compact = false;
+        bool RemoveSeparator = false;
+        bool RemoveBrackets = false;
+        bool Numbered = false;
+        char Separator = ',';
+        String ElementOptions;
+
+        bool Parse(const FormatArgsContext& context)
         {
-            if (first)
+            bool isArrOptions = true;
+            for (StringView arg : context)
             {
-                first = false;
-                result.Append(StringView(sameLine ? " " : "\n"));
+                if (isArrOptions)
+                {
+                    if (arg == "ln")
+                        NewLinePerElement = true;
+                    else if (arg == "cp")
+                        Compact = true;
+                    else if (arg == "rs")
+                        RemoveSeparator = true;
+                    else if (arg == "rb")
+                        RemoveBrackets = true;
+                    else if (arg == "num")
+                        Numbered = true;
+                    else if (arg.Find("s:") != NO_POS)
+                        Separator = arg.Last();
+                    else if (arg == "elem")
+                        isArrOptions = false;
+                }
+                else
+                {
+                    bool first = ElementOptions.IsEmpty();
+                    if (first)
+                        ElementOptions.Append('{');
+                    else
+                        ElementOptions.Append(FORMAT_ARG_SEPARATOR_SYNTAX);
+                    ElementOptions.Append(arg);
+                }
+            }
+            if (!ElementOptions.IsEmpty())
+                ElementOptions.Append('}');
+            return true;
+        }
+
+        void FormatTo(String& dest, const Array<T, TAllocationType>& array)
+        {
+            if (!RemoveBrackets)
+                dest.Append('{');
+
+            Formatter<T> elemFormatter;
+            FormatArgsContext elemContext(ElementOptions.IsEmpty() ? "{}" : ElementOptions);
+            for (uint64 i = 0; i < array.Count(); ++i)
+            {
+                FormatArgs(dest, i);
+                elemFormatter.Parse(elemContext);
+                elemFormatter.FormatTo(dest, array[i]);
+            }
+            if (!RemoveBrackets)
+            {
+                if (NewLinePerElement)
+                    dest.Append('\n');
+                dest.Append('}');
+            }
+        }
+
+    private:
+        void FormatArgs(String& dest, uint64 index)
+        {
+            if (index > 0)
+            {
+                if (!RemoveSeparator)
+                    dest.Append(Separator);
+                if (NewLinePerElement)
+                    dest.Append('\n');
+                else if (!Compact)
+                    dest.Append(' ');
             }
             else
-                result.Append(StringView(sameLine ? ", " : "\n"));
-            result.Append(ToString(val));
-        }
-        result.Append(sameLine ? " ]" : "\n]");
-        return result;
-    }
-
-    template <typename TKey, typename TValue, typename THash, typename TAllocationType>
-    String ToString(const HashMap<TKey, TValue, THash, TAllocationType>& map, bool sameLine = true)
-    {
-        String result(map.Count() * sizeof(TKey) + sizeof(TValue));
-        result.Append("[");
-        bool first = true;
-        for (const auto& bucket : map)
-        {
-            if (first)
             {
-                first = false;
-                result.Append((sameLine ? " { " : "\n{ "));
+                if (!RemoveBrackets && NewLinePerElement)
+                    dest.Append('\n');
             }
-            else
-                result.Append((sameLine ? ", { " : "\n{ "));
-            result.Append(ToString(bucket.Value) + StringView(", ")) + ToString(bucket.GetKey()) + " }";
+            if (Numbered)
+            {
+                Formatter<uint64> numFormatter;
+                numFormatter.FormatTo(dest, index);
+                if (Compact)
+                    dest.Append(':');
+                else
+                    dest.Append(": ");
+            }
         }
-        result.Append(sameLine ? " ]" : "\n]");
-        return result;
-    }
+    };
 
-    namespace Format_Internal
+    class Fmt
     {
-        ///Appends a formatted argument to the result string based on the current format string and insert positions.
-        ///
-        /// @tparam T               Target element type from the template parameter pack.
-        /// @param format           String defining the format position of each argument in parameter pack.
-        /// @param insertPositions  Array of insert positions defined by the format string.
-        /// @param result           String to add resulting formatted string.
-        /// @param i                Current insert position index.
-        /// @param offset           Current offset in the format string.
-        /// @param arg              The current argument to format and append.
-        template <typename T>
-        FORCE_INLINE void Add(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                              uint64& offset, const T& arg)
+    public:
+        template <typename... TArgs>
+        static String Format(const StringView& format, const TArgs&... args)
         {
-            Slice slice(format.begin() + offset, format.begin() + insertPositions[i]);
-            result.Append(slice);
-            result.Append(ToString(arg));
-            offset = insertPositions[i] + StringUtils::Length(FORMAT_SYNTAX);
-            i++;
+            String result;
+            FormatTo(result, format, args...);
+            return result;
         }
 
-        /// Processes the next argument in the format string.
-        ///
-        /// @tparam T               Target element type from the template parameter pack.
-        /// @param format           String defining the format position of each argument in parameter pack.
-        /// @param insertPositions  Array of insert positions defined by the format string.
-        /// @param result           String to add resulting formatted string.
-        /// @param i                Current insert position index.
-        /// @param offset           Current offset in the format string.
-        /// @param current          The current argument to format and append.
-        template <typename T>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                  uint64& offset, const T& current)
+        template <typename... TArgs>
+        static void FormatTo(String& dest, const StringView& format, const TArgs&... args)
         {
-            Add(format, insertPositions, result, i, offset, current);
+            Fmt fmt(&dest, format);
+            fmt.Next(args...);
         }
 
-        /// Processes the next arguments in the format string.
-        ///
-        /// @tparam T               Target element type from the template parameter pack.
-        /// @tparam TArgs           Variadic template for additional arguments.
-        /// @param format           String defining the format position of each argument in parameter pack.
-        /// @param insertPositions  Array of insert positions defined by the format string.
-        /// @param result           String to add resulting formatted string.
-        /// @param i                Current insert position index.
-        /// @param offset           Current offset in the format string.
-        /// @param current          The current argument to format and append.
-        /// @param args             Additional arguments to format and append.
-        template <typename T, typename... TArgs>
-        void Next(const StringView& format, const Array<uint64>& insertPositions, String& result, uint64& i,
-                  uint64& offset, const T& current, const TArgs&... args)
+    private:
+        Fmt(String* dest, const StringView& format)
+            : m_Destination(dest), m_Format(format), m_Offset(0)
         {
-            Add(format, insertPositions, result, i, offset, current);
-            Next(format, insertPositions, result, i, offset, args...);
         }
-    }
 
-    /// Formats a string based on the provided format string and arguments.
-    ///
-    /// @tparam TArgs   Variadic template for the arguments to format.
-    /// @param format   The format string containing placeholders.
-    /// @param args     The arguments to insert into the format string.
-    /// @return A formatted String with the arguments inserted at the specified positions.
-    template <typename... TArgs>
-    String Format(const StringView& format, const TArgs&... args)
-    {
-        Array<uint64> insertPositions;
-        if (!format.FindAll(FORMAT_SYNTAX, insertPositions))
-            return format;
+    private:
+        void FindNextInsert(StringView& prefix, StringView& insert)
+        {
+            // Iterate through until you find a opening and closing bracket
+            uint64 begin = NO_POS;
+            uint64 i = m_Offset;
+            for (; i < m_Format.Length(); ++i)
+            {
+                if (m_Format[i] == FORMAT_OPENING_SYNTAX)
+                {
+                    // Got two opening brackets in a row thus is not valid
+                    if (i != 0 && begin == i - 1)
+                    {
+                        prefix = StringView(m_Format.Data() + m_Offset, i);
+                        m_Offset = i + 1;
+                        return;
+                    }
+                    begin = i;
+                }
+                if (begin != NO_POS && m_Format[i] == FORMAT_CLOSING_SYNTAX)
+                    break;
+            }
+            // If insert has been found
+            if (begin != NO_POS)
+            {
+                insert = StringView(m_Format.Data() + begin, i - begin + 1);
+                prefix = StringView(m_Format.Begin() + m_Offset, m_Format.Begin() + begin);
+                m_Offset = i + 1;
+            }
+        }
 
-        String result;
-        uint64 i = 0;
-        uint64 offset = 0;
-        Format_Internal::Next(format, insertPositions, result, i, offset, args...);
+        template <typename TCurrent, typename... TRest>
+        void Next(const TCurrent& current, const TRest&... rest)
+        {
+            Append(current);
+            Next(rest...);
+        }
 
-        // Add the rest of the format string if there is any left over
-        Slice rest(format.begin() + offset, format.end());
-        result.Append(rest);
-        return result;
-    }
+        template <typename TCurrent>
+        void Next(const TCurrent& current)
+        {
+            Append(current);
+            if (m_Offset < m_Format.Length())
+                m_Destination->Append(StringView(m_Format.Data() + m_Offset));
+        }
 
+        template <typename TCurrent>
+        void Append(const TCurrent& current)
+        {
+            StringView prefix, insert;
+            FindNextInsert(prefix, insert);
+            m_Destination->Append(prefix);
+            if (insert.IsEmpty())
+            {
+                Append(current);
+                return;
+            }
+            // TODO: Run formatter of TCurrent
+            Formatter<TCurrent> formatter;
+            formatter.Parse(insert);
+            formatter.FormatTo(*m_Destination, current);
+        }
+
+    private:
+        String* m_Destination;
+        StringView m_Format;
+        uint64 m_Offset;
+    };
 }

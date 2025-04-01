@@ -18,7 +18,7 @@
 
 #include <Oniun/Event/KeyboardEvents.h>
 
-#include <Oniun/Core/String/Formatter.h>
+#include <Oniun/Core/String/Format.h>
 
 // Editor core windows
 #include "GuiWindows/Console.h"
@@ -134,7 +134,7 @@ namespace Oniun::Editor
         // Core engine layers
         RegisterLayer<EventDispatcher>();
         RegisterLayer<Input>();
-        RegisterLayer<RendererLayer>(Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
+        RegisterLayer<RendererLayer>(Fmt::Format("{} {}", GetAppInfo().Name, ONU_VERSION_STR), -1, -1, Window::DefaultFlags);
         RegisterLayer<SceneLayer>();
 
         {
@@ -154,6 +154,9 @@ namespace Oniun::Editor
         FormatterTest(Array({"Bob", "Jeff", "Andre", "Jess", "Syllia"}), "{ln|num|rb}", true);
         FormatterTest(Vector4(1.0f, 2.0f, 3.0f, 4.0f), "{x}");
         FormatterTest(TransformComponent(Vector3(5.0f, 5.0f, 5.0f), Vector3(1.0f), Vector3(0.0f)), "{ln}", true);
+
+        String str(Fmt::Format("This {} {.2} {} test\nTransform component:\n{ln}", String("is"), PI, StringView("a"), TransformComponent(Vector3(5.0f, 5.0f, 5.0f), Vector3(1.0f), Vector3(0.0f))));
+        LOG(Warning, str);
 
         SetupTestScene();
     }

@@ -17,11 +17,6 @@ namespace Oniun
     {
     }
 
-    String ToString(const AppInfo::Version& version)
-    {
-        return Format("{}.{}.{}", version.Major, version.Minor, version.Patch);
-    }
-
     Engine::Engine()
         : m_Running(false)
     {
@@ -73,5 +68,10 @@ namespace Oniun
                 return layer;
         }
         return nullptr;
+    }
+
+    void Formatter<AppInfo::Version>::FormatTo(String& ctx, const AppInfo::Version& version)
+    {
+        Fmt::FormatTo(ctx, "{}.{}.{}", version.Major, version.Minor, version.Patch);
     }
 }

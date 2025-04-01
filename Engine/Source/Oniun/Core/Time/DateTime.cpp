@@ -84,19 +84,35 @@ namespace Oniun
         return time->tm_yday + 1;
     }
 
-    String ToString(const DateTime& dateTime, bool includeTime, bool includeDate, bool militaryTime)
+    bool Formatter<DateTime>::Parse(const FormatArgsContext& context)
     {
-        ASSERT((includeTime && includeDate) || (includeTime || includeDate))
+        for (StringView arg : context)
+        {
+            if (arg == "m")
+                MilitaryTime = true;
+            else if (arg == "rt")
+                IncludeTime = false;
+            else if (arg == "rd")
+                IncludeDate = false;
+        }
+        return true;
+    }
+
+    void Formatter<DateTime>::FormatTo(String& dest, const DateTime& dateTime)
+    {
+        ASSERT((IncludeTime && IncludeDate) || (IncludeTime || IncludeDate))
 
         time_t time = dateTime.GetTime();
         tm* tm = localtime(&time);
 
-        if (includeTime && includeDate)
-            return Format("{}:{}:{} {}/{}/{}", dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec,
-                          tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
-        if (includeTime)
-            return Format("{}:{}:{}", dateTime.GetHour(militaryTime), tm->tm_min, tm->tm_sec);
+        if (IncludeTime)
+            Fmt::FormatTo(dest, "{}:{}:{}", dateTime.GetHour(MilitaryTime), tm->tm_min, tm->tm_sec);
 
-        return Format("{}/{}/{}", tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+        if (IncludeDate)
+        {
+            if (IncludeTime)
+                dest.Append(' ');
+            Fmt::FormatTo(dest, "{}/{}/{}", tm->tm_mon + 1, tm->tm_mday, tm->tm_year + 1900);
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Math/Math.h"
-#include "Oniun/Core/String/Formatter.h"
+#include "Oniun/Core/String/Format.h"
 
 namespace Oniun
 {
@@ -97,6 +97,4 @@ namespace Oniun
         bool Parse(const FormatArgsContext& context);
         void FormatTo(String& dest, const Vector4& vec);
     };
-
-    String ToString(const Vector4& vec);
 }

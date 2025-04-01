@@ -94,24 +94,34 @@ namespace Oniun
         return m_Scene->GetComponent<TComponent>(m_Id);
     }
 
-    /// Formats the entity into a string representing the children as a tree.
-    ///
-    /// Resulting string should look similar to the following:
-    /// Entity
-    ///  ├ Head
-    ///  └ Upper Torso
-    ///     ├ Left Arm
-    ///     │  └ Hand
-    ///     ├ Right Arm
-    ///     │  └ Hand
-    ///     └ Hips
-    ///        ├ Left Leg
-    ///        │  └ Foot
-    ///        └ Right Leg
-    ///           └ Foot
-    ///
-    /// @param entity    Target entity to convert to a string.
-    /// @param fullNames Should include the unique number. (e.g. "Entity (123)").
-    /// @return A string version of the entity
     String ToString(const Entity& entity, bool fullNames = true);
+
+    template <>
+    struct Formatter<Entity>
+    {
+        bool FullNames = true;
+
+        bool Parse(const FormatArgsContext& context);
+
+        /// Formats the entity into a string representing the children as a tree.
+        /// Options: "sm": Use smaller names
+        ///
+        /// Resulting string should look similar to the following:
+        /// Entity
+        ///  ├ Head
+        ///  └ Upper Torso
+        ///     ├ Left Arm
+        ///     │  └ Hand
+        ///     ├ Right Arm
+        ///     │  └ Hand
+        ///     └ Hips
+        ///        ├ Left Leg
+        ///        │  └ Foot
+        ///        └ Right Leg
+        ///           └ Foot
+        void FormatTo(String& dest, const Entity& entity);
+
+    private:
+        void EntityToString(String& dest, const Entity& entity, uint64 depth, String& prefix);
+    };
 }
