@@ -1,7 +1,7 @@
 #include "GuiWindows/Console.h"
 
 #include <Oniun/Core/Engine.h>
-#include <Oniun/Core/Math/Color.h>
+#include <Oniun/Core/Color.h>
 #include <Oniun/RHI/ImGuiLayer.h>
 
 namespace Oniun

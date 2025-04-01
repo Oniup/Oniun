@@ -35,8 +35,18 @@
 #### Files Extracted:
 
 * CMakeLists.txt
-* CMake, deps, include, and src 
+* CMake, deps, include, and src
 
+## glm
+
+* Upstream: https://github.com/g-truc/glm
+* Version: 1.0.1
+* License: MIT
+
+#### Files Extracted:
+
+* glm
+* CMakeLists.txt, copying.txt, readme.md
 
 ## ImGui
 

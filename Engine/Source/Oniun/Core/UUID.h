@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/Hash.h"
-#include "Oniun/Core/Math/Math.h"
+#include "Oniun/Core/Math.h"
 
 namespace Oniun
 {

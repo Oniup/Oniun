@@ -1,5 +1,9 @@
 # Graphics Libraries
 # ---------------------------------------------------------------------------------------------------------------------
+option(GLM_BUILD_INSTALL OFF)
+option(GLM_ENABLE_CXX_20 OFF)
+add_subdirectory(glm)
+
 # GLFW
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)

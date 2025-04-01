@@ -15,12 +15,14 @@ target_include_directories(Oniun
     PUBLIC
     ${ImGui_INCLUDE_DIRS}
     ${stb_INCLUDE_DIRS}
+    ${glm_INCLUDE_DIRS}
     PRIVATE
     ${glfw_INCLUDE_DIRS}
     ${glad_INCLUDE_DIRS}
 )
 target_link_libraries(Oniun
     PUBLIC
+    glm
     glad
     glfw
     ImGui

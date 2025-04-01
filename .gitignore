@@ -1,8 +1,6 @@
 # Most of this file is from the godot .gitginore
 
 Build
-glm
-
 bin
 *.gen.*
 compile_commands.json
