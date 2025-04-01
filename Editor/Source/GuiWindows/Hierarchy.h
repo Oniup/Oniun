@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Oniun/RHI/IImGuiWindow.h>
-#include <Oniun/Scene/Entity.h>
+#include "Oniun/RHI/IImGuiWindow.h"
+#include "Oniun/Scene/Entity.h"
 
 namespace Oniun
 {
@@ -14,5 +14,8 @@ namespace Oniun
 
     private:
         void EntitySetDrag(const UUID& entity, const EntityEntry& entry, Scene* scene);
+
+    private:
+        Array<UUID> m_SelectedEntities;
     };
 }

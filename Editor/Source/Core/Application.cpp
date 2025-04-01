@@ -1,28 +1,23 @@
 #include "Core/Application.h"
 
-// Main function that calls CreateApplication
-#include <Oniun/Core/EntryPoint.h>
-
-#include <glm/glm.hpp>
-
-// Core engine layers
-#include <Oniun/Event/Event.h>
-#include <Oniun/Renderer/RendererLayer.h>
-#include <Oniun/RHI/ImGuiLayer.h>
-#include <Oniun/Scene/SceneLayer.h>
-
-// Test
-#include <Oniun/Core/Input.h>
-#include <Oniun/Scene/ComponentQuery.h>
-#include <Oniun/Scene/Entity.h>
-#include <Oniun/Scene/Components/Transform.h>
-
-#include <Oniun/Event/KeyboardEvents.h>
-
 // Editor core windows
 #include "GuiWindows/Console.h"
 #include "GuiWindows/DockingSpace.h"
 #include "GuiWindows/Hierarchy.h"
+// Core engine layers
+#include "Oniun/Core/EntryPoint.h"
+#include "Oniun/Event/Event.h"
+#include "Oniun/Renderer/RendererLayer.h"
+#include "Oniun/RHI/ImGuiLayer.h"
+#include "Oniun/Scene/SceneLayer.h"
+
+// Scene test
+#include "Oniun/Scene/ComponentQuery.h"
+#include "Oniun/Scene/Entity.h"
+#include "Oniun/Scene/Components/Transform.h"
+// Event test
+#include "Oniun/Core/Input.h"
+#include "Oniun/Event/KeyboardEvents.h"
 
 namespace Oniun::Editor
 {
