@@ -19,7 +19,7 @@ target_link_libraries(OniunEditor
 )
 target_compile_definitions(OniunEditor
     PUBLIC
-    "ONIUN_ENGINE_RESOURCE_DIRECTORY=${CMAKE_CURRENT_SOURCE_DIR}"
+    ONIUN_RESOURCE_DIRECTORY="${ONIUN_RESOURCE_DIRECTORY}"
 )
 
 if (WIN32)
@@ -27,7 +27,6 @@ if (WIN32)
         PROPERTIES
         WIN32_EXECUTABLE "$<CONFIG:Release>"
     )
-
     if (MSVC)
         set_target_properties(OniunEditor
             PROPERTIES

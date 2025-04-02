@@ -72,7 +72,7 @@ namespace Oniun
             constexpr uint64 id = TypeInfo::GetFastId<TComponent>();
             for (uint64 i = 0; i < QueryCount; ++i)
             {
-                if (m_Pools[i]->GetSupportedType().Id == id)
+                if (m_Pools[i]->GetSupportedType().GpuId == id)
                     return (TComponent*)m_ComponentData[i];
             }
             return nullptr;

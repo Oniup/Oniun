@@ -106,7 +106,7 @@ namespace Oniun
 
             constexpr uint64 bufferMaxCount = 256;
             char childName[bufferMaxCount];
-            Crt::Format(childName, bufferMaxCount, "LogMessage%llu", i);
+            CRT::Format(childName, bufferMaxCount, "LogMessage%llu", i);
 
             logBuffer.Clear();
             Fmt::FormatTo(logBuffer, "[{} {}]: {}:{}: {}\n{}", log.Type, log.Time, log.Function, log.Line, log.File,

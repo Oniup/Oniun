@@ -43,4 +43,12 @@ namespace Oniun
             return ToSlice(path.Begin(), path.Begin() + slashIndex - 1);
         return ToSlice(path);
     }
+
+    Slice<char> IFileSystem::GetFileExtensionFromPath(const StringView& path)
+    {
+        uint64 extIndex = path.FindLast('.');
+        if (extIndex != NO_POS)
+            return ToSlice(path, extIndex, path.Length() - extIndex);
+        return Slice<char>();
+    }
 }

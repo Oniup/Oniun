@@ -2,7 +2,7 @@
 
 #include "Oniun/Core/Logger.h"
 #include "Oniun/Core/Time/DateTime.h"
-#include "Oniun/RHI/IImGuiWindow.h"
+#include "Oniun/Renderer/IImGuiWindow.h"
 
 namespace Oniun
 {

@@ -43,6 +43,5 @@ namespace Oniun
     private:
         Window m_Window;
         ImGuiLayer* m_ImGuiLayer;
-
     };
 }

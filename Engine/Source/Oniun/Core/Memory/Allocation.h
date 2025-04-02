@@ -2,7 +2,7 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Compiler.h"
-#include "Oniun/Core/Memory/Crt.h"
+#include "Oniun/Core/Memory/CRT.h"
 #include "Oniun/Core/Memory/Memory.h"
 
 namespace Oniun
@@ -68,7 +68,7 @@ namespace Oniun
             FORCE_INLINE void Allocate(uint64 capacity)
             {
                 ASSERT(!m_Data);
-                m_Data = static_cast<T*>(Crt::Allocate(capacity * sizeof(T)));
+                m_Data = static_cast<T*>(CRT::Allocate(capacity * sizeof(T)));
                 m_Capacity = capacity;
                 ASSERT(m_Data && "Out of memory");
             }
@@ -77,7 +77,7 @@ namespace Oniun
             {
                 if (m_Data)
                 {
-                    T* newData = newCapacity != 0 ? static_cast<T*>(Crt::Allocate(newCapacity * sizeof(T))) : nullptr;
+                    T* newData = newCapacity != 0 ? static_cast<T*>(CRT::Allocate(newCapacity * sizeof(T))) : nullptr;
                     if (newCapacity != 0)
                         ASSERT(m_Data);
 
@@ -108,7 +108,7 @@ namespace Oniun
             FORCE_INLINE void Free()
             {
                 ASSERT(m_Data);
-                Crt::Free(m_Data);
+                CRT::Free(m_Data);
                 m_Data = nullptr;
                 m_Capacity = 0;
             }

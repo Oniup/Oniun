@@ -52,6 +52,11 @@ namespace Oniun
             return &m_Scene->m_Entities.At(m_Id);
         }
 
+        FORCE_INLINE Scene* GetScene() const
+        {
+            return m_Scene;
+        }
+
     public:
         bool HasChildren() const;
         bool HasSiblings() const;

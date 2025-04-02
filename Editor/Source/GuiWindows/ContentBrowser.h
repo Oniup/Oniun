@@ -4,12 +4,11 @@
 
 namespace Oniun
 {
-    class DockingSpace : public IImGuiWindow
+    class ContentBrowser : public IImGuiWindow
     {
     public:
-        DockingSpace();
+        ContentBrowser();
 
         void Draw() override;
-        void Begin() override;
     };
 }

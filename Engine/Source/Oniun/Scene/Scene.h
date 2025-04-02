@@ -79,6 +79,8 @@ namespace Oniun
         Entity Find(const EntityEntry& name);
         Entity Find(UUID entity);
 
+        Array<Pair<UUID, byte*>> GetAllEntitiesComponents(UUID entity);
+
         Pair<UUID, EntityEntry*> FindAsPair(const EntityEntry& name);
         Pair<UUID, EntityEntry*> FindAsPair(UUID entity);
 

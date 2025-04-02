@@ -5,16 +5,16 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 
 #include "Oniun/Core/Engine.h"
-#include "Oniun/Renderer/RendererLayer.h"
-#include "Oniun/RHI/ImGuiLayer.h"
 #include "Oniun/Event/Event.h"
 #include "Oniun/Event/WindowEvents.h"
+#include "Oniun/Renderer/RendererLayer.h"
+#include "Oniun/RHI/ImGuiLayer.h"
 
 namespace Oniun
 {
-    static constexpr StringView EngineDefaultFont = ONIUN_RESOURCE_DIRECTORY "/Assets/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
-    static constexpr StringView EngineMonoFont = ONIUN_RESOURCE_DIRECTORY "/Assets/Fonts/Hack/HackNerdFontMono-Regular.ttf";
-    static constexpr uint64 EngineDefaultFontSize = 20;
+    static constexpr StringView EngineDefaultFont = ONIUN_RESOURCE_DIRECTORY "/Engine/Fonts/Arimo/ArimoNerdFont-Regular.ttf";
+    static constexpr StringView EngineMonoFont = ONIUN_RESOURCE_DIRECTORY "/Engine/Fonts/Hack/HackNerdFontMono-Regular.ttf";
+    static constexpr uint64 EngineDefaultFontSize = 18;
 
     static void CorrectScaleBasedOnMonitorContentScaleCallback(IEvent* event, void* sender)
     {
@@ -83,18 +83,18 @@ namespace Oniun
         return &Range[0];
     }
 
-    bool IImGuiLayer::Register(IImGuiWindow* window)
+    IImGuiWindow* IImGuiLayer::Register(IImGuiWindow* window)
     {
         if (window)
         {
             if (!window->GetTitle().IsEmpty())
             {
                 m_Windows.Add(window);
-                return true;
+                return m_Windows.Last();
             }
             Memory::Delete(window);
         }
-        return false;
+        return nullptr;
     }
 
     void IImGuiLayer::OnStart()
@@ -108,11 +108,13 @@ namespace Oniun
         ImGuiStyle &style = ImGui::GetStyle();
         ImVec4 *colors = style.Colors;
 
+        // TODO: Replace by reading from config
         // General window settings
-        style.FrameRounding = 5.0f;
-        style.ScrollbarRounding = 5.0f;
-        style.GrabRounding = 5.0f;
-        style.TabRounding = 5.0f;
+        style.FrameRounding = 0.0f;
+        style.ScrollbarRounding = 0.0f;
+        style.GrabRounding = 0.0f;
+        style.TabRounding = 0.0f;
+        style.WindowMenuButtonPosition = ImGuiDir_None;
 
         // Setting the colors
         colors[ImGuiCol_Text] = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);

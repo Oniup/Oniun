@@ -2,14 +2,15 @@
 
 #include "Oniun/Renderer/IImGuiWindow.h"
 
-namespace Oniun
+namespace Oniun::Editor
 {
-    class DockingSpace : public IImGuiWindow
+    class Viewport : public IImGuiWindow
     {
     public:
-        DockingSpace();
+        Viewport();
 
         void Draw() override;
-        void Begin() override;
+
+    private:
     };
 }

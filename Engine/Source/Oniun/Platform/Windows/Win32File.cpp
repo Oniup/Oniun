@@ -32,7 +32,7 @@ namespace Oniun
         HANDLE handle = CreateFileA(*path, (DWORD)access, 0, nullptr, (DWORD)mode, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (handle == INVALID_HANDLE_VALUE)
         {
-            LOG(Error, *Platform::GetLastErrorMessage());
+            LOG(Error, "Error for file \"{}\": {}", path, Platform::GetLastErrorMessage());
             return;
         }
         m_Handle = handle;
@@ -57,7 +57,7 @@ namespace Oniun
         HANDLE handle = CreateFileA(*path, (DWORD)access, 0, nullptr, (DWORD)mode, FILE_ATTRIBUTE_NORMAL, nullptr);
         if (handle == INVALID_HANDLE_VALUE)
         {
-            LOG(Error, *Platform::GetLastErrorMessage());
+            LOG(Error, "Error for file \"{}\": {}", path, Platform::GetLastErrorMessage());
             return;
         }
         m_Handle = handle;

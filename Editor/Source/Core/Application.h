@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Oniun/Core/Engine.h>
-#include <Oniun/Event/Event.h>
 
 namespace Oniun::Editor
 {
@@ -11,5 +10,9 @@ namespace Oniun::Editor
         Application(const CommandLineArguments& args);
 
         void Setup() override;
+
+    private:
+        void SetupCoreLayers();
+        void SetupGuiWindows();
     };
 }

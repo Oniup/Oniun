@@ -105,14 +105,14 @@ namespace Oniun
         constexpr uint64 cFormatMaxLength = 8; \
         char cFormat[cFormatMaxLength]; \
         if (Precision != NO_POS) \
-            Crt::Format(cFormat, cFormatMaxLength, "%%.%lluf", Precision); \
+            CRT::Format(cFormat, cFormatMaxLength, "%%.%lluf", Precision); \
         else if (ScientificNotation) \
-            Crt::Copy(cFormat, "%e\0", 3); \
+            CRT::Copy(cFormat, "%e\0", 3); \
         else \
-            Crt::Copy(cFormat, "%f\0", 3); \
+            CRT::Copy(cFormat, "%f\0", 3); \
         constexpr uint64 bufferMaxLength = 20; \
         char buffer[bufferMaxLength]; \
-        Crt::Format(buffer, bufferMaxLength, cFormat, value); \
+        CRT::Format(buffer, bufferMaxLength, cFormat, value); \
         dest.Append(buffer); \
     }
 
@@ -133,11 +133,11 @@ namespace Oniun
         constexpr uint##_Bits bufferMaxLength = 20; \
         char buffer[bufferMaxLength]; \
         if (Hexadecimal) \
-            Crt::Format(buffer, bufferMaxLength, "%x", value); \
+            CRT::Format(buffer, bufferMaxLength, "%x", value); \
         else if (Pointer) \
-            Crt::Format(buffer, bufferMaxLength, "%p", value); \
+            CRT::Format(buffer, bufferMaxLength, "%p", value); \
         else \
-            Crt::Format(buffer, bufferMaxLength, _Format, value); \
+            CRT::Format(buffer, bufferMaxLength, _Format, value); \
         dest.Append(buffer); \
     }
 
@@ -156,9 +156,9 @@ namespace Oniun
         constexpr int##_Bits bufferMaxLength = 20; \
         char buffer[bufferMaxLength]; \
         if (Pointer) \
-            Crt::Format(buffer, bufferMaxLength, "%p", value); \
+            CRT::Format(buffer, bufferMaxLength, "%p", value); \
         else \
-            Crt::Format(buffer, bufferMaxLength, _Format, value); \
+            CRT::Format(buffer, bufferMaxLength, _Format, value); \
         dest.Append(buffer); \
     }
 

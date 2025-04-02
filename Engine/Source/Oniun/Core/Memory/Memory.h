@@ -4,7 +4,7 @@
 
 #include "Oniun/Core/BaseTypes.h"
 #include "Oniun/Core/Compiler.h"
-#include "Oniun/Core/Memory/Crt.h"
+#include "Oniun/Core/Memory/CRT.h"
 
 namespace Oniun::Memory
 {
@@ -86,7 +86,7 @@ namespace Oniun::Memory
             }
         }
         else
-            Crt::Copy(dest, src, count * sizeof(TU));
+            CRT::Copy(dest, src, count * sizeof(TU));
     }
 
     template<typename T>
@@ -122,7 +122,7 @@ namespace Oniun::Memory
             }
         }
         else
-            Crt::Copy(dest, src, count * sizeof(T));
+            CRT::Copy(dest, src, count * sizeof(T));
     }
 
     template<typename T, typename TU>
@@ -139,7 +139,7 @@ namespace Oniun::Memory
             }
         }
         else
-            Crt::Copy(dest, src, count * sizeof(TU));
+            CRT::Copy(dest, src, count * sizeof(TU));
     }
 
     template<typename T>
@@ -154,13 +154,13 @@ namespace Oniun::Memory
             }
         }
         else
-            Crt::Copy(dest, value, count * sizeof(T));
+            CRT::Copy(dest, value, count * sizeof(T));
     }
 
     template<typename T, typename... TArgs>
     FORCE_INLINE constexpr T* New(TArgs&&... args)
     {
-        T* ptr = static_cast<T*>(Crt::Allocate(sizeof(T)));
+        T* ptr = static_cast<T*>(CRT::Allocate(sizeof(T)));
         new(ptr) T(Forward<TArgs>(args)...);
         return ptr;
     }
@@ -169,6 +169,6 @@ namespace Oniun::Memory
     FORCE_INLINE constexpr void Delete(T* ptr)
     {
         DestructItem(ptr);
-        Crt::Free(ptr);
+        CRT::Free(ptr);
     }
 }

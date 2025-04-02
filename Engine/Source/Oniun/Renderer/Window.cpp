@@ -122,6 +122,16 @@ namespace Oniun
         glfwGetWindowPos(m_Window, x, y);
     }
 
+    void Window::Maximize()
+    {
+        glfwMaximizeWindow(m_Window);
+    }
+
+    void Window::Restore()
+    {
+        glfwRestoreWindow(m_Window);
+    }
+
     StringView Window::Title() const
     {
         return glfwGetWindowTitle(m_Window);

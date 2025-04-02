@@ -37,7 +37,7 @@ namespace Oniun
         if (m_ImGuiLayer)
             m_ImGuiLayer->Render(*this);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.2f, 0.5f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         if (m_ImGuiLayer)

@@ -68,7 +68,7 @@ namespace Oniun
         }
 
     public:
-        constexpr T* Get() const
+        constexpr T* Data() const
         {
             return m_Data;
         }

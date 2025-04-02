@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Oniun/Core/BaseTypes.h"
-#include "Oniun/Core/Memory/Crt.h"
+#include "Oniun/Core/Memory/CRT.h"
 #include "Oniun/Core/String/StringUtils.h"
 #include "Oniun/Core/Templates/Array.h"
 #include "Oniun/Core/Templates/Slice.h"
@@ -25,7 +25,7 @@ namespace Oniun
         }
 
         FORCE_INLINE constexpr StringView(const Slice<char>& slice)
-            : m_Length(slice.Length()), m_Data(slice.Get())
+            : m_Length(slice.Length()), m_Data(slice.Data())
         {
         }
 
@@ -68,7 +68,7 @@ namespace Oniun
 
         FORCE_INLINE constexpr StringView& operator=(const Slice<char>& slice)
         {
-            m_Data = slice.Get();
+            m_Data = slice.Data();
             if (!slice.IsEmpty())
                 m_Length = slice.Length();
             else
@@ -191,7 +191,7 @@ namespace Oniun
                     return -1;
                 return 1;
             }
-            return Crt::Compare(m_Data, str.m_Data, m_Length * sizeof(char));
+            return CRT::Compare(m_Data, str.m_Data, m_Length * sizeof(char));
         }
 
         FORCE_INLINE constexpr void ReCalcLength()

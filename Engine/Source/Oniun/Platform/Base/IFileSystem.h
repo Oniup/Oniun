@@ -126,5 +126,6 @@ namespace Oniun
         static String GetTemporaryFileName(const StringView& currentPath);
         static Slice<char> GetFileNameFromPath(const StringView& path);
         static Slice<char> GetDirectoryNameFromFilePath(const StringView& path);
+        static Slice<char> GetFileExtensionFromPath(const StringView& path);
     };
 }

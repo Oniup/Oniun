@@ -94,7 +94,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(m_Data.Ptr(), text, m_Length);
+            CRT::Copy(m_Data.Ptr(), text, m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -106,7 +106,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(Data(), text, m_Length);
+            CRT::Copy(Data(), text, m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -117,7 +117,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(Data(), slice.Get(), m_Length);
+            CRT::Copy(Data(), slice.Data(), m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -128,7 +128,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(Data(), begin.Ptr(), m_Length);
+            CRT::Copy(Data(), begin.Ptr(), m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -139,7 +139,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(Data(), view.Data(), m_Length);
+            CRT::Copy(Data(), view.Data(), m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -150,7 +150,7 @@ namespace Oniun
         if (m_Length > 0)
         {
             m_Data.Allocate(m_Length + 1);
-            Crt::Copy(Data(), other.Data(), m_Length);
+            CRT::Copy(Data(), other.Data(), m_Length);
             m_Data[m_Length] = 0;
         }
     }
@@ -183,7 +183,7 @@ namespace Oniun
 
     String& String::operator=(const Slice<char>& slice)
     {
-        if (slice.Get() != m_Data.Ptr())
+        if (slice.Data() != m_Data.Ptr())
             Set(slice);
         return *this;
     }
@@ -255,6 +255,12 @@ namespace Oniun
         return *this;
     }
 
+    String& String::operator/=(const Slice<char>& slice)
+    {
+        Concat('/', slice.Data());
+        return *this;
+    }
+
     String String::operator+(const String& text)
     {
         String str(*this);
@@ -315,6 +321,13 @@ namespace Oniun
     {
         String str(*this);
         str.Concat('/', text);
+        return str;
+    }
+
+    String String::operator/(const Slice<char>& slice)
+    {
+        String str(*this);
+        str.Concat('/', slice.Data());
         return str;
     }
 
@@ -428,7 +441,7 @@ namespace Oniun
         if (!text.IsEmpty())
         {
             Resize(text.Length());
-            Crt::Copy(m_Data.Ptr(), text.Data(), text.Length());
+            CRT::Copy(m_Data.Ptr(), text.Data(), text.Length());
             m_Length = text.Length();
             m_Data[m_Length] = 0;
         }
@@ -450,7 +463,7 @@ namespace Oniun
         {
             uint64 oldLength = m_Length;
             Resize(m_Length + text.Length());
-            Crt::Copy(Data() + oldLength, text.Data(), text.Length());
+            CRT::Copy(Data() + oldLength, text.Data(), text.Length());
             m_Data[m_Length] = 0;
         }
     }
@@ -462,7 +475,7 @@ namespace Oniun
             uint64 oldLength = m_Length;
             Resize(m_Length + text.Length() + 1);
             m_Data[oldLength] = left;
-            Crt::Copy(m_Data.Ptr() + oldLength + 1, text.Data(), text.Length());
+            CRT::Copy(m_Data.Ptr() + oldLength + 1, text.Data(), text.Length());
             m_Data[m_Length] = 0;
         }
     }
@@ -491,8 +504,8 @@ namespace Oniun
         ASSERT(index < m_Length);
         uint64 oldLength = m_Length;
         Resize(m_Length + str.Length());
-        Crt::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
-        Crt::Copy(m_Data.Ptr() + index, str.Data(), str.Length());
+        CRT::Move(m_Data.Ptr() + index + str.Length(), m_Data.Ptr() + index, (oldLength - index));
+        CRT::Copy(m_Data.Ptr() + index, str.Data(), str.Length());
     }
 
     void String::Insert(uint64 index, char ch)
@@ -500,14 +513,14 @@ namespace Oniun
         ASSERT(index < m_Length);
         uint64 oldLength = m_Length;
         Resize(m_Length + 1);
-        Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, (oldLength - index));
+        CRT::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, (oldLength - index));
         m_Data[index] = ch;
     }
 
     void String::Remove(uint64 index, uint64 length)
     {
         ASSERT(index + length < m_Length);
-        Crt::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, (m_Length - index + length));
+        CRT::Copy(m_Data.Ptr() + index, m_Data.Ptr() + index + length, (m_Length - index + length));
         Resize(m_Length - length);
         m_Data[m_Length] = 0;
     }
@@ -516,7 +529,7 @@ namespace Oniun
     {
         if (m_Length == str.Length())
         {
-            if (Crt::Compare(m_Data.Ptr(), str.Data(), m_Length) == 0)
+            if (CRT::Compare(m_Data.Ptr(), str.Data(), m_Length) == 0)
                 return true;
         }
         return false;
@@ -595,14 +608,14 @@ namespace Oniun
         if (index != NO_POS)
         {
             if (searchLength == replaceLength)
-                Crt::Copy(m_Data.Ptr() + index, replace, replaceLength);
+                CRT::Copy(m_Data.Ptr() + index, replace, replaceLength);
             else
             {
                 uint64 oldLength = m_Length;
                 Resize(m_Length - searchLength + replaceLength);
-                Crt::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength,
+                CRT::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength,
                           (oldLength - index - searchLength));
-                Crt::Copy(m_Data.Ptr() + index, replace, replaceLength);
+                CRT::Copy(m_Data.Ptr() + index, replace, replaceLength);
                 m_Data[m_Length] = '\0';
             }
         }

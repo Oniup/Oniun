@@ -61,6 +61,9 @@ namespace Oniun
         int32 GetYPosition() const;
         void GetPosition(int32* x, int32* y) const;
 
+        void Maximize();
+        void Restore();
+
         StringView Title() const;
 
         GLFWmonitor* GetInternalCurrentMonitor() const;

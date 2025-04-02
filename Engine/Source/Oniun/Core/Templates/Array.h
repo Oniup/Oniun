@@ -337,7 +337,7 @@ namespace Oniun
             ASSERT(index <= m_Count);
             if (Resize(m_Count + 1))
             {
-                Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
+                CRT::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
                 Memory::ConstructItem(m_Data.Ptr() + index, value);
             }
         }
@@ -347,7 +347,7 @@ namespace Oniun
             ASSERT(index <= m_Count);
             if (Resize(m_Count + 1))
             {
-                Crt::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
+                CRT::Move(m_Data.Ptr() + index + 1, m_Data.Ptr() + index, sizeof(T) * (m_Count - index));
                 Memory::ConstructItem(m_Data.Ptr() + index, Memory::Move(value));
             }
         }
@@ -368,7 +368,7 @@ namespace Oniun
         {
             ASSERT(index <= m_Count);
             Memory::DestructItem(&m_Data[index]);
-            Crt::Move(m_Data.Ptr() + index, m_Data.Ptr() + index + 1, sizeof(T) * (m_Count - index - 1));
+            CRT::Move(m_Data.Ptr() + index, m_Data.Ptr() + index + 1, sizeof(T) * (m_Count - index - 1));
             Resize(m_Count - 1);
         }
 

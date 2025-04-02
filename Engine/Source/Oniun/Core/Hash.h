@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Oniun/Core/Memory/Crt.h"
+#include "Oniun/Core/Memory/CRT.h"
 #include "Oniun/Core/String/String.h"
 #include "Oniun/Core/Templates/Pair.h"
 #include "Oniun/Core/Templates/Slice.h"
@@ -65,7 +65,7 @@ namespace Oniun
     {
         FORCE_INLINE constexpr uint64 Get(const Slice<char>& slice) const
         {
-            return Hash_Internal::FnvHash(slice.Get(), slice.Length());
+            return Hash_Internal::FnvHash(slice.Data(), slice.Length());
         }
     };
 

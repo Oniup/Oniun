@@ -31,7 +31,7 @@ namespace Oniun
         };
         // Copy the name into buffer
         newEntry.Name.Resize(name.Length() + 1);
-        Crt::Copy(newEntry.Name.Data(), name.Data(), name.Length());
+        CRT::Copy(newEntry.Name.Data(), name.Data(), name.Length());
         newEntry.Name.Data()[newEntry.Name.Count() - 1] = '\0';
 
         // Search for existing
@@ -61,6 +61,18 @@ namespace Oniun
         if (entry)
             return Entity(entity, this);
         return Entity::Invalid;
+    }
+
+    Array<Pair<UUID, byte*>> Scene::GetAllEntitiesComponents(UUID entity)
+    {
+        Array<Pair<UUID, byte*>> components;
+        for (auto&[id, pool] : m_Pools)
+        {
+            byte* data = pool.Get(entity);
+            if (data)
+                components.Add(Pair<UUID, byte*>(id, data));
+        }
+        return components;
     }
 
     Pair<UUID, EntityEntry*> Scene::FindAsPair(const EntityEntry& name)

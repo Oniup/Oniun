@@ -1,16 +1,16 @@
-#include "Oniun/Core/Memory/Crt.h"
+#include "Oniun/Core/Memory/CRT.h"
 
 #define STB_SPRINTF_IMPLEMENTATION
 #include <stb/stb_sprintf.h>
 
 namespace Oniun
 {
-    uint64 Crt::Format(char* dest, uint64 destMaxLength, const char* format, va_list args)
+    uint64 CRT::Format(char* dest, uint64 destMaxLength, const char* format, va_list args)
     {
         return stbsp_vsnprintf(dest, destMaxLength, format, args);
     }
 
-    uint64 Crt::Format(char* dest, uint64 destMaxLength, const char* format, ...)
+    uint64 CRT::Format(char* dest, uint64 destMaxLength, const char* format, ...)
     {
         va_list args;
         va_start(args, format);

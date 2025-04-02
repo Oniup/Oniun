@@ -7,16 +7,20 @@
 namespace Oniun
 {
     Hierarchy::Hierarchy()
-        : IImGuiWindow("Hierarchy")
+        : IImGuiWindow("Hierarchy"), m_SelectedScene(nullptr)
     {
     }
 
     void Hierarchy::Draw()
     {
+        if (m_SelectedEntity != Entity::Invalid && !m_SelectedEntity.IsAlive())
+            m_SelectedEntity = Entity::Invalid;
+
+        // TODO: Check for the scene that is being displayed in the selected viewport window
         SceneLayer* layer = Engine::GetLayer<SceneLayer>();
         for (Scene& scene : layer->GetLoadedScenes())
         {
-            if (ImGui::CollapsingHeader(*scene.GetTitle(), ImGuiTreeNodeFlags_SpanFullWidth))
+            if (ImGui::CollapsingHeader(*scene.GetTitle(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen))
             {
                 for (auto&[uuid, entry] : scene)
                 {
@@ -37,9 +41,9 @@ namespace Oniun
         // Setting name
         char name[EntityEntry::MaxFullNameSize];
         if (entry.NameId > 0)
-            Crt::Format(name, EntityEntry::MaxFullNameSize, "%s%llu", entry.Name.Data(), entry.NameId);
+            CRT::Format(name, EntityEntry::MaxFullNameSize, "%s%llu", entry.Name.Data(), entry.NameId);
         else
-            Crt::Copy(name, entry.Name.Data(), entry.Name.Count());
+            CRT::Copy(name, entry.Name.Data(), entry.Name.Count());
 
         // Check if entity has any children
         Entity child = Entity(entity, scene).GetFirstChild();
@@ -52,6 +56,7 @@ namespace Oniun
         {
             if (ImGui::IsItemClicked((int32)MouseButton::Left))
             {
+                m_SelectedEntity = Entity(entity, scene);
                 if (ImGui::IsMouseDoubleClicked((int32)MouseButton::Left))
                 {
                     if (selectedIndex != NO_POS)

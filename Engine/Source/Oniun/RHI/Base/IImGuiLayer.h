@@ -2,7 +2,7 @@
 
 #include "Oniun/Core/EngineLayer.h"
 #include "Oniun/Core/Templates/Array.h"
-#include "Oniun/RHI/IImGuiWindow.h"
+#include "Oniun/Renderer/IImGuiWindow.h"
 
 namespace Oniun
 {
@@ -34,7 +34,7 @@ namespace Oniun
             return m_Windows;
         }
 
-        bool Register(IImGuiWindow* window);
+        IImGuiWindow* Register(IImGuiWindow* window);
         void OnStart() override;
 
         // TODO: Replace with the config
