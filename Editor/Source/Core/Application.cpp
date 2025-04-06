@@ -28,18 +28,6 @@
 
 namespace Oniun::Editor
 {
-    void TestShader()
-    {
-        Array<Pair<RHI::ShaderType, String>> sources;
-        sources.Add(RHI::Shader::GetSourceFromFile(StringView(ONIUN_RESOURCE_DIRECTORY "/Engine/Shaders/Phong.vert")));
-        sources.Add(RHI::Shader::GetSourceFromFile(StringView(ONIUN_RESOURCE_DIRECTORY "/Engine/Shaders/Phong.frag")));
-        for (auto&[type, src] : sources)
-            LOG(Info, "{}:\n{}", type, src);
-
-        RHI::Shader shader(RHI::Shader::CreateFromSource(sources));
-        shader.Destroy();
-    }
-
     void SetupTestScene()
     {
         Scene* scene = Engine::GetLayer<SceneLayer>()->LoadScene();
@@ -95,7 +83,6 @@ namespace Oniun::Editor
             EventDispatcher::AddListener<KeyPressedEvent>(callback);
         }
         SetupTestScene();
-        TestShader();
     }
 
     void Application::SetupCoreLayers()

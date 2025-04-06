@@ -119,8 +119,7 @@ namespace Oniun
             }
         }
 
-        constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength,
-                              uint64 offset = 0)
+        constexpr uint64 Find(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
         {
             if (searchLength > length)
                 return NO_POS;
@@ -142,8 +141,7 @@ namespace Oniun
             return NO_POS;
         }
 
-        constexpr uint64 FindIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
-                                        uint64 offset = 0)
+        constexpr uint64 FindIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
         {
             if (searchLength > length)
                 return NO_POS;
@@ -177,8 +175,7 @@ namespace Oniun
             return NO_POS;
         }
 
-        constexpr uint64 FindLast(const char* str, uint64 length, const char* search, uint64 searchLength,
-                                  uint64 offset = 0)
+        constexpr uint64 FindLast(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
         {
             if (searchLength > length)
                 return NO_POS;
@@ -200,8 +197,7 @@ namespace Oniun
             return NO_POS;
         }
 
-        constexpr uint64 FindLastIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength,
-                                            uint64 offset = 0)
+        constexpr uint64 FindLastIgnoreCase(const char* str, uint64 length, const char* search, uint64 searchLength, uint64 offset = 0)
         {
             if (searchLength > length)
                 return NO_POS;

@@ -97,10 +97,7 @@ namespace Oniun
 
     void File::Close()
     {
-        if (m_Owns&& m_Handle
-        !=
-        INVALID_HANDLE_VALUE
-        )
+        if (m_Owns && m_Handle != INVALID_HANDLE_VALUE)
         {
             CloseHandle(m_Handle);
             m_Handle = nullptr;
@@ -152,8 +149,7 @@ namespace Oniun
             GetFileTime(m_Handle, nullptr, nullptr, &lastWriteTime);
             FileTimeToSystemTime(&lastWriteTime, &sysTime);
 
-            return DateTime(sysTime.wSecond, sysTime.wMinute, sysTime.wHour, sysTime.wMonth, sysTime.wDay,
-                            sysTime.wYear);
+            return DateTime(sysTime.wSecond, sysTime.wMinute, sysTime.wHour, sysTime.wMonth, sysTime.wDay, sysTime.wYear);
         }
         return DateTime();
     }

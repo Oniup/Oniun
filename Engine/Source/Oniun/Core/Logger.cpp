@@ -47,8 +47,7 @@ namespace Oniun
         return nullptr;
     }
 
-    void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                           const StringView& userMessage)
+    void Logger::WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& userMessage)
     {
         String path(file);
         uint64 index = file.Find("Oniun");
@@ -76,9 +75,7 @@ namespace Oniun
     {
     }
 
-    void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
-                                  const StringView& function, int32 line, const StringView& userMessage,
-                                  const DateTime& time)
+    void TerminalLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function, int32 line, const StringView& userMessage, const DateTime& time)
     {
         File* stream = type > LogType::Info ? &m_ErrorStream : &m_StdStream;
         stream->Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
@@ -102,9 +99,7 @@ namespace Oniun
     {
     }
 
-    void FileLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file,
-                              const StringView& function, int32 line, const StringView& userMessage,
-                              const DateTime& time)
+    void FileLogOutput::Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function, int32 line, const StringView& userMessage, const DateTime& time)
     {
         m_Output.Write(formattedMessage.Data(), static_cast<uint32>(formattedMessage.Length()));
         m_Output.Flush();

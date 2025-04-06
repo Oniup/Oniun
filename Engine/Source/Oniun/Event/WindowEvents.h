@@ -40,7 +40,7 @@ namespace Oniun
             return m_IsClosing;
         }
 
-        FORCE_INLINE bool ShouldCancelClose()
+        FORCE_INLINE void ShouldCancelClose()
         {
             m_IsClosing = false;
         }

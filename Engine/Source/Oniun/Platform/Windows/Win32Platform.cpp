@@ -15,8 +15,7 @@ namespace Oniun
         uint32 errorCode = GetLastError();
         constexpr uint32 maxLength = 512;
         char buffer[maxLength];
-        DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode,
-                                      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
+        DWORD msgSize = FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer, maxLength, NULL);
         if (msgSize > 0)
             return Fmt::Format("Windows Error:{} => {}", errorCode, String(buffer, msgSize));
         return Fmt::Format("Windows Error:{} => Unknown", errorCode);

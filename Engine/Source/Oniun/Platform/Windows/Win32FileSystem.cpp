@@ -265,8 +265,7 @@ namespace Oniun
         return result;
     }
 
-    Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const StringView& filter,
-                                                 const StringView& title)
+    Array<String> FileSystem::OpenDialogMultiple(const StringView& openPath, const StringView& filter, const StringView& title)
     {
         Array<String> results;
         String buffer(200 * MAX_PATH);
@@ -277,8 +276,7 @@ namespace Oniun
         openFileName.lpstrFilter = filter.Data();
         openFileName.lpstrFile = buffer.Data();
         openFileName.nMaxFile = static_cast<DWORD>(buffer.Capacity());
-        openFileName.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_ENABLESIZING |
-            OFN_ALLOWMULTISELECT;
+        openFileName.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR | OFN_ENABLESIZING | OFN_ALLOWMULTISELECT;
         openFileName.lpstrTitle = title.Data();
         openFileName.lpstrInitialDir = openPath.Data();
 
@@ -364,8 +362,7 @@ namespace Oniun
         ShellExecuteA(handle, "explore", *openPath, nullptr, nullptr, SW_SHOWNORMAL);
     }
 
-    bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringView& path,
-                                           const StringView& searchPattern)
+    bool FileSystem::GetDirectoryFilesOnly(Array<String>& filePaths, const StringView& path, const StringView& searchPattern)
     {
         // Combine the path and the pattern into one string and initialize windows search handle
         WIN32_FIND_DATAA findData;
@@ -393,8 +390,7 @@ namespace Oniun
         return true;
     }
 
-    bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView& path,
-                                          const StringView& searchPattern)
+    bool FileSystem::GetDirectoryFilesAll(Array<String>& filePaths, const StringView& path, const StringView& searchPattern)
     {
         GetDirectoryFilesOnly(filePaths, path, searchPattern);
 

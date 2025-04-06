@@ -589,8 +589,7 @@ namespace Oniun
         return StringUtils::EndsWith(m_Data.Ptr(), m_Length, text.Data(), text.Length());
     }
 
-    uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char* replace, uint64 replaceLength,
-                                bool findFirst, StringSearch opt, uint64 offset)
+    uint64 String::ReplaceChars(const char* search, uint64 searchLength, const char* replace, uint64 replaceLength, bool findFirst, StringSearch opt, uint64 offset)
     {
         if (m_Length == 0 || searchLength == 0 || searchLength > m_Length)
             return NO_POS;
@@ -613,8 +612,7 @@ namespace Oniun
             {
                 uint64 oldLength = m_Length;
                 Resize(m_Length - searchLength + replaceLength);
-                CRT::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength,
-                          (oldLength - index - searchLength));
+                CRT::Move(m_Data.Ptr() + index + replaceLength, m_Data.Ptr() + index + searchLength, (oldLength - index - searchLength));
                 CRT::Copy(m_Data.Ptr() + index, replace, replaceLength);
                 m_Data[m_Length] = '\0';
             }
@@ -626,8 +624,7 @@ namespace Oniun
     {
         uint64 index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt);
         while (index != NO_POS)
-            index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt,
-                                 index + find.Length());
+            index = ReplaceChars(find.Data(), find.Length(), replace.Data(), replace.Length(), true, opt, index + find.Length());
     }
 
     void String::ReplaceFirst(const StringView& find, const StringView& replace, StringSearch opt)

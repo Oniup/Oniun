@@ -7,14 +7,12 @@
 namespace Oniun
 {
     ComponentPool::ComponentPool(const ComponentType& type)
-        : m_AllocationCount(0), m_Type(type),
-          m_BlockSize(Engine::GetLayer<SceneLayer>()->GetComponentPoolChunksPerBlockCount() * type.Size), m_Offset(m_BlockSize)
+        : m_AllocationCount(0), m_Type(type), m_BlockSize(Engine::GetLayer<SceneLayer>()->GetComponentPoolChunksPerBlockCount() * type.Size), m_Offset(m_BlockSize)
     {
     }
 
     ComponentPool::ComponentPool(ComponentPool&& pool)
-        : m_AllocationCount(pool.m_AllocationCount), m_Type(Memory::Move(pool.m_Type)),
-          m_BlockSize(pool.m_BlockSize), m_Offset(pool.m_Offset), m_Data(Memory::Move(pool.m_Data)),
+        : m_AllocationCount(pool.m_AllocationCount), m_Type(Memory::Move(pool.m_Type)),m_BlockSize(pool.m_BlockSize), m_Offset(pool.m_Offset), m_Data(Memory::Move(pool.m_Data)),
           m_EntityToComp(Memory::Move(pool.m_EntityToComp)), m_FreedLocations(Memory::Move(pool.m_FreedLocations))
     {
     }

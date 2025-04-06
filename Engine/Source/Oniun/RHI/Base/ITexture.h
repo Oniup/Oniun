@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Oniun/Renderer/GpuResource.h"
+
 namespace Oniun
 {
     enum class TextureMode
@@ -14,7 +16,7 @@ namespace Oniun
 
     enum class TextureFilter
     {
-        Invalid = -1,
+        None,
         Nearest,
         Linear,
         NearestMipmapNearest,
@@ -24,20 +26,22 @@ namespace Oniun
         MaxCount,
     };
 
-    struct ITexture
+    namespace RHI
     {
-        TextureMode Modes;
-        TextureFilter FilterMin;
-        TextureFilter FilterMag;
-        int32 Width;
-        int32 Height;
-        int32 Channels;
-
-        virtual ~ITexture()
+        class ITexture
         {
-        }
+        public:
+            virtual ~ITexture()
+            {
+            }
 
-        virtual void Destroy() = 0;
-        virtual bool IsValid() = 0;
-    };
+        public:
+            virtual void Destroy() = 0;
+            virtual bool IsValid() = 0;
+
+            virtual bool CreateFromImage(const uint8* imageData, ColorFormat format, int32 width, int32 height, TextureMode mode, TextureFilter filterMin, TextureFilter filterMag) = 0;
+            virtual bool CreateEmpty(ColorFormat format, int32 width, int32 height, TextureMode mode, TextureFilter filterMin, TextureFilter filterMag) = 0;
+            virtual bool LoadImage(const uint8* imageData, ColorFormat format, int32 width, int32 height, TextureMode mode, TextureFilter filterMin, TextureFilter filterMag) = 0;
+        };
+    }
 }

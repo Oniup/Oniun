@@ -7,14 +7,9 @@
 
 namespace Oniun::RHI
 {
-    Shader::Shader()
-        : GpuId(NO_POS)
+    Pair<ShaderStage, String> Shader::GetSourceFromFile(const StringView& path)
     {
-    }
-
-    Pair<ShaderType, String> Shader::GetSourceFromFile(const StringView& path)
-    {
-        Pair result(ShaderType::Invalid, String::Empty);
+        Pair result(ShaderStage::Invalid, String::Empty);
         File file(path, FileAccess::Read);
         if (!file.IsOpen())
             return result;
@@ -27,7 +22,7 @@ namespace Oniun::RHI
         Slice fileExt(FileSystem::GetFileExtensionFromPath(path));
         if (fileExt.IsEmpty())
         {
-            LOG(Error, "Failed to get shader source type from \"{}\" as it doesn't have a file extension", path);
+            LOG(Error, "Failed to get shader source stage from \"{}\" as it doesn't have a file extension", path);
             return result;
         }
 
@@ -37,51 +32,82 @@ namespace Oniun::RHI
             ".geom",
             ".comp"
         };
-        for (uint64 i = ShaderType::Vertex; i < ShaderType::MaxCount; ++i)
+        for (uint64 i = (uint64)ShaderStage::Vertex; i < (uint64)ShaderStage::MaxCount; ++i)
         {
             if (shaderExtensions[i] == StringView(fileExt))
             {
-                result.Key = (ShaderType)i;
+                result.Key = (ShaderStage)i;
                 result.Value = Memory::Move(src);
                 return result;
             }
         }
-        LOG(Error, "Invalid shader extension, unable to determine shader type from \"{}\"", path);
+        LOG(Error, "Invalid shader extension, unable to determine shader stage from \"{}\"", path);
         return result;
     }
 
-    Shader Shader::CreateFromSource(const Array<Pair<ShaderType, String>>& sources)
+    Shader::Shader()
+        : m_GpuId(NO_POS)
     {
-        Shader result;
-        Array<uint64> ids(sources.Count());
+    }
 
+    Shader::Shader(Shader&& shader)
+        : m_GpuId(shader.m_GpuId)
+    {
+        shader.m_GpuId = NO_POS;
+    }
+
+    Shader& Shader::operator=(Shader&& shader)
+    {
+        Destroy();
+        m_GpuId = shader.m_GpuId;
+        shader.m_GpuId = NO_POS;
+        return *this;
+    }
+
+    void Shader::Destroy()
+    {
+        if (m_GpuId != NO_POS)
+        {
+            glDeleteProgram(m_GpuId);
+            m_GpuId = NO_POS;
+        }
+    }
+
+    bool Shader::IsValid() const
+    {
+        return m_GpuId != NO_POS;
+    }
+
+    bool Shader::LoadFromSource(const Array<Pair<ShaderStage, String>>& sources)
+    {
+        Array<uint64> ids(sources.Count());
         auto destroyShaders = [&ids]()
         {
             for (uint64 shader : ids)
                 glDeleteShader(shader);
         };
 
-        for (auto&[type, src] : sources)
+        for (auto&[stage, src] : sources)
         {
             GLenum glType;
-            switch (type)
+            switch (stage)
             {
-            case Vertex:
+            case ShaderStage::Vertex:
                 glType = GL_VERTEX_SHADER;
                 break;
-            case Fragment:
+            case ShaderStage::Fragment:
                 glType = GL_FRAGMENT_SHADER;
                 break;
-            case Geometry:
+            case ShaderStage::Geometry:
                 glType = GL_GEOMETRY_SHADER;
                 break;
-            case Compute:
+            case ShaderStage::Compute:
                 glType = GL_COMPUTE_SHADER;
                 break;
             default:
-                LOG(Warning, "Cannot create shader, type is invalid");
+                LOG(Warning, "Cannot create shader, stage is invalid");
                 destroyShaders();
-                return Shader();
+                return false;
             }
 
             uint64 shader = glCreateShader(glType);
@@ -98,9 +124,9 @@ namespace Oniun::RHI
                 int32 logLength;
                 glGetShaderInfoLog(shader, maxLength, &logLength, buffer);
 
-                LOG(Error, "Failed to compile {} shader:\nOpenGL Error: {}\nSource:\n{}", type, StringView(buffer, logLength), src);
+                LOG(Error, "Failed to compile {} shader:\nOpenGL Error: {}\nSource:\n{}", stage, StringView(buffer, logLength), src);
                 destroyShaders();
-                return result;
+                return false;
             }
 
             ids.Add(shader);
@@ -121,90 +147,75 @@ namespace Oniun::RHI
             glGetProgramInfoLog(program, maxLength, &logLength, buffer);
 
             String sourceFiles;
-            for (auto&[type, src] : sources)
-                Fmt::FormatTo(sourceFiles, "{}:\n{}\n", type, src);
+            for (auto&[stage, src] : sources)
+                Fmt::FormatTo(sourceFiles, "{}:\n{}\n", stage, src);
             LOG(Error, "Failed to link shader program:\nOpenGL Error: {}\nSources:\n{}", StringView(buffer, logLength), sourceFiles);
             program = NO_POS;
         }
 
         destroyShaders();
-        result.GpuId = program;
-        return result;
+        m_GpuId = program;
+        return (bool)linked;
     }
 
-    Shader Shader::CreateFromBinary(const Array<Pair<ShaderType, Slice<char>>>& sources)
+    bool Shader::LoadFromBinary(const Array<Pair<ShaderStage, Slice<char>>>& sources)
     {
-        Shader shader;
         LOG(Fatal, "Implementation doesn't exist yet");
-        return shader;
-    }
-
-    void Shader::Destroy()
-    {
-        if (GpuId != NO_POS)
-        {
-            glDeleteProgram(GpuId);
-            GpuId = NO_POS;
-        }
-    }
-
-    bool Shader::IsValid() const
-    {
-        return GpuId != NO_POS;
+        return false;
     }
 
     void Shader::SetUniform(const StringView& location, int32 val)
     {
-        glUniform1i(glGetUniformLocation(GpuId, *location), val);
+        glUniform1i(glGetUniformLocation(m_GpuId, *location), val);
     }
 
     void Shader::SetUniform(const StringView& location, float val)
     {
-        glUniform1f(glGetUniformLocation(GpuId, *location), val);
+        glUniform1f(glGetUniformLocation(m_GpuId, *location), val);
     }
 
     void Shader::SetUniform(const StringView& location, glm::ivec2 vec)
     {
-        glUniform2iv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform2iv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::ivec3 vec)
     {
-        glUniform3iv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform3iv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::ivec4 vec)
     {
-        glUniform4iv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform4iv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::vec2 vec)
     {
-        glUniform2fv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform2fv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::vec3 vec)
     {
-        glUniform3fv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform3fv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::vec4 vec)
     {
-        glUniform4fv(glGetUniformLocation(GpuId, *location), 1, &vec[0]);
+        glUniform4fv(glGetUniformLocation(m_GpuId, *location), 1, &vec[0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::mat2 mat)
     {
-        glUniformMatrix2fv(glGetUniformLocation(GpuId, *location), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix2fv(glGetUniformLocation(m_GpuId, *location), 1, GL_FALSE, &mat[0][0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::mat3 mat)
     {
-        glUniformMatrix3fv(glGetUniformLocation(GpuId, *location), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix3fv(glGetUniformLocation(m_GpuId, *location), 1, GL_FALSE, &mat[0][0]);
     }
 
     void Shader::SetUniform(const StringView& location, glm::mat4 mat)
     {
-        glUniformMatrix4fv(glGetUniformLocation(GpuId, *location), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(m_GpuId, *location), 1, GL_FALSE, &mat[0][0]);
     }
 }

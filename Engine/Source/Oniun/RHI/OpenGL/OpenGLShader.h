@@ -1,23 +1,32 @@
 #pragma once
 
+#include "Oniun/Renderer/GpuResource.h"
 #include "Oniun/RHI/Base/IShader.h"
 
 namespace Oniun::RHI
 {
-    struct Shader : IShader
+    class Shader : public IShader
     {
-        uint64 GpuId;
-
-        Shader();
-
+    public:
         // TODO: Move to asset manager later
-        static Pair<ShaderType, String> GetSourceFromFile(const StringView& path);
+        static Pair<ShaderStage, String> GetSourceFromFile(const StringView& path);
 
-        static Shader CreateFromSource(const Array<Pair<ShaderType, String>>& sources);
-        static Shader CreateFromBinary(const Array<Pair<ShaderType, Slice<char>>>& sources);
+    public:
+        Shader();
+        Shader(Shader&& shader);
+        Shader& operator=(Shader&& shader);
 
+    public:
         void Destroy() override;
         bool IsValid() const override;
+
+        bool LoadFromSource(const Array<Pair<ShaderStage, String>>& sources) override;
+        bool LoadFromBinary(const Array<Pair<ShaderStage, Slice<char>>>& sources) override;
+
+        FORCE_INLINE uint32 GetGpuId() const
+        {
+            return m_GpuId;
+        }
 
         void SetUniform(const StringView& location, int32 val);
         void SetUniform(const StringView& location, float val);
@@ -33,5 +42,8 @@ namespace Oniun::RHI
         void SetUniform(const StringView& location, glm::mat2 mat);
         void SetUniform(const StringView& location, glm::mat3 mat);
         void SetUniform(const StringView& location, glm::mat4 mat);
+
+    private:
+        uint32 m_GpuId;
     };
 }

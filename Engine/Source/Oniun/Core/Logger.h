@@ -36,9 +36,7 @@ namespace Oniun
             return m_Name;
         }
 
-        virtual void Write(LogType type, const StringView& formattedMessage, const StringView& file,
-                           const StringView& function, int32 line, const StringView& userMessage,
-                           const DateTime& time) = 0;
+        virtual void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function, int32 line, const StringView& userMessage, const DateTime& time) = 0;
 
     private:
         String m_Name;
@@ -51,15 +49,13 @@ namespace Oniun
         ~Logger();
 
     public:
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
-                          const StringView& format)
+        static void Write(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& format)
         {
             m_Instance->WriteImpl(type, file, function, line, format);
         }
 
         template <typename... TArgs>
-        static void Write(LogType type, const StringView& file, const StringView& function, int32 line,
-                          const StringView& format, const TArgs&... args)
+        static void Write(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& format, const TArgs&... args)
         {
             String usrMsg = Fmt::Format(format, args...);
             m_Instance->WriteImpl(type, file, function, line, usrMsg);
@@ -70,8 +66,7 @@ namespace Oniun
         static ILogOutput* GetOutput(const StringView& name);
 
     private:
-        void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line,
-                       const StringView& userMessage);
+        void WriteImpl(LogType type, const StringView& file, const StringView& function, int32 line, const StringView& userMessage);
 
     private:
         static Logger* m_Instance;
@@ -85,8 +80,7 @@ namespace Oniun
         ~TerminalLogOutput() override;
 
     public:
-        void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
-                   int32 line, const StringView& userMessage, const DateTime& time) override;
+        void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function, int32 line, const StringView& userMessage, const DateTime& time) override;
 
     private:
         File m_StdStream;
@@ -105,9 +99,7 @@ namespace Oniun
             return m_Path;
         }
 
-        void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function,
-                   int32 line, const StringView& userMessage, const DateTime& time) override;
-
+        void Write(LogType type, const StringView& formattedMessage, const StringView& file, const StringView& function, int32 line, const StringView& userMessage, const DateTime& time) override;
         void SetPath(const StringView& path);
 
     private:

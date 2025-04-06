@@ -2,7 +2,12 @@
 
 #include "Oniun/Core/EngineLayer.h"
 #include "Oniun/Renderer/Window.h"
+#include "Oniun/RHI/Context.h"
 #include "Oniun/RHI/ImGuiLayer.h"
+
+#include "Oniun/RHI/Shader.h"
+#include "Oniun/RHI/Texture.h"
+#include "Oniun/RHI/VertexBuffer.h"
 
 namespace Oniun
 {
@@ -38,10 +43,19 @@ namespace Oniun
     public:
         void SetImGuiWindowLayer(ImGuiLayer* layer);
 
+        void OnStart() override;
         void OnUpdate() override;
 
     private:
+        RHI::Context m_GraphicsContext;
         Window m_Window;
         ImGuiLayer* m_ImGuiLayer;
+
+        uint32 m_Framebuffer;
+        uint32 m_Renderbuffer;
+        RHI::Texture m_FramebufferTexture;
+        RHI::Shader m_Shader;
+        RHI::Texture m_Texture;
+        RHI::VertexBuffer m_VertexBuffer;
     };
 }
